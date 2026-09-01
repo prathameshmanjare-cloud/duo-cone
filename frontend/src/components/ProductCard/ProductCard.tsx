@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ProductCard as ProductCardT } from "../../lib/api";
@@ -10,6 +11,8 @@ import styles from "./ProductCard.module.css";
 export function ProductCard({ product }: { product: ProductCardT }) {
   const add = useCartStore((s) => s.add);
   const reduce = useReducedMotion();
+  const [imgOk, setImgOk] = useState(true);
+  const showImage = Boolean(product.image_url) && imgOk;
 
   return (
     <motion.div
@@ -18,8 +21,16 @@ export function ProductCard({ product }: { product: ProductCardT }) {
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
     >
       <Link to={`/product/${product.slug}`} className={styles.imageLink}>
-        {product.image_url ? (
-          <img src={product.image_url} alt={product.name} loading="lazy" width={280} height={280} className={styles.image} />
+        {showImage ? (
+          <img
+            src={product.image_url!}
+            alt={product.name}
+            loading="lazy"
+            width={280}
+            height={280}
+            className={styles.image}
+            onError={() => setImgOk(false)}
+          />
         ) : (
           <div className={styles.imagePlaceholder} aria-hidden="true"><IconSeal size={48} /></div>
         )}

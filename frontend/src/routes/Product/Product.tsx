@@ -17,6 +17,7 @@ export function Product() {
   const { slug = "" } = useParams<{ slug: string }>();
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [imgOk, setImgOk] = useState(true);
   const add = useCartStore((s) => s.add);
 
   const { data: product, isLoading, isError } = useQuery({
@@ -39,7 +40,8 @@ export function Product() {
     );
   }
 
-  const image = product.images[activeImage]?.url ?? product.image_url;
+  const image = (product.images[activeImage]?.url ?? product.image_url) || null;
+  const showImage = Boolean(image) && imgOk;
 
   return (
     <div className={styles.page}>
@@ -74,7 +76,17 @@ export function Product() {
       <div className={styles.grid}>
         <div className={styles.gallery}>
           <div className={styles.mainImage}>
-            {image ? <img src={image} alt={product.name} width={480} height={480} /> : <div className={styles.placeholder}><IconSeal size={96} /></div>}
+            {showImage ? (
+              <img
+                src={image!}
+                alt={product.name}
+                width={480}
+                height={480}
+                onError={() => setImgOk(false)}
+              />
+            ) : (
+              <div className={styles.placeholder}><IconSeal size={96} /></div>
+            )}
           </div>
           {product.images.length > 1 && (
             <div className={styles.thumbs}>
