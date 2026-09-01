@@ -24,7 +24,7 @@ services:
         value: "true"
       # add your Vercel URL(s) here, JSON array
       - key: CORS_ORIGINS
-        value: '["https://duo-cone.com","https://www.duo-cone.com"]'
+        value: '["https://duo-cone.vercel.app","https://duo-cone.com","https://www.duo-cone.com"]'
 
 databases:
   - name: duocone-db
