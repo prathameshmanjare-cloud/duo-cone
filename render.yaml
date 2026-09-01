@@ -20,6 +20,8 @@ services:
         value: "false"
       - key: AUTO_CREATE_TABLES
         value: "true"
+      - key: AUTO_SEED
+        value: "true"
       # add your Vercel URL(s) here, JSON array
       - key: CORS_ORIGINS
         value: '["https://duo-cone.com","https://www.duo-cone.com"]'

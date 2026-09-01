@@ -15,6 +15,8 @@ class Settings(BaseSettings):
 
     # run Base.metadata.create_all on startup (bridge until Alembic migrations exist)
     auto_create_tables: bool = False
+    # insert demo products on startup if the catalog is empty (hosts without a shell)
+    auto_seed: bool = False
 
     @field_validator("database_url", mode="before")
     @classmethod

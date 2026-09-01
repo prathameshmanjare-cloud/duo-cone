@@ -7,7 +7,8 @@ from fastapi.responses import JSONResponse
 
 from app.api.v1 import catalog, categories, products, rfq
 from app.config.settings import get_settings
-from app.db.session import Base, engine
+from app.db.seed_data import ensure_seed_data
+from app.db.session import Base, SessionLocal, engine
 
 # import models so metadata is populated before create_all
 from app.models import catalog as _catalog_models  # noqa: F401
@@ -19,10 +20,17 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    log = logging.getLogger("duocon")
     if settings.auto_create_tables:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        logging.getLogger("duocon").info("Ensured database tables exist")
+        log.info("Ensured database tables exist")
+    if settings.auto_seed:
+        try:
+            async with SessionLocal() as db:
+                await ensure_seed_data(db)
+        except Exception:  # noqa: BLE001 — never block startup on seeding
+            log.exception("Auto-seed failed")
     yield
 
 
