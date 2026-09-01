@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,11 +7,26 @@ from fastapi.responses import JSONResponse
 
 from app.api.v1 import catalog, categories, products, rfq
 from app.config.settings import get_settings
+from app.db.session import Base, engine
+
+# import models so metadata is populated before create_all
+from app.models import catalog as _catalog_models  # noqa: F401
+from app.models import commerce as _commerce_models  # noqa: F401
 
 logging.basicConfig(level=logging.INFO)
 settings = get_settings()
 
-app = FastAPI(title=settings.app_name, debug=settings.debug)
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    if settings.auto_create_tables:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logging.getLogger("duocon").info("Ensured database tables exist")
+    yield
+
+
+app = FastAPI(title=settings.app_name, debug=settings.debug, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

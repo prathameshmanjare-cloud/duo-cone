@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,6 +12,22 @@ class Settings(BaseSettings):
     debug: bool = True
 
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/duocone"
+
+    # run Base.metadata.create_all on startup (bridge until Alembic migrations exist)
+    auto_create_tables: bool = False
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _force_asyncpg(cls, v: str) -> str:
+        # managed hosts (Render/Neon/…) hand out `postgres://` or `postgresql://`;
+        # our async engine needs the asyncpg driver in the URL.
+        if not v:
+            return v
+        if v.startswith("postgres://"):
+            v = "postgresql://" + v[len("postgres://") :]
+        if v.startswith("postgresql://"):
+            v = "postgresql+asyncpg://" + v[len("postgresql://") :]
+        return v
 
     jwt_secret: str = "change-me-in-env"
     jwt_algorithm: str = "HS256"

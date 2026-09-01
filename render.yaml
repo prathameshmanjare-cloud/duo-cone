@@ -1,10 +1,12 @@
 services:
   - type: web
     name: duocone-api
-    env: docker
+    runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
+    plan: free
     healthCheckPath: /healthz
+    autoDeploy: true
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -14,7 +16,14 @@ services:
         generateValue: true
       - key: ENVIRONMENT
         value: production
+      - key: DEBUG
+        value: "false"
+      - key: AUTO_CREATE_TABLES
+        value: "true"
+      # add your Vercel URL(s) here, JSON array
+      - key: CORS_ORIGINS
+        value: '["https://duo-cone.com","https://www.duo-cone.com"]'
 
 databases:
   - name: duocone-db
-    plan: starter
+    plan: free
