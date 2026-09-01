@@ -1,0 +1,49 @@
+.hero {
+  background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg));
+  border-bottom: 1px solid var(--color-border);
+}
+.heroInner { max-width: 760px; margin: 0 auto; padding: var(--space-8) var(--space-4); text-align: center; }
+.heroInner h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: var(--space-4); color: var(--color-primary); }
+.heroInner p { color: var(--color-text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: var(--space-5); }
+.heroActions { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
+
+.badges {
+  max-width: var(--max-width); margin: 0 auto; padding: var(--space-6) var(--space-4);
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); text-align: center;
+}
+.badges strong { display: block; font-size: 1.4rem; color: var(--color-primary); }
+.badges span { font-size: 0.82rem; color: var(--color-text-muted); }
+
+.types { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-4) var(--space-6); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+.typeCard { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); background: var(--color-surface); }
+.typeCard h2 { color: var(--color-primary); margin-top: 0; }
+.typeCard a { display: inline-flex; align-items: center; gap: 6px; color: var(--color-primary); font-weight: 600; text-decoration: none; }
+.typeCard a:hover { gap: 10px; transition: gap var(--transition-fast); }
+
+.section { max-width: var(--max-width); margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.sectionHead { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-4); }
+.sectionHead a { display: inline-flex; align-items: center; gap: 6px; color: var(--color-primary); font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+.sectionHead a:hover { gap: 10px; transition: gap var(--transition-fast); }
+
+.segmentGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+.segmentCard { display: block; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); text-decoration: none; color: var(--color-text); transition: border-color var(--transition-base); }
+.segmentCard:hover { border-color: var(--color-primary); }
+.segmentCard h3 { margin: 0 0 var(--space-2); color: var(--color-primary); }
+.segmentCard p { margin: 0; color: var(--color-text-muted); font-size: 0.9rem; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+
+.brandRow { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.brandChip { border: 1px solid var(--color-border); border-radius: 999px; padding: var(--space-2) var(--space-4); font-size: 0.85rem; font-weight: 600; color: var(--color-text-muted); }
+
+.about { background: var(--color-primary); color: #fff; }
+.about > div { max-width: 700px; margin: 0 auto; padding: var(--space-7) var(--space-4); text-align: center; }
+.about h2 { margin-top: 0; }
+.about p { color: #dbe6ee; line-height: 1.6; margin-bottom: var(--space-4); }
+
+@media (max-width: 860px) {
+  .badges, .types, .segmentGrid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .badges, .types, .segmentGrid { grid-template-columns: 1fr; }
+}

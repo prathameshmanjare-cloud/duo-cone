@@ -1,0 +1,29 @@
+.page { max-width: var(--max-width); margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-8); }
+.topBar { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); }
+.topBar h1 { text-transform: capitalize; font-size: 1.4rem; margin: 0; }
+.filterToggle { display: none; align-items: center; gap: 6px; background: none; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 8px 12px; }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; gap: var(--space-6); align-items: start; }
+
+.filters { display: flex; flex-direction: column; gap: var(--space-5); position: sticky; top: calc(var(--header-height) + 16px); }
+.filters fieldset { border: none; padding: 0; margin: 0; }
+.filters legend { font-weight: 700; font-size: 0.85rem; margin-bottom: var(--space-2); }
+.filters label { display: flex; align-items: center; gap: var(--space-2); font-size: 0.88rem; margin-bottom: var(--space-1); }
+.priceInputs { display: flex; gap: var(--space-2); }
+.priceInputs input { width: 80px; padding: 6px; }
+
+.sortBar { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); font-size: 0.85rem; color: var(--color-text-muted); }
+.sortBar select { padding: 6px 8px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+
+.pagination { display: flex; justify-content: center; align-items: center; gap: var(--space-4); margin-top: var(--space-6); }
+.pagination button { padding: 8px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); cursor: pointer; }
+.pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  .filterToggle { display: inline-flex; }
+  .filters { display: none; position: static; }
+  .filtersOpen { display: flex; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+}

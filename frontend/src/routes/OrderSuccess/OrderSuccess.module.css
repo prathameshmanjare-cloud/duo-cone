@@ -1,0 +1,4 @@
+.page { max-width: 560px; margin: 0 auto; padding: var(--space-8) var(--space-4); text-align: center; }
+.check { width: 64px; height: 64px; border-radius: 50%; background: var(--color-success); color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-4); }
+.orderNo { font-family: var(--font-mono); }
+.actions { display: flex; gap: var(--space-3); justify-content: center; margin-top: var(--space-5); }

@@ -1,0 +1,2 @@
+.wrap { text-align: center; padding: var(--space-8) var(--space-4); color: var(--color-text-muted); }
+.wrap h3 { color: var(--color-text); margin-bottom: var(--space-2); }
