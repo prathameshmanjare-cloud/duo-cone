@@ -44,3 +44,4 @@ accessibility basics (skip link, semantic landmarks, focus states).
 
 Next: run `docker compose up -d db` + backend seed to see the catalog live, then tackle
 auth + checkout completion per the roadmap.
+# duo-cone
