@@ -20,7 +20,10 @@ const SEAL_TYPES = ["DF", "DO"];
 const PAGE_SIZE = 24;
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
+export function Shop({
+  categorySlug,
+  embedded = false,
+}: { categorySlug?: string; embedded?: boolean } = {}) {
   const reduce = useReducedMotion();
   const [params, setParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
@@ -28,6 +31,7 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
   const page = Number(params.get("page") ?? 1);
   const sort = params.get("sort") ?? "relevance";
   const sealType = params.get("seal_type") ?? undefined;
+  const brand = params.get("brand") ?? undefined;
   const priceMin = params.get("price_min") ?? undefined;
   const priceMax = params.get("price_max") ?? undefined;
 
@@ -37,7 +41,7 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
   useEffect(() => setMaxLocal(priceMax ?? ""), [priceMax]);
 
   const { data, isLoading, isError, isFetching, refetch } = useQuery({
-    queryKey: ["products", { categorySlug, page, sort, sealType, priceMin, priceMax }],
+    queryKey: ["products", { categorySlug, page, sort, sealType, brand, priceMin, priceMax }],
     queryFn: () =>
       api.listProducts({
         category: categorySlug,
@@ -45,6 +49,7 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
         page_size: PAGE_SIZE,
         sort,
         seal_type: sealType,
+        brand,
         price_min: priceMin ? Number(priceMin) * 100 : undefined,
         price_max: priceMax ? Number(priceMax) * 100 : undefined,
       }),
@@ -60,7 +65,7 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
 
   function clearAll() {
     const next = new URLSearchParams(params);
-    ["seal_type", "price_min", "price_max", "page"].forEach((k) => next.delete(k));
+    ["seal_type", "brand", "price_min", "price_max", "page"].forEach((k) => next.delete(k));
     setParams(next);
   }
 
@@ -76,6 +81,7 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
   const title = categorySlug ? categorySlug.replace(/-/g, " ") : "All products";
 
   const activeChips: { label: string; onClear: () => void }[] = [];
+  if (brand) activeChips.push({ label: brand, onClear: () => updateParam("brand", undefined) });
   if (sealType) activeChips.push({ label: `${sealType} Type`, onClear: () => updateParam("seal_type", undefined) });
   if (priceMin) activeChips.push({ label: `Min €${priceMin}`, onClear: () => updateParam("price_min", undefined) });
   if (priceMax) activeChips.push({ label: `Max €${priceMax}`, onClear: () => updateParam("price_max", undefined) });
@@ -157,16 +163,19 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
   );
 
   return (
-    <div className={styles.page}>
-      <Helmet>
-        <title>{categorySlug ? `${categorySlug} seals` : "Shop"} — DuoCon Mechanical Face Seals</title>
-      </Helmet>
-
-      <header className={styles.head}>
-        <span className={styles.kicker}>Catalog</span>
-        <h1>{title}</h1>
-        <p>Mechanical face seals (DF &amp; DO type) — filter by type and price.</p>
-      </header>
+    <div className={embedded ? styles.pageEmbedded : styles.page} id="products">
+      {!embedded && (
+        <>
+          <Helmet>
+            <title>{categorySlug ? `${categorySlug} seals` : "Shop"} — DuoCon Mechanical Face Seals</title>
+          </Helmet>
+          <header className={styles.head}>
+            <span className={styles.kicker}>Catalog</span>
+            <h1>{title}</h1>
+            <p>Mechanical face seals (DF &amp; DO type) — filter by type and price.</p>
+          </header>
+        </>
+      )}
 
       <div className={styles.layout}>
         <aside className={`${styles.filters} ${showFilters ? styles.filtersOpen : ""}`}>

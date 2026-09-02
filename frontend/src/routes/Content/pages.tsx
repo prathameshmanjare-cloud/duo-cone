@@ -1,18 +1,7 @@
 import { StaticPage } from "./StaticPage";
 
 export { About } from "./About";
-
-export const Technology = () => (
-  <StaticPage
-    title="Technology"
-    intro="Advanced materials and manufacturing for demanding sealing environments."
-    sections={[
-      { heading: "Materials", body: "Seal rings in NI-HARD (ASTM A532) or SAE 52100 high-carbon chromium alloy steel, hardened to 58–62 HRC for wear resistance." },
-      { heading: "Manufacturing", body: "Available in both casting and forged processes, tailored to load and application requirements." },
-      { heading: "Elastomers", body: "O-rings in NBR, FKM, Silicone or HNBR for compatibility with hydraulic fluid, fuel, or extreme temperature environments." },
-    ]}
-  />
-);
+export { Technology } from "./Technology";
 
 export const Industries = () => (
   <StaticPage

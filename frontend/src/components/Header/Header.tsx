@@ -14,7 +14,8 @@ import styles from "./Header.module.css";
 
 const NAV = [
   { to: "/shop", label: "Shop" },
-  { to: "/cross-reference", label: "Cross-Reference" },
+  { to: "/category/replacement", label: "Replacement" },
+  { to: "/category/aftermarket", label: "Aftermarket" },
   { to: "/industries", label: "Industries" },
   { to: "/technology", label: "Technology" },
   { to: "/about", label: "About" },
