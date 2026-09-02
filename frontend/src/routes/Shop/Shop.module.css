@@ -270,8 +270,8 @@
 /* ---------- grid ---------- */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+  gap: var(--space-5);
   transition: opacity 0.2s ease;
 }
 .gridBusy {
