@@ -1,16 +1,6 @@
 import { StaticPage } from "./StaticPage";
 
-export const About = () => (
-  <StaticPage
-    title="About DuoCon"
-    intro="German manufacturer for mechanical face seals — a reasonable, reliable player in the field of industrial sealing."
-    sections={[
-      { heading: "Our story", body: "DuoCon manufactures Duo Cone mechanical face seals (DF and DO type) for heavy machinery across mining, construction, agriculture, forestry, recycling and defense." },
-      { heading: "Why DuoCon", body: "Wide range of sizes, short delivery time, reasonable pricing and a top service level — with an Express Offer promise of RFQ within 24 hours and shipping within 72 hours." },
-      { heading: "Quality", body: "Every seal is made from top-quality, wear- and corrosion-resistant materials and backed by a 24-month warranty." },
-    ]}
-  />
-);
+export { About } from "./About";
 
 export const Technology = () => (
   <StaticPage

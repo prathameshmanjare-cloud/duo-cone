@@ -32,6 +32,8 @@ export function Home() {
 
       <StatBadges />
 
+      <AboutBlock />
+
       <SealTypes />
 
       <Reveal as="section" className={styles.section}>
@@ -69,8 +71,6 @@ export function Home() {
       )}
 
       <Industries />
-
-      <AboutBlock />
     </>
   );
 }

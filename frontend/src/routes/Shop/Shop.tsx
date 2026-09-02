@@ -1,19 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { api } from "../../lib/api";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { ProductGridSkeleton } from "../../components/Skeleton/Skeleton";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import { Button } from "../../components/Button/Button";
-import { IconChevronDown, IconChevronUp } from "../../components/Icon/Icon";
+import {
+  IconChevronDown,
+  IconChevronUp,
+  IconClose,
+  IconArrowRight,
+} from "../../components/Icon/Icon";
 import styles from "./Shop.module.css";
 
 const SEAL_TYPES = ["DF", "DO"];
 const PAGE_SIZE = 24;
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
+  const reduce = useReducedMotion();
   const [params, setParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
 
@@ -23,7 +31,12 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
   const priceMin = params.get("price_min") ?? undefined;
   const priceMax = params.get("price_max") ?? undefined;
 
-  const { data, isLoading, isError } = useQuery({
+  const [minLocal, setMinLocal] = useState(priceMin ?? "");
+  const [maxLocal, setMaxLocal] = useState(priceMax ?? "");
+  useEffect(() => setMinLocal(priceMin ?? ""), [priceMin]);
+  useEffect(() => setMaxLocal(priceMax ?? ""), [priceMax]);
+
+  const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["products", { categorySlug, page, sort, sealType, priceMin, priceMax }],
     queryFn: () =>
       api.listProducts({
@@ -45,7 +58,103 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
     setParams(next);
   }
 
+  function clearAll() {
+    const next = new URLSearchParams(params);
+    ["seal_type", "price_min", "price_max", "page"].forEach((k) => next.delete(k));
+    setParams(next);
+  }
+
+  function applyPrice() {
+    const next = new URLSearchParams(params);
+    minLocal ? next.set("price_min", minLocal) : next.delete("price_min");
+    maxLocal ? next.set("price_max", maxLocal) : next.delete("price_max");
+    next.delete("page");
+    setParams(next);
+  }
+
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
+  const title = categorySlug ? categorySlug.replace(/-/g, " ") : "All products";
+
+  const activeChips: { label: string; onClear: () => void }[] = [];
+  if (sealType) activeChips.push({ label: `${sealType} Type`, onClear: () => updateParam("seal_type", undefined) });
+  if (priceMin) activeChips.push({ label: `Min €${priceMin}`, onClear: () => updateParam("price_min", undefined) });
+  if (priceMax) activeChips.push({ label: `Max €${priceMax}`, onClear: () => updateParam("price_max", undefined) });
+
+  const gridVariants = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.04 } },
+  };
+  const itemVariants = reduce
+    ? { hidden: { opacity: 1 }, show: { opacity: 1 } }
+    : {
+        hidden: { opacity: 0, y: 18 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.4, ease } },
+      };
+
+  const FiltersBody = (
+    <>
+      <div className={styles.filterGroup}>
+        <span className={styles.filterLabel}>Seal type</span>
+        <div className={styles.segmented} role="group" aria-label="Seal type">
+          <button
+            type="button"
+            className={!sealType ? styles.segOn : undefined}
+            onClick={() => updateParam("seal_type", undefined)}
+          >
+            All
+          </button>
+          {SEAL_TYPES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={sealType === t ? styles.segOn : undefined}
+              onClick={() => updateParam("seal_type", t)}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.filterGroup}>
+        <span className={styles.filterLabel}>Price (€, excl. VAT)</span>
+        <div className={styles.priceRow}>
+          <div className={styles.priceField}>
+            <span>€</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="Min"
+              value={minLocal}
+              onChange={(e) => setMinLocal(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && applyPrice()}
+            />
+          </div>
+          <span className={styles.priceDash}>–</span>
+          <div className={styles.priceField}>
+            <span>€</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="Max"
+              value={maxLocal}
+              onChange={(e) => setMaxLocal(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && applyPrice()}
+            />
+          </div>
+        </div>
+        <button type="button" className={styles.applyBtn} onClick={applyPrice}>
+          Apply price
+        </button>
+      </div>
+
+      {activeChips.length > 0 && (
+        <button type="button" className={styles.clearAll} onClick={clearAll}>
+          Clear all filters
+        </button>
+      )}
+    </>
+  );
 
   return (
     <div className={styles.page}>
@@ -53,96 +162,144 @@ export function Shop({ categorySlug }: { categorySlug?: string } = {}) {
         <title>{categorySlug ? `${categorySlug} seals` : "Shop"} — DuoCon Mechanical Face Seals</title>
       </Helmet>
 
-      <div className={styles.topBar}>
-        <h1>{categorySlug ? categorySlug.replace(/-/g, " ") : "All products"}</h1>
-        <button className={styles.filterToggle} onClick={() => setShowFilters((v) => !v)}>
-          Filters {showFilters ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
-        </button>
-      </div>
+      <header className={styles.head}>
+        <span className={styles.kicker}>Catalog</span>
+        <h1>{title}</h1>
+        <p>Mechanical face seals (DF &amp; DO type) — filter by type and price.</p>
+      </header>
 
       <div className={styles.layout}>
         <aside className={`${styles.filters} ${showFilters ? styles.filtersOpen : ""}`}>
-          <fieldset>
-            <legend>Seal type</legend>
-            {SEAL_TYPES.map((t) => (
-              <label key={t}>
-                <input
-                  type="radio"
-                  name="seal_type"
-                  checked={sealType === t}
-                  onChange={() => updateParam("seal_type", t)}
-                />
-                {t} Type
-              </label>
-            ))}
-            <label>
-              <input type="radio" name="seal_type" checked={!sealType} onChange={() => updateParam("seal_type", undefined)} />
-              All
-            </label>
-          </fieldset>
-          <fieldset>
-            <legend>Price (€, excl. VAT)</legend>
-            <div className={styles.priceInputs}>
-              <input
-                type="number"
-                placeholder="Min"
-                defaultValue={priceMin}
-                onBlur={(e) => updateParam("price_min", e.target.value || undefined)}
-              />
-              <input
-                type="number"
-                placeholder="Max"
-                defaultValue={priceMax}
-                onBlur={(e) => updateParam("price_max", e.target.value || undefined)}
-              />
+          <div className={styles.filtersInner}>
+            <div className={styles.filtersHeadMobile}>
+              <span>Filters</span>
+              <button type="button" onClick={() => setShowFilters(false)} aria-label="Close filters">
+                <IconClose size={18} />
+              </button>
             </div>
-          </fieldset>
+            {FiltersBody}
+          </div>
         </aside>
 
         <div className={styles.results}>
-          <div className={styles.sortBar}>
-            <span>{data ? `${data.total} results` : "…"}</span>
-            <select value={sort} onChange={(e) => updateParam("sort", e.target.value)} aria-label="Sort products">
-              <option value="relevance">Sort: Relevance</option>
-              <option value="latest">Newest</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-            </select>
+          <div className={styles.toolbar}>
+            <div className={styles.toolbarLeft}>
+              <button
+                type="button"
+                className={styles.filterToggle}
+                onClick={() => setShowFilters((v) => !v)}
+              >
+                Filters {showFilters ? <IconChevronUp size={15} /> : <IconChevronDown size={15} />}
+              </button>
+              <span className={styles.count}>
+                {data ? `${data.total} result${data.total === 1 ? "" : "s"}` : "Loading…"}
+              </span>
+              <div className={styles.chips}>
+                {activeChips.map((c) => (
+                  <button key={c.label} type="button" className={styles.chip} onClick={c.onClear}>
+                    {c.label}
+                    <IconClose size={12} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <label className={styles.sort}>
+              <span>Sort</span>
+              <select value={sort} onChange={(e) => updateParam("sort", e.target.value)} aria-label="Sort products">
+                <option value="relevance">Relevance</option>
+                <option value="latest">Newest</option>
+                <option value="price_asc">Price: low to high</option>
+                <option value="price_desc">Price: high to low</option>
+              </select>
+              <IconChevronDown size={15} />
+            </label>
           </div>
 
-          {isLoading && <ProductGridSkeleton />}
+          {isLoading && <ProductGridSkeleton count={12} />}
 
           {isError && (
             <EmptyState
               title="Couldn't load products"
               description="Something went wrong reaching the catalog. Please try again."
-              action={<Button onClick={() => window.location.reload()}>Retry</Button>}
+              action={<Button onClick={() => refetch()}>Retry</Button>}
             />
           )}
 
           {data && data.items.length === 0 && (
             <EmptyState
-              title="No products found"
+              title="No products match"
               description="Try clearing filters, or use our cross-reference tool with your OEM part number."
+              action={
+                activeChips.length > 0 ? (
+                  <Button variant="ghost" onClick={clearAll}>
+                    Clear filters
+                  </Button>
+                ) : undefined
+              }
             />
           )}
 
           {data && data.items.length > 0 && (
             <>
-              <div className={styles.grid}>
+              <motion.div
+                key={page + sort + (sealType ?? "") + (priceMin ?? "") + (priceMax ?? "")}
+                className={`${styles.grid} ${isFetching ? styles.gridBusy : ""}`}
+                variants={gridVariants}
+                initial="hidden"
+                animate="show"
+              >
                 {data.items.map((p) => (
-                  <ProductCard key={p.id} product={p} />
+                  <motion.div key={p.id} variants={itemVariants}>
+                    <ProductCard product={p} />
+                  </motion.div>
                 ))}
-              </div>
-              <div className={styles.pagination}>
-                <button disabled={page <= 1} onClick={() => updateParam("page", String(page - 1))}>← Prev</button>
-                <span>Page {page} of {totalPages}</span>
-                <button disabled={page >= totalPages} onClick={() => updateParam("page", String(page + 1))}>Next →</button>
-              </div>
+              </motion.div>
+
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    className={styles.pageBtn}
+                    disabled={page <= 1}
+                    onClick={() => updateParam("page", String(page - 1))}
+                    aria-label="Previous page"
+                  >
+                    <span className={styles.flip}>
+                      <IconArrowRight size={16} />
+                    </span>
+                    Prev
+                  </button>
+                  <span className={styles.pageInfo}>
+                    Page <b>{page}</b> of {totalPages}
+                  </span>
+                  <button
+                    className={styles.pageBtn}
+                    disabled={page >= totalPages}
+                    onClick={() => updateParam("page", String(page + 1))}
+                    aria-label="Next page"
+                  >
+                    Next
+                    <IconArrowRight size={16} />
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
       </div>
+
+      <AnimatePresence>
+        {showFilters && (
+          <motion.button
+            type="button"
+            className={styles.scrim}
+            aria-label="Close filters"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowFilters(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,0 +1,340 @@
+.wrap {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-4) var(--space-8);
+}
+
+/* ---------- hero ---------- */
+.hero {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(var(--space-5), 5vw, var(--space-8));
+  align-items: center;
+}
+
+.copy > * {
+  opacity: 0;
+  transform: translateY(22px);
+}
+.hero.in .copy > * {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero.in .copy > *:nth-child(1) { animation-delay: 0.03s; }
+.hero.in .copy > *:nth-child(2) { animation-delay: 0.1s; }
+.hero.in .copy > *:nth-child(3) { animation-delay: 0.17s; }
+.hero.in .copy > *:nth-child(4) { animation-delay: 0.24s; }
+.hero.in .copy > *:nth-child(5) { animation-delay: 0.31s; }
+.hero.in .copy > *:nth-child(6) { animation-delay: 0.38s; }
+.hero.in .copy > *:nth-child(7) { animation-delay: 0.45s; }
+
+.kicker {
+  display: inline-block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+.copy h1 {
+  margin: 0 0 var(--space-5);
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  line-height: 1.08;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--color-tertiary);
+}
+.copy h1 span {
+  color: var(--color-primary);
+  position: relative;
+  white-space: nowrap;
+}
+.copy h1 span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5px;
+  height: 9px;
+  background: var(--color-secondary);
+  opacity: 0.4;
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.hero.in .copy h1 span::after {
+  animation: sweep 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+}
+.copy p {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  max-width: 52ch;
+}
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-4);
+}
+
+/* ---------- visual collage ---------- */
+.visual {
+  position: relative;
+  aspect-ratio: 1 / 1.02;
+}
+.photo {
+  position: absolute;
+  inset: 0 12% 18% 0;
+  margin: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px -40px rgba(0, 28, 58, 0.5);
+  opacity: 0;
+  transform: translateY(26px) scale(0.97);
+}
+.hero.in .photo {
+  animation: pop 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blueprint {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 62%;
+  aspect-ratio: 4 / 3.2;
+  margin: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 20% 0%, #123a63 0%, #0b2544 55%, #071a30 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 60px -30px rgba(0, 20, 42, 0.6);
+  opacity: 0;
+  transform: translateY(26px) scale(0.97);
+}
+.hero.in .blueprint {
+  animation: pop 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both;
+}
+.bpGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(130% 100% at 50% 40%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(130% 100% at 50% 40%, #000 55%, transparent 100%);
+}
+.bpRing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 66%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(120, 180, 255, 0.4);
+}
+.bpRing::after {
+  content: "";
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  border: 1px solid rgba(253, 196, 0, 0.3);
+}
+.bpProduct {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 54%;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.5));
+}
+.bpTag {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: rgba(180, 210, 255, 0.85);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(4, 14, 28, 0.6);
+  border: 1px solid rgba(120, 180, 255, 0.25);
+}
+
+.badge {
+  position: absolute;
+  top: 4%;
+  left: -3%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 16px 34px -16px rgba(0, 28, 58, 0.4);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--color-tertiary);
+  opacity: 0;
+}
+.hero.in .badge {
+  animation: pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+}
+.flag {
+  width: 18px;
+  height: 12px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #111 0 33.3%, #d7141a 33.3% 66.6%, #ffce00 66.6% 100%);
+}
+
+/* ---------- values row ---------- */
+.values {
+  margin-top: clamp(var(--space-7), 8vw, var(--space-8));
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+.value {
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease, border-color 0.35s ease;
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff, #f6f9fc);
+}
+.values.in .value {
+  opacity: 1;
+  transform: translateY(0);
+}
+.value:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  box-shadow: 0 26px 50px -26px rgba(7, 84, 154, 0.45);
+}
+
+.valueBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.value:hover .valueBar {
+  transform: scaleX(1);
+}
+
+.valueTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.valueIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
+  transition: background 0.35s ease, color 0.35s ease, transform 0.35s ease;
+}
+.value:hover .valueIcon {
+  background: var(--color-primary);
+  color: #fff;
+  transform: rotate(-6deg);
+}
+.valueNum {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--color-tertiary) 16%, transparent);
+}
+.value strong {
+  display: block;
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--color-tertiary);
+  margin-bottom: 5px;
+}
+.value > span:last-child {
+  display: block;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* ---------- keyframes ---------- */
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes sweep {
+  to { transform: scaleX(1); }
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 940px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .visual {
+    max-width: 480px;
+    margin: var(--space-4) auto 0;
+    order: 2;
+  }
+  .values {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .values {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy > *,
+  .hero.in .copy > *,
+  .photo,
+  .blueprint,
+  .badge,
+  .hero.in .photo,
+  .hero.in .blueprint,
+  .hero.in .badge {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .value {
+    transition: none;
+  }
+}

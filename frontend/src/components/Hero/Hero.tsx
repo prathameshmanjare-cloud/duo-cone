@@ -1,90 +1,14 @@
-import { useRef } from "react";
 import { Link } from "react-router-dom";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useMotionValue,
-  useReducedMotion,
-} from "framer-motion";
 import { Button } from "../Button/Button";
 import { IconArrowRight } from "../Icon/Icon";
+import { SealCanvas } from "./SealCanvas";
 import styles from "./Hero.module.css";
 
 export function Hero() {
-  const reduce = useReducedMotion();
-  const sectionRef = useRef<HTMLElement>(null);
-
-  // scroll -> the ring turns like a real wheel (clockwise, left to right)
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-  const spinZ = useSpring(useTransform(scrollYProgress, [0, 1], [0, 320]), {
-    stiffness: 80,
-    damping: 20,
-    mass: 0.4,
-  });
-
-  // pointer parallax -> the ring leans toward the cursor like a physical object
-  const px = useMotionValue(0);
-  const py = useMotionValue(0);
-  const rotX = useSpring(useTransform(py, [-0.5, 0.5], [16, -16]), {
-    stiffness: 120,
-    damping: 16,
-  });
-  const rotY = useSpring(useTransform(px, [-0.5, 0.5], [-22, 22]), {
-    stiffness: 120,
-    damping: 16,
-  });
-  const glowX = useTransform(px, [-0.5, 0.5], ["36%", "64%"]);
-  const glowY = useTransform(py, [-0.5, 0.5], ["34%", "62%"]);
-
-  function onPointerMove(e: React.PointerEvent) {
-    if (reduce) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    px.set((e.clientX - r.left) / r.width - 0.5);
-    py.set((e.clientY - r.top) / r.height - 0.5);
-  }
-  function onPointerLeave() {
-    px.set(0);
-    py.set(0);
-  }
-
   return (
-    <section
-      className={styles.hero}
-      ref={sectionRef}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
-    >
+    <section className={styles.hero}>
       <div className={styles.stage} aria-hidden="true">
-        <div className={styles.scene}>
-          {/* idle bob (CSS) */}
-          <div className={styles.bob}>
-            {/* pointer tilt (JS) */}
-            <motion.div
-              className={styles.tilt}
-              style={
-                reduce
-                  ? undefined
-                  : { rotateX: rotX, rotateY: rotY, transformPerspective: 1400 }
-              }
-            >
-              <motion.img
-                src="/hero-bg.svg"
-                alt=""
-                className={styles.bg}
-                style={reduce ? undefined : { rotate: spinZ }}
-              />
-              <motion.span
-                className={styles.specular}
-                style={reduce ? undefined : { left: glowX, top: glowY }}
-              />
-            </motion.div>
-          </div>
-        </div>
+        <SealCanvas className={styles.canvas} />
         <div className={styles.vignette} />
       </div>
 

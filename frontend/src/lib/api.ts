@@ -80,6 +80,8 @@ export const api = {
   search: (q: string) => request<ProductCard[]>(`/search?q=${encodeURIComponent(q)}`),
   submitRfq: (payload: unknown) =>
     request<{ id: string; number: string }>(`/rfq`, { method: "POST", body: JSON.stringify(payload) }),
+  submitContact: (payload: unknown) =>
+    request<{ id: string }>(`/contact`, { method: "POST", body: JSON.stringify(payload) }),
 };
 
 export { ApiError };
