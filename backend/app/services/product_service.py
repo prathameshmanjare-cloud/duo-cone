@@ -11,15 +11,26 @@ from app.schemas.product import (
 
 settings = get_settings()
 
+# generic per-type artwork served from the frontend's /public folder
+_DEFAULT_IMAGE = {
+    "DF": "/product-images/df.png",
+    "DO": "/product-images/do.png",
+    "other": "/product-images/df.png",
+}
+
 
 def _image_url(path: str) -> str:
-    if path.startswith("http"):
+    if path.startswith(("http", "/")):
         return path
     return settings.image_base_url.rstrip("/") + "/" + path.lstrip("/")
 
 
 def to_card(product: Product) -> ProductCardOut:
-    cover = product.images[0].url if product.images else None
+    cover = (
+        product.images[0].url
+        if product.images
+        else _DEFAULT_IMAGE.get(product.seal_type.value)
+    )
     in_stock = product.inventory.stock_qty > 0 if product.inventory else True
     return ProductCardOut(
         id=product.id,
