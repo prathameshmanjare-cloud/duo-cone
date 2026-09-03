@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 import openpyxl
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -184,7 +184,14 @@ async def run(args: argparse.Namespace) -> None:
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("Ensured tables exist")
+        # bridge columns added after a table already existed on a managed host
+        await conn.execute(
+            text(
+                "ALTER TABLE products ADD COLUMN IF NOT EXISTS "
+                "is_rfq_only boolean NOT NULL DEFAULT false"
+            )
+        )
+    print("Ensured tables + columns exist")
 
     created = updated = 0
     async with SessionLocal() as db:
