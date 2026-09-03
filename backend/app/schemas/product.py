@@ -41,6 +41,7 @@ class ProductCardOut(BaseModel):
     sale_price_cents: int | None = None
     currency: str
     in_stock: bool = True
+    is_rfq_only: bool = False
     image_url: str | None = None
     brand: BrandOut | None = None
 

@@ -184,6 +184,20 @@
   font-size: 0.72rem;
   color: var(--color-text-muted);
 }
+.onRequest {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-tertiary);
+}
+.quoteBtn {
+  background: var(--color-secondary);
+  color: var(--color-tertiary);
+  text-decoration: none;
+}
+.quoteBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px -14px color-mix(in srgb, var(--color-secondary) 80%, transparent);
+}
 
 .addBtn {
   margin-top: auto;

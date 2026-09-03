@@ -25,7 +25,9 @@ from sqlalchemy import select
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from app.db.session import SessionLocal  # noqa: E402
+from app.db.session import Base, SessionLocal, engine  # noqa: E402
+from app.models import catalog as _catalog  # noqa: E402,F401  (register tables)
+from app.models import commerce as _commerce  # noqa: E402,F401
 from app.models.catalog import (  # noqa: E402
     BackorderPolicy,
     Brand,
@@ -94,13 +96,20 @@ def build_description(raw: str | None) -> tuple[str | None, str | None]:
     return short, html
 
 
-def price_to_cents(value) -> int:
+def price_to_cents(value) -> tuple[int, bool]:
+    """Return (cents, is_rfq_only). Non-numeric price -> quote-only."""
     if value in (None, ""):
-        return 0
+        return 0, True
+    if isinstance(value, str):
+        cleaned = value.strip().replace(",", ".")
+        try:
+            return int(round(float(cleaned) * 100)), False
+        except ValueError:
+            return 0, True
     try:
-        return int(round(float(value) * 100))
+        return int(round(float(value) * 100)), False
     except (TypeError, ValueError):
-        return 0
+        return 0, True
 
 
 def in_stock_from(value) -> bool:
@@ -167,6 +176,10 @@ async def run(args: argparse.Namespace) -> None:
             print(" -", row["manufacturer"], row["article"], "|", row["title"][:60], "| EUR", row["price"])
         return
 
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    print("Ensured tables exist")
+
     created = updated = 0
     async with SessionLocal() as db:
         cat_ids = await ensure_categories(db)
@@ -221,7 +234,9 @@ async def run(args: argparse.Namespace) -> None:
             product.short_description = short_desc
             product.description_html = html
             product.internal_code = row["internal_code"]
-            product.price_cents = price_to_cents(row["price"])
+            cents, rfq_only = price_to_cents(row["price"])
+            product.price_cents = cents
+            product.is_rfq_only = rfq_only
             product.currency = "EUR"
             product.is_active = True
             await db.flush()

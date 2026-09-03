@@ -66,30 +66,42 @@ export function ProductCard({ product }: { product: ProductCardT }) {
         <span className={styles.sku}>{product.sku}</span>
 
         <div className={styles.priceRow}>
-          <Price
-            cents={product.price_cents}
-            salePriceCents={product.sale_price_cents}
-            currency={product.currency}
-          />
-          <span className={styles.vat}>excl. VAT</span>
+          {product.is_rfq_only ? (
+            <span className={styles.onRequest}>Price on request</span>
+          ) : (
+            <>
+              <Price
+                cents={product.price_cents}
+                salePriceCents={product.sale_price_cents}
+                currency={product.currency}
+              />
+              <span className={styles.vat}>excl. VAT</span>
+            </>
+          )}
         </div>
 
-        <button
-          type="button"
-          className={`${styles.addBtn} ${added ? styles.addedBtn : ""}`}
-          disabled={!product.in_stock}
-          onClick={onAdd}
-        >
-          {added ? (
-            <>
-              <IconCheck size={16} /> Added
-            </>
-          ) : product.in_stock ? (
-            "Add to cart"
-          ) : (
-            "Request lead time"
-          )}
-        </button>
+        {product.is_rfq_only ? (
+          <Link to="/rfq" className={`${styles.addBtn} ${styles.quoteBtn}`}>
+            Request a quote <IconArrowRight size={15} />
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className={`${styles.addBtn} ${added ? styles.addedBtn : ""}`}
+            disabled={!product.in_stock}
+            onClick={onAdd}
+          >
+            {added ? (
+              <>
+                <IconCheck size={16} /> Added
+              </>
+            ) : product.in_stock ? (
+              "Add to cart"
+            ) : (
+              "Request lead time"
+            )}
+          </button>
+        )}
       </div>
     </motion.article>
   );

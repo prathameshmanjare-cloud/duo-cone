@@ -17,6 +17,7 @@ export interface ProductCard {
   sale_price_cents?: number | null;
   currency: string;
   in_stock: boolean;
+  is_rfq_only?: boolean;
   image_url?: string | null;
   brand?: Brand | null;
 }

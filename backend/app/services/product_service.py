@@ -31,6 +31,7 @@ def to_card(product: Product) -> ProductCardOut:
         sale_price_cents=product.sale_price_cents,
         currency=product.currency,
         in_stock=in_stock,
+        is_rfq_only=product.is_rfq_only,
         image_url=_image_url(cover) if cover else None,
         brand=BrandOut.model_validate(product.brand) if product.brand else None,
     )

@@ -140,15 +140,18 @@ export function SegmentPage({ slug }: { slug: string }) {
           </Link>
         </div>
         <div className={styles.brandGrid}>
-          {seg.brands.map((b, i) => (
-            <BrandTile
-              key={b}
-              name={b}
-              featured={i === 0}
-              active={activeBrand?.toLowerCase() === b.toLowerCase()}
-              to={`/category/${seg.slug}?brand=${encodeURIComponent(b)}#products`}
-            />
-          ))}
+          {seg.brands.map((b, i) => {
+            const bslug = b.toLowerCase().replace(/\s+/g, "-");
+            return (
+              <BrandTile
+                key={b}
+                name={b}
+                featured={i === 0}
+                active={activeBrand === bslug}
+                to={`/category/${seg.slug}?brand=${bslug}#products`}
+              />
+            );
+          })}
         </div>
       </section>
 

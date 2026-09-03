@@ -81,7 +81,11 @@ export function Shop({
   const title = categorySlug ? categorySlug.replace(/-/g, " ") : "All products";
 
   const activeChips: { label: string; onClear: () => void }[] = [];
-  if (brand) activeChips.push({ label: brand, onClear: () => updateParam("brand", undefined) });
+  if (brand)
+    activeChips.push({
+      label: brand.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      onClear: () => updateParam("brand", undefined),
+    });
   if (sealType) activeChips.push({ label: `${sealType} Type`, onClear: () => updateParam("seal_type", undefined) });
   if (priceMin) activeChips.push({ label: `Min €${priceMin}`, onClear: () => updateParam("price_min", undefined) });
   if (priceMax) activeChips.push({ label: `Max €${priceMax}`, onClear: () => updateParam("price_max", undefined) });
