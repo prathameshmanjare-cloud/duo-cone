@@ -5,14 +5,22 @@ import { IconArrowRight } from "../../components/Icon/Icon";
 import { Shop } from "./Shop";
 import styles from "./SegmentPage.module.css";
 
+type Tile = { label: string; value: string };
 type Segment = {
   slug: string;
   title: string;
   kicker: string;
   intro: string;
-  brandsLabel: string;
-  brands: string[];
+  metaWord: string;
+  facet: "brand" | "seal_type";
+  tilesLabel: string;
+  tiles: Tile[];
 };
+
+const brand = (name: string): Tile => ({
+  label: name,
+  value: name.toLowerCase().replace(/\s+/g, "-"),
+});
 
 const SEGMENTS: Record<string, Segment> = {
   replacement: {
@@ -21,8 +29,10 @@ const SEGMENTS: Record<string, Segment> = {
     kicker: "Catalog · Replacement",
     intro:
       "Seal-brand originals — mechanical face seals matched to the specifications of the leading seal manufacturers. Fast delivery, shipping within 72 hours.",
-    brandsLabel: "Shop by seal brand",
-    brands: ["Goetze", "Trelleborg", "Nuova Sjat", "GNL", "SKF", "Eagle Burgmann"],
+    metaWord: "seal brands",
+    facet: "brand",
+    tilesLabel: "Shop by seal brand",
+    tiles: ["Goetze", "Trelleborg", "Nuova Sjat", "GNL", "SKF", "Eagle Burgmann"].map(brand),
   },
   aftermarket: {
     slug: "aftermarket",
@@ -30,8 +40,10 @@ const SEGMENTS: Record<string, Segment> = {
     kicker: "Catalog · Aftermarket",
     intro:
       "Mechanical face seals that fit the leading OEM machines — a direct aftermarket alternative for construction, mining, agriculture and earthmoving equipment. Fast delivery, shipping within 72 hours.",
-    brandsLabel: "Shop by OEM machine",
-    brands: [
+    metaWord: "OEM fitments",
+    facet: "brand",
+    tilesLabel: "Shop by OEM machine",
+    tiles: [
       "Caterpillar",
       "CNHI",
       "Hitachi",
@@ -49,17 +61,32 @@ const SEGMENTS: Record<string, Segment> = {
       "Hanomag",
       "Hydromac",
       "Benati",
+    ].map(brand),
+  },
+  "duo-cone": {
+    slug: "duo-cone",
+    title: "Duo Cone",
+    kicker: "Catalog · Duo Cone",
+    intro:
+      "Our Duo Cone mechanical face seals by outer-diameter type — DF and DO, plus universal fitments. Made from wear- and corrosion-resistant materials. Fast delivery, shipping within 72 hours.",
+    metaWord: "seal types",
+    facet: "seal_type",
+    tilesLabel: "Shop by seal type",
+    tiles: [
+      { label: "DF Type", value: "DF" },
+      { label: "DO Type", value: "DO" },
+      { label: "Universal", value: "other" },
     ],
   },
 };
 
-function BrandTile({
-  name,
+function TileCard({
+  label,
   to,
   active,
   featured,
 }: {
-  name: string;
+  label: string;
   to: string;
   active: boolean;
   featured?: boolean;
@@ -69,7 +96,7 @@ function BrandTile({
     e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
     e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
   }
-  const abbr = name.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase();
+  const abbr = label.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase();
 
   return (
     <Link
@@ -84,7 +111,7 @@ function BrandTile({
         {abbr}
       </span>
       <span className={styles.brandBody}>
-        <span className={styles.brandName}>{name}</span>
+        <span className={styles.brandName}>{label}</span>
         {featured && <span className={styles.brandSub}>Browse the full range</span>}
       </span>
       <span className={styles.brandArrow} aria-hidden="true">
@@ -99,9 +126,10 @@ function BrandTile({
 export function SegmentPage({ slug }: { slug: string }) {
   const seg = SEGMENTS[slug];
   const [params] = useSearchParams();
-  const activeBrand = params.get("brand") ?? undefined;
 
   if (!seg) return <Shop categorySlug={slug} />;
+
+  const activeValue = params.get(seg.facet) ?? undefined;
 
   return (
     <div className={styles.wrap}>
@@ -120,7 +148,7 @@ export function SegmentPage({ slug }: { slug: string }) {
               <span className={styles.dot} /> Ships within 72 hours
             </span>
             <span className={styles.metaLine}>
-              {seg.brands.length} {seg.slug === "replacement" ? "seal brands" : "OEM fitments"}
+              {seg.tiles.length} {seg.metaWord}
             </span>
           </div>
         </div>
@@ -132,26 +160,23 @@ export function SegmentPage({ slug }: { slug: string }) {
         </div>
       </header>
 
-      <section className={styles.brands} aria-label={seg.brandsLabel}>
+      <section className={styles.brands} aria-label={seg.tilesLabel}>
         <div className={styles.brandsHead}>
-          <h2>{seg.brandsLabel}</h2>
+          <h2>{seg.tilesLabel}</h2>
           <Link to={`/category/${seg.slug}`} className={styles.allLink}>
             View all {seg.title.toLowerCase()} <IconArrowRight size={15} />
           </Link>
         </div>
         <div className={styles.brandGrid}>
-          {seg.brands.map((b, i) => {
-            const bslug = b.toLowerCase().replace(/\s+/g, "-");
-            return (
-              <BrandTile
-                key={b}
-                name={b}
-                featured={i === 0}
-                active={activeBrand === bslug}
-                to={`/category/${seg.slug}?brand=${bslug}#products`}
-              />
-            );
-          })}
+          {seg.tiles.map((t, i) => (
+            <TileCard
+              key={t.value}
+              label={t.label}
+              featured={i === 0}
+              active={activeValue === t.value}
+              to={`/category/${seg.slug}?${seg.facet}=${t.value}#products`}
+            />
+          ))}
         </div>
       </section>
 

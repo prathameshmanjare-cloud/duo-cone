@@ -16,7 +16,16 @@ import {
 } from "../../components/Icon/Icon";
 import styles from "./Shop.module.css";
 
-const SEAL_TYPES = ["DF", "DO"];
+const SEAL_TYPES: { value: string; label: string }[] = [
+  { value: "DF", label: "DF" },
+  { value: "DO", label: "DO" },
+  { value: "other", label: "Universal" },
+];
+const SEAL_TYPE_LABEL: Record<string, string> = {
+  DF: "DF Type",
+  DO: "DO Type",
+  other: "Universal",
+};
 const PAGE_SIZE = 24;
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -86,7 +95,11 @@ export function Shop({
       label: brand.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
       onClear: () => updateParam("brand", undefined),
     });
-  if (sealType) activeChips.push({ label: `${sealType} Type`, onClear: () => updateParam("seal_type", undefined) });
+  if (sealType)
+    activeChips.push({
+      label: SEAL_TYPE_LABEL[sealType] ?? sealType,
+      onClear: () => updateParam("seal_type", undefined),
+    });
   if (priceMin) activeChips.push({ label: `Min €${priceMin}`, onClear: () => updateParam("price_min", undefined) });
   if (priceMax) activeChips.push({ label: `Max €${priceMax}`, onClear: () => updateParam("price_max", undefined) });
 
@@ -115,12 +128,12 @@ export function Shop({
           </button>
           {SEAL_TYPES.map((t) => (
             <button
-              key={t}
+              key={t.value}
               type="button"
-              className={sealType === t ? styles.segOn : undefined}
-              onClick={() => updateParam("seal_type", t)}
+              className={sealType === t.value ? styles.segOn : undefined}
+              onClick={() => updateParam("seal_type", t.value)}
             >
-              {t}
+              {t.label}
             </button>
           ))}
         </div>

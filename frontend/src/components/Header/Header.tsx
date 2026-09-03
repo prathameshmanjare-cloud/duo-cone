@@ -16,6 +16,7 @@ const NAV = [
   { to: "/shop", label: "Shop" },
   { to: "/category/replacement", label: "Replacement" },
   { to: "/category/aftermarket", label: "Aftermarket" },
+  { to: "/category/duo-cone", label: "Duo Cone" },
   { to: "/industries", label: "Industries" },
   { to: "/technology", label: "Technology" },
   { to: "/about", label: "About" },

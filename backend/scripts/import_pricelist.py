@@ -116,19 +116,25 @@ def in_stock_from(value) -> bool:
     return "stock" in str(value or "").lower()
 
 
-async def ensure_categories(db) -> dict[Segment, int]:
-    ids: dict[Segment, int] = {}
-    for seg, name in ((Segment.replacement, "Replacement"), (Segment.aftermarket, "Aftermarket")):
+async def ensure_categories(db) -> dict[str, int]:
+    """Returns slug -> category id for replacement / aftermarket / duo-cone."""
+    ids: dict[str, int] = {}
+    wanted = [
+        ("replacement", "Replacement", Segment.replacement),
+        ("aftermarket", "Aftermarket", Segment.aftermarket),
+        ("duo-cone", "Duo Cone", Segment.oem),
+    ]
+    for slug, name, seg in wanted:
         cat = (
-            await db.execute(select(Category).where(Category.slug == seg.value))
+            await db.execute(select(Category).where(Category.slug == slug))
         ).scalar_one_or_none()
         if not cat:
-            cat = Category(slug=seg.value, name=name, segment=seg)
+            cat = Category(slug=slug, name=name, segment=seg)
             db.add(cat)
             await db.flush()
         else:
             cat.segment = seg
-        ids[seg] = cat.id
+        ids[slug] = cat.id
     await db.commit()
     return ids
 
@@ -241,19 +247,18 @@ async def run(args: argparse.Namespace) -> None:
             product.is_active = True
             await db.flush()
 
-            # segment category link
-            link = (
-                await db.execute(
-                    select(ProductCategory).where(
-                        ProductCategory.product_id == product.id,
-                        ProductCategory.category_id == cat_ids[segment],
+            # category links: its segment + the shared duo-cone view
+            for cat_id in {cat_ids[segment.value], cat_ids["duo-cone"]}:
+                link = (
+                    await db.execute(
+                        select(ProductCategory).where(
+                            ProductCategory.product_id == product.id,
+                            ProductCategory.category_id == cat_id,
+                        )
                     )
-                )
-            ).scalar_one_or_none()
-            if not link:
-                db.add(
-                    ProductCategory(product_id=product.id, category_id=cat_ids[segment])
-                )
+                ).scalar_one_or_none()
+                if not link:
+                    db.add(ProductCategory(product_id=product.id, category_id=cat_id))
 
             # inventory
             inv = (

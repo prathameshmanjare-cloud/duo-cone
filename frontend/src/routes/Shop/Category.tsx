@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { Shop } from "./Shop";
 import { SegmentPage } from "./SegmentPage";
 
-const SEGMENTS = new Set(["replacement", "aftermarket"]);
+const SEGMENTS = new Set(["replacement", "aftermarket", "duo-cone"]);
 
 export function Category() {
   const { slug } = useParams<{ slug: string }>();
