@@ -33,8 +33,12 @@ class Settings(BaseSettings):
 
     jwt_secret: str = "change-me-in-env"
     jwt_algorithm: str = "HS256"
-    access_token_expire_minutes: int = 15
+    access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 30
+
+    # optional: provision/refresh a single admin account on startup (hosts w/o shell)
+    bootstrap_admin_email: str = ""
+    bootstrap_admin_password: str = ""
 
     cors_origins: list[str] = ["http://localhost:5173", "https://duo-cone.com"]
 

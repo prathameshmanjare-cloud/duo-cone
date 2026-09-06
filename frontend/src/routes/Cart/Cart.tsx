@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useCartStore } from "../../store/cart";
+import { useSession } from "../../store/session";
 import { Price } from "../../components/Price/Price";
 import { Button } from "../../components/Button/Button";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
@@ -7,6 +8,14 @@ import styles from "./Cart.module.css";
 
 export function Cart() {
   const { lines, remove, setQty, subtotalCents } = useCartStore();
+  const status = useSession((s) => s.status);
+
+  if (status === "idle" || status === "loading") {
+    return <div className={styles.page}>Loading…</div>;
+  }
+  if (status !== "authed") {
+    return <Navigate to="/login?next=/cart" replace />;
+  }
 
   if (lines.length === 0) {
     return (

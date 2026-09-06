@@ -3,4 +3,10 @@
 .side a { text-decoration: none; color: var(--color-text-muted); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); }
 .side a:hover { background: var(--color-bg-subtle); }
 .active { background: var(--color-bg-subtle); color: var(--color-primary) !important; font-weight: 600; }
+.signOut { margin-top: var(--space-3); text-align: left; background: none; border: none; cursor: pointer; font: inherit; font-size: 0.9rem; color: var(--color-danger); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); }
+.signOut:hover { background: var(--color-bg-subtle); }
+.profile { display: grid; gap: var(--space-3); margin: var(--space-4) 0 0; }
+.profile > div { display: flex; gap: var(--space-4); }
+.profile dt { width: 100px; color: var(--color-text-muted); font-size: 0.9rem; margin: 0; }
+.profile dd { margin: 0; font-weight: 600; }
 @media (max-width: 700px) { .page { grid-template-columns: 1fr; } .side { flex-direction: row; overflow-x: auto; } }

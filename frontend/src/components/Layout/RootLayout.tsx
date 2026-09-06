@@ -2,10 +2,12 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "../Header/Header";
 import { Footer } from "../Footer/Footer";
 import { CartDrawer } from "../CartDrawer/CartDrawer";
+import { useSession } from "../../store/session";
 import styles from "./RootLayout.module.css";
 
 export function RootLayout() {
   const location = useLocation();
+  const authed = useSession((s) => s.status === "authed");
 
   return (
     <>
@@ -20,7 +22,7 @@ export function RootLayout() {
         </div>
       </main>
       <Footer />
-      <CartDrawer />
+      {authed && <CartDrawer />}
     </>
   );
 }

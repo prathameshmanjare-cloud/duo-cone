@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
-import { useCartStore } from "../../store/cart";
+import { useGuardedCart } from "../../lib/useGuardedCart";
 import { Price } from "../../components/Price/Price";
 import { Button } from "../../components/Button/Button";
 import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs";
@@ -18,7 +18,7 @@ export function Product() {
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [imgOk, setImgOk] = useState(true);
-  const add = useCartStore((s) => s.add);
+  const add = useGuardedCart();
 
   const { data: product, isLoading, isError } = useQuery({
     queryKey: ["product", slug],

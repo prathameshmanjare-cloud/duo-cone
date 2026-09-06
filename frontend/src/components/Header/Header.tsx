@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useCartStore } from "../../store/cart";
+import { useSession } from "../../store/session";
 import { Logo } from "../Logo/Logo";
 import {
   IconMenu,
@@ -30,6 +31,11 @@ export function Header() {
   const count = useCartStore((s) => s.count());
   const openCart = useCartStore((s) => s.open);
   const navigate = useNavigate();
+  const { user, status, hydrate, logout } = useSession();
+
+  useEffect(() => {
+    if (status === "idle") void hydrate();
+  }, [status, hydrate]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
@@ -88,13 +94,32 @@ export function Header() {
               Start RFQ <IconArrowRight size={15} />
             </Link>
             <span className={styles.divider} aria-hidden="true" />
-            <Link to="/account" aria-label="Account" className={styles.iconLink}>
-              <IconUser size={20} />
-            </Link>
-            <button className={styles.cartBtn} onClick={openCart} aria-label={`Cart, ${count} items`}>
-              <IconCart size={20} />
-              {count > 0 && <span className={styles.badge}>{count}</span>}
-            </button>
+            {status === "authed" && user ? (
+              <>
+                <Link to="/account" className={styles.userName} aria-label="Account">
+                  <IconUser size={18} />
+                  {user.full_name || user.email.split("@")[0]}
+                </Link>
+                <button
+                  className={styles.signOut}
+                  onClick={() => {
+                    logout();
+                    navigate("/");
+                  }}
+                >
+                  Sign out
+                </button>
+                <button className={styles.cartBtn} onClick={openCart} aria-label={`Cart, ${count} items`}>
+                  <IconCart size={20} />
+                  {count > 0 && <span className={styles.badge}>{count}</span>}
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className={styles.signIn}>
+                <IconUser size={16} />
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
         {menuOpen && (

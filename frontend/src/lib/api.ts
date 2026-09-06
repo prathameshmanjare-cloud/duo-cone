@@ -54,16 +54,60 @@ class ApiError extends Error {
   }
 }
 
+const SESSION_KEY = "duocone-session";
+
+export const session = {
+  get token(): string | null {
+    try {
+      return localStorage.getItem(SESSION_KEY);
+    } catch {
+      return null;
+    }
+  },
+  set(token: string) {
+    try {
+      localStorage.setItem(SESSION_KEY, token);
+    } catch {
+      /* ignore */
+    }
+  },
+  clear() {
+    try {
+      localStorage.removeItem(SESSION_KEY);
+    } catch {
+      /* ignore */
+    }
+  },
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const token = session.token;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${API_URL}${path}`, { headers, ...init });
   if (!res.ok) {
     const body = await res.text();
-    throw new ApiError(res.status, body || res.statusText);
+    let message = body || res.statusText;
+    try {
+      const parsed = JSON.parse(body);
+      if (typeof parsed.detail === "string") message = parsed.detail;
+    } catch {
+      /* keep raw */
+    }
+    throw new ApiError(res.status, message);
   }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
+}
+
+export interface SessionUser {
+  id: string;
+  email: string;
+  full_name: string | null;
+  company_name: string | null;
+  phone: string | null;
+  is_verified: boolean;
+  is_admin: boolean;
 }
 
 export const api = {
@@ -83,6 +127,24 @@ export const api = {
     request<{ id: string; number: string }>(`/rfq`, { method: "POST", body: JSON.stringify(payload) }),
   submitContact: (payload: unknown) =>
     request<{ id: string }>(`/contact`, { method: "POST", body: JSON.stringify(payload) }),
+
+  login: (email: string, password: string) =>
+    request<{ access_token: string; refresh_token: string }>(`/auth/login`, {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
+  register: (payload: {
+    email: string;
+    password: string;
+    full_name?: string;
+    company_name?: string;
+    phone?: string;
+  }) =>
+    request<{ access_token: string; refresh_token: string }>(`/auth/register`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  me: () => request<SessionUser>(`/auth/me`),
 };
 
 export { ApiError };

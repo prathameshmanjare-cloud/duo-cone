@@ -173,11 +173,12 @@
   color: var(--color-text-muted);
   font-size: 0.82rem;
   font-weight: 600;
-  text-decoration: underline;
+  text-decoration: none;
   cursor: pointer;
 }
 .clearAll:hover {
   color: var(--color-primary);
+  text-decoration: none;
 }
 
 /* ---------- toolbar ---------- */

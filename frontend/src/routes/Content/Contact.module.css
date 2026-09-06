@@ -230,7 +230,7 @@
   cursor: pointer;
 }
 .linkBtn:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* ---------- aside ---------- */

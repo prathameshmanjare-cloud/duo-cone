@@ -24,6 +24,17 @@ import { About, Technology, Industries, Shipping, Returns, Privacy, Terms, Cooki
 import { Contact } from "./routes/Content/Contact";
 import { Faq } from "./routes/Content/Faq";
 import { NotFound } from "./routes/NotFound/NotFound";
+import { AdminLayout } from "./routes/Admin/AdminLayout";
+import { AdminLogin } from "./routes/Admin/AdminLogin";
+import { Dashboard } from "./routes/Admin/Dashboard";
+import { ProductsAdmin } from "./routes/Admin/ProductsAdmin";
+import { ProductEdit } from "./routes/Admin/ProductEdit";
+import { BrandsAdmin } from "./routes/Admin/BrandsAdmin";
+import { CategoriesAdmin } from "./routes/Admin/CategoriesAdmin";
+import { OrdersAdmin } from "./routes/Admin/OrdersAdmin";
+import { RfqsAdmin } from "./routes/Admin/RfqsAdmin";
+import { UsersAdmin } from "./routes/Admin/UsersAdmin";
+import { AdminAccount } from "./routes/Admin/AdminAccount";
 
 export default function App() {
   return (
@@ -66,6 +77,20 @@ export default function App() {
         <Route path="/cookie-policy" element={<CookiePolicy />} />
 
         <Route path="*" element={<NotFound />} />
+      </Route>
+
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="products" element={<ProductsAdmin />} />
+        <Route path="products/new" element={<ProductEdit />} />
+        <Route path="products/:id" element={<ProductEdit />} />
+        <Route path="brands" element={<BrandsAdmin />} />
+        <Route path="categories" element={<CategoriesAdmin />} />
+        <Route path="orders" element={<OrdersAdmin />} />
+        <Route path="rfqs" element={<RfqsAdmin />} />
+        <Route path="users" element={<UsersAdmin />} />
+        <Route path="account" element={<AdminAccount />} />
       </Route>
     </Routes>
   );

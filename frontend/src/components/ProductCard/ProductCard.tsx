@@ -2,13 +2,13 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ProductCard as ProductCardT } from "../../lib/api";
-import { useCartStore } from "../../store/cart";
+import { useGuardedCart } from "../../lib/useGuardedCart";
 import { Price } from "../Price/Price";
 import { IconSeal, IconArrowRight, IconCheck } from "../Icon/Icon";
 import styles from "./ProductCard.module.css";
 
 export function ProductCard({ product }: { product: ProductCardT }) {
-  const add = useCartStore((s) => s.add);
+  const add = useGuardedCart();
   const reduce = useReducedMotion();
   const [imgOk, setImgOk] = useState(true);
   const [added, setAdded] = useState(false);
@@ -16,7 +16,7 @@ export function ProductCard({ product }: { product: ProductCardT }) {
   const showImage = Boolean(product.image_url) && imgOk;
 
   function onAdd() {
-    add(product);
+    if (!add(product)) return;
     setAdded(true);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setAdded(false), 1600);
