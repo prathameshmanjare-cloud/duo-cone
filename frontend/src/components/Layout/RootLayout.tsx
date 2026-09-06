@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "../Header/Header";
 import { Footer } from "../Footer/Footer";
 import { CartDrawer } from "../CartDrawer/CartDrawer";
+import { ChatWidget } from "../ChatWidget/ChatWidget";
 import { useSession } from "../../store/session";
 import styles from "./RootLayout.module.css";
 
@@ -23,6 +24,7 @@ export function RootLayout() {
       </main>
       <Footer />
       {authed && <CartDrawer />}
+      <ChatWidget />
     </>
   );
 }

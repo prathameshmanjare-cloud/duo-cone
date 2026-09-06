@@ -145,6 +145,39 @@ export const api = {
       body: JSON.stringify(payload),
     }),
   me: () => request<SessionUser>(`/auth/me`),
+
+  chat: (message: string, history: { role: string; text: string }[]) =>
+    request<ChatResponse>(`/chat`, {
+      method: "POST",
+      body: JSON.stringify({ message, history }),
+    }),
+  chatHandoff: (payload: {
+    email: string;
+    message: string;
+    name?: string;
+    phone?: string;
+    part_number?: string;
+  }) =>
+    request<{ number: string }>(`/chat/handoff`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 };
+
+export interface ChatBotProduct {
+  name: string;
+  slug: string;
+  sku: string;
+  price_cents: number;
+  currency: string;
+  is_rfq_only: boolean;
+}
+
+export interface ChatResponse {
+  reply: string;
+  quick_replies: string[];
+  products: ChatBotProduct[];
+  handoff: boolean;
+}
 
 export { ApiError };
