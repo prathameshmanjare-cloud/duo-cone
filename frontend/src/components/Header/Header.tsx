@@ -91,7 +91,7 @@ export function Header() {
           </form>
           <div className={styles.actions}>
             <Link to="/rfq" className={styles.rfqBtn}>
-              Start RFQ <IconArrowRight size={15} />
+              <span className={styles.rfqLabel}>Start RFQ</span> <IconArrowRight size={15} />
             </Link>
             <span className={styles.divider} aria-hidden="true" />
             {status === "authed" && user ? (
@@ -117,13 +117,30 @@ export function Header() {
             ) : (
               <Link to="/login" className={styles.signIn}>
                 <IconUser size={16} />
-                Sign in
+                <span className={styles.signInLabel}>Sign in</span>
               </Link>
             )}
           </div>
         </div>
         {menuOpen && (
           <nav className={styles.mobileNav} aria-label="Mobile">
+            <form
+              className={styles.mobileSearch}
+              onSubmit={(e) => {
+                onSearch(e);
+                setMenuOpen(false);
+              }}
+              role="search"
+            >
+              <IconSearch size={16} aria-hidden="true" />
+              <input
+                type="search"
+                placeholder="Search by name or OEM part number…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                aria-label="Search products"
+              />
+            </form>
             {NAV.map((item) => (
               <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}>
                 {item.label}
