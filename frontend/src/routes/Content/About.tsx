@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
-import { COMPANY, COMPANY_ADDRESS, MAP_EMBED_URL, MAP_LINK_URL } from "../../lib/company";
+import { COMPANY, COMPANY_ADDRESS, MAP_EMBED_URL } from "../../lib/company";
 import heroImg from "../../assets/industries/tunel.jpg";
 import metrologyImg from "../../assets/industries/pump.jpg";
 import doImg from "../../assets/product/do-cut.png";
@@ -187,9 +187,6 @@ export function About() {
         </header>
 
         <div className={s.mapCard}>
-          <a className={s.mapLink} href={MAP_LINK_URL} target="_blank" rel="noreferrer">
-            Open in Maps ↗
-          </a>
           <iframe src={MAP_EMBED_URL} title={`Map showing ${COMPANY_ADDRESS}`} loading="lazy" />
           <span className={s.radar} aria-hidden="true">
             <span /> <span /> <span />

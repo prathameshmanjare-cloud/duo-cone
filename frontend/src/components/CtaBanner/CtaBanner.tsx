@@ -1,4 +1,4 @@
-import { COMPANY, COMPANY_ADDRESS, MAP_EMBED_URL, MAP_LINK_URL } from "../../lib/company";
+import { COMPANY, COMPANY_ADDRESS, MAP_EMBED_URL } from "../../lib/company";
 import styles from "./CtaBanner.module.css";
 
 const PHONE_DISPLAY = COMPANY.phoneDisplay;
@@ -6,7 +6,6 @@ const PHONE_HREF = COMPANY.phoneHref;
 const EMAIL = COMPANY.email;
 const ADDRESS = COMPANY_ADDRESS;
 const MAP_EMBED = MAP_EMBED_URL;
-const MAP_LINK = MAP_LINK_URL;
 
 export function CtaBanner() {
   return (
@@ -33,14 +32,6 @@ export function CtaBanner() {
         </div>
 
         <div className={styles.mapCard}>
-          <a
-            className={styles.mapLink}
-            href={MAP_LINK}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open in Maps <IconExternal />
-          </a>
           <iframe
             src={MAP_EMBED}
             title={`Map showing ${ADDRESS}`}
@@ -66,13 +57,6 @@ function IconMail() {
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="2" y="4" width="20" height="16" rx="2" />
       <path d="m22 7-10 6L2 7" />
-    </svg>
-  );
-}
-function IconExternal() {
-  return (
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M15 3h6v6M10 14 21 3M18 13v8H3V6h8" />
     </svg>
   );
 }
