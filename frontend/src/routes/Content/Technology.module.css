@@ -574,6 +574,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  background: color-mix(in srgb, var(--color-secondary) 22%, #fff);
 }
 .techBody h3 {
   margin: 0;
@@ -582,7 +583,7 @@
 }
 .techBody p {
   margin: 0;
-  color: var(--color-text-muted);
+  color: color-mix(in srgb, var(--color-tertiary) 78%, transparent);
   font-size: 0.9rem;
   line-height: 1.65;
 }
@@ -593,13 +594,14 @@
   margin-top: 4px;
 }
 .chip {
-  background: var(--color-bg-subtle);
-  border: 1px solid var(--line);
-  border-radius: var(--pe-radius-sm);
-  padding: 3px 9px;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+  border-radius: 999px;
+  padding: 4px 11px;
   font-family: var(--font-tech);
   font-size: 0.7rem;
-  color: var(--color-tertiary);
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
 /* ---------- 4 · research lab ---------- */
