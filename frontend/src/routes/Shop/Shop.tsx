@@ -184,7 +184,7 @@ export function Shop({
       {!embedded && (
         <>
           <Helmet>
-            <title>{categorySlug ? `${categorySlug} seals` : "Shop"} · DuoCone Mechanical Face Seals</title>
+            <title>{categorySlug ? `${categorySlug} seals` : "Shop"} | DuoCone Mechanical Face Seals</title>
           </Helmet>
           <header className={styles.head}>
             <span className={styles.kicker}>Catalog</span>

@@ -134,7 +134,7 @@ export function SegmentPage({ slug }: { slug: string }) {
   return (
     <div className={styles.wrap}>
       <Helmet>
-        <title>{seg.title} Seals · DuoCone Mechanical Face Seals</title>
+        <title>{seg.title} Seals | DuoCone Mechanical Face Seals</title>
         <meta name="description" content={seg.intro} />
       </Helmet>
 
