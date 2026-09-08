@@ -191,13 +191,6 @@ export function About() {
             Open in Maps ↗
           </a>
           <iframe src={MAP_EMBED_URL} title={`Map showing ${COMPANY_ADDRESS}`} loading="lazy" />
-          <span className={s.radar} aria-hidden="true">
-            <span /> <span /> <span />
-          </span>
-          <span className={s.mapCaption}>
-            <b>Central logistics headquarters</b>
-            {COMPANY.street} · {COMPANY.postcodeCity}
-          </span>
         </div>
 
         <div className={s.logi}>
