@@ -238,8 +238,8 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--color-secondary) 22%, transparent);
-  color: var(--color-secondary-dark);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
   font-size: 0.8rem;
   font-weight: 800;
   transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
