@@ -1,13 +1,12 @@
+import { COMPANY, COMPANY_ADDRESS, MAP_EMBED_URL, MAP_LINK_URL } from "../../lib/company";
 import styles from "./CtaBanner.module.css";
 
-/* Edit these to match the live business details. */
-const PHONE_DISPLAY = "+49 2171 362 9923";
-const PHONE_HREF = "tel:+4921713629923";
-const EMAIL = "sales@duo-cone.com";
-const ADDRESS = "Benzstraße 21, 51381 Leverkusen, Germany";
-
-const MAP_EMBED = `https://www.google.com/maps?q=${encodeURIComponent(ADDRESS)}&output=embed`;
-const MAP_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`;
+const PHONE_DISPLAY = COMPANY.phoneDisplay;
+const PHONE_HREF = COMPANY.phoneHref;
+const EMAIL = COMPANY.email;
+const ADDRESS = COMPANY_ADDRESS;
+const MAP_EMBED = MAP_EMBED_URL;
+const MAP_LINK = MAP_LINK_URL;
 
 export function CtaBanner() {
   return (

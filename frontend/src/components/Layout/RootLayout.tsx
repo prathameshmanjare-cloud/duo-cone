@@ -10,8 +10,8 @@ import styles from "./RootLayout.module.css";
 export function RootLayout() {
   const location = useLocation();
   const authed = useSession((s) => s.status === "authed");
-  // full contact section already lives on /contact; skip the banner there
-  const hideCta = location.pathname === "/contact";
+  // these pages carry their own closing contact/CTA section
+  const hideCta = location.pathname === "/contact" || location.pathname === "/about";
 
   return (
     <>
