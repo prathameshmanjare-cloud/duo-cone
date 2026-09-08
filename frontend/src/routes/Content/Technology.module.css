@@ -579,7 +579,7 @@
 .techBody h3 {
   margin: 0;
   font-size: 1.05rem;
-  color: var(--color-tertiary);
+  color: var(--color-primary-dark);
 }
 .techBody p {
   margin: 0;
