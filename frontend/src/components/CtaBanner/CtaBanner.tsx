@@ -47,6 +47,7 @@ export function CtaBanner() {
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
+          <span className={styles.mapCaption}>Headquarters &amp; home of engineering</span>
         </div>
       </div>
     </section>
