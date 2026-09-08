@@ -28,7 +28,7 @@ const SEGMENTS: Record<string, Segment> = {
     title: "Replacement",
     kicker: "Catalog · Replacement",
     intro:
-      "Seal-brand originals — mechanical face seals matched to the specifications of the leading seal manufacturers. Fast delivery, shipping within 72 hours.",
+      "Seal-brand originals, matched to the specifications of the leading seal manufacturers. Fast delivery, shipping within 72 hours.",
     metaWord: "seal brands",
     facet: "brand",
     tilesLabel: "Shop by seal brand",
@@ -39,7 +39,7 @@ const SEGMENTS: Record<string, Segment> = {
     title: "Aftermarket",
     kicker: "Catalog · Aftermarket",
     intro:
-      "Mechanical face seals that fit the leading OEM machines — a direct aftermarket alternative for construction, mining, agriculture and earthmoving equipment. Fast delivery, shipping within 72 hours.",
+      "Mechanical face seals that fit the leading OEM machines. A direct aftermarket alternative for construction, mining, agriculture and earthmoving equipment. Fast delivery, shipping within 72 hours.",
     metaWord: "OEM fitments",
     facet: "brand",
     tilesLabel: "Shop by OEM machine",
@@ -68,7 +68,7 @@ const SEGMENTS: Record<string, Segment> = {
     title: "Duo Cone",
     kicker: "Catalog · Duo Cone",
     intro:
-      "Our Duo Cone mechanical face seals by outer-diameter type — DF and DO, plus universal fitments. Made from wear- and corrosion-resistant materials. Fast delivery, shipping within 72 hours.",
+      "Our Duo Cone mechanical face seals by outer-diameter type: DF and DO, plus universal fitments. Made from wear- and corrosion-resistant materials. Fast delivery, shipping within 72 hours.",
     metaWord: "seal types",
     facet: "seal_type",
     tilesLabel: "Shop by seal type",
@@ -134,7 +134,7 @@ export function SegmentPage({ slug }: { slug: string }) {
   return (
     <div className={styles.wrap}>
       <Helmet>
-        <title>{seg.title} Seals — DuoCon Mechanical Face Seals</title>
+        <title>{seg.title} Seals � DuoCone Mechanical Face Seals</title>
         <meta name="description" content={seg.intro} />
       </Helmet>
 

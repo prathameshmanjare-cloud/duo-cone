@@ -12,7 +12,7 @@ export function StaticPage({
 }) {
   return (
     <div className={styles.page}>
-      <Helmet><title>{title} | DuoCon</title></Helmet>
+      <Helmet><title>{title} | DuoCone</title></Helmet>
       <h1>{title}</h1>
       {intro && <p className={styles.intro}>{intro}</p>}
       {sections.map((s) => (

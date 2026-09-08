@@ -8,6 +8,7 @@ export function Hero() {
   return (
     <section className={styles.hero}>
       <div className={styles.stage} aria-hidden="true">
+        <div className={styles.ringGlow} />
         <SealCanvas className={styles.canvas} />
         <div className={styles.vignette} />
       </div>
@@ -18,7 +19,7 @@ export function Hero() {
         </h1>
         <p className={styles.reveal} style={{ animationDelay: "0.18s" }}>
           Our Mechanical Face Seal Series is designed for high-pressure use. Made from top-quality
-          materials, these seals resist wear, abrasion, and extreme temperatures — ideal for demanding
+          materials, these seals resist wear, abrasion, and extreme temperatures. Ideal for demanding
           machinery like hydraulic systems and construction equipment.
         </p>
         <div className={`${styles.actions} ${styles.reveal}`} style={{ animationDelay: "0.3s" }}>

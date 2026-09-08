@@ -22,7 +22,7 @@ const TYPES: SealType[] = [
     title: "DF Type",
     image: dfImg,
     blurb:
-      "Mechanical face seal with a single rubber loading ring. Widely used on older John Deere machines — the simple press-in mount makes field repair fast, with fitment matched exactly to the OEM reference.",
+      "Mechanical face seal with a single rubber loading ring. Widely used on older John Deere machines. The simple press-in mount makes field repair fast, with fitment matched exactly to the OEM reference.",
     chips: ["Single load ring", "OEM-matched Ø", "58–62 HRC", "24-mo warranty"],
     features: [
       "Easy press-in mounting for quick repair",
@@ -77,7 +77,7 @@ export function SealTypes() {
         <span className={styles.kicker}>Two proven designs</span>
         <h2 id="seal-types-heading">DF &amp; DO mechanical face seals</h2>
         <p>
-          Both built from the same premium, wear-resistant materials — the loading element is what sets
+          Both built from the same premium, wear-resistant materials. The loading element is what sets
           them apart.
         </p>
       </div>

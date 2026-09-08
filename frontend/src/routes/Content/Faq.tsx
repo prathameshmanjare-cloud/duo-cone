@@ -6,7 +6,7 @@ const FAQS: { category: string; items: { q: string; a: string }[] }[] = [
     category: "Orders",
     items: [
       { q: "How do I place an order?", a: "Add products to your cart and check out directly, or submit an RFQ for volume pricing." },
-      { q: "Can I order by OEM part number?", a: "Yes — use the cross-reference tool or search by your OEM reference number." },
+      { q: "Can I order by OEM part number?", a: "Yes. Use the cross-reference tool or search by your OEM reference number." },
     ],
   },
   {
@@ -26,7 +26,7 @@ const FAQS: { category: string; items: { q: string; a: string }[] }[] = [
 export function Faq() {
   return (
     <div className={styles.page}>
-      <Helmet><title>FAQ | DuoCon</title></Helmet>
+      <Helmet><title>FAQ | DuoCone</title></Helmet>
       <h1>Frequently Asked Questions</h1>
       {FAQS.map((cat) => (
         <section key={cat.category} className={styles.section}>

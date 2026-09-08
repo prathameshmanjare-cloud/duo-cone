@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
@@ -8,15 +9,6 @@ import metrologyImg from "../../assets/industries/pump.jpg";
 import doImg from "../../assets/product/do-cut.png";
 import dfImg from "../../assets/product/df-cut.png";
 import s from "./About.module.css";
-
-const METRICS = [
-  { value: "72h", label: "Dispatch from our Germany hub", tag: "READY" },
-  { value: "24h", label: "Guaranteed quotation turnaround", tag: "SLA" },
-  { value: "50–1420 mm", label: "Outer diameter range in stock", tag: "RANGE" },
-  { value: "1:1", label: "OEM exact-fit equivalents", tag: "100%" },
-];
-
-const OEMS = ["CAT", "Komatsu", "Liebherr", "Hitachi", "John Deere", "Goetze", "SKF", "Trelleborg"];
 
 const PILLARS = [
   {
@@ -35,7 +27,7 @@ const PILLARS = [
     n: "03",
     kicker: "Consultancy",
     title: "Direct specialist service",
-    body: "Talk straight to senior sealing engineers — no call switches, no uninformed ticket queues. Get metallurgical answers immediately.",
+    body: "Talk straight to senior sealing engineers. No call switches, no uninformed ticket queues. Get metallurgical answers immediately.",
   },
   {
     n: "04",
@@ -44,6 +36,61 @@ const PILLARS = [
     body: "Optimised ground dispatch across Germany and the EU, plus priority air courier for emergency global mining and tunnelling operations.",
   },
 ];
+
+const STATS = [
+  { value: 17, suffix: "+", label: "years of experience" },
+  { value: 1320, suffix: "+", label: "completed projects" },
+  { value: 16000, suffix: "m²", label: "of production space" },
+  { value: 110, suffix: "%", label: "customer satisfaction" },
+];
+
+function useInViewOnce<T extends Element>() {
+  const ref = useRef<T>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setSeen(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (e) => {
+        if (e[0].isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.4 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return [ref, seen] as const;
+}
+
+function StatCount({ to, run }: { to: number; run: boolean }) {
+  const [n, setN] = useState(0);
+  const reduce =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  useEffect(() => {
+    if (!run) return;
+    if (reduce || typeof requestAnimationFrame === "undefined") {
+      setN(to);
+      return;
+    }
+    let raf = 0;
+    const t0 = performance.now();
+    const dur = 1100;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - t0) / dur);
+      setN(Math.round(to * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [run, to, reduce]);
+  return <>{n.toLocaleString("en-US")}</>;
+}
 
 const STEPS = [
   {
@@ -64,10 +111,11 @@ const STEPS = [
 ];
 
 export function About() {
+  const [statsRef, statsSeen] = useInViewOnce<HTMLDivElement>();
   return (
     <div className={s.page}>
       <Helmet>
-        <title>About Us | DuoCon</title>
+        <title>About Us | DuoCone</title>
         <meta
           name="description"
           content="DUO-CONE is a specialised German manufacturer and distributor of heavy-duty mechanical face seals, shipping from Engelskirchen with 24-hour quotations and 72-hour dispatch."
@@ -117,39 +165,21 @@ export function About() {
         </div>
       </section>
 
-      {/* 2 — facility metrics */}
+      {/* 2 — key stats */}
       <section className={s.section}>
-        <header className={s.head}>
-          <span className={s.overline}>[ Capability matrix ]</span>
-          <h2>Specialised facility metrics</h2>
-        </header>
-
-        <div className={s.metricGrid}>
-          {METRICS.map((m) => (
-            <div key={m.label} className={s.metric}>
-              <span className={s.metricTag}>{m.tag}</span>
-              <span className={s.metricValue}>{m.value}</span>
-              <span className={s.metricLabel}>{m.label}</span>
+        <div
+          ref={statsRef}
+          className={`${s.stats} ${statsSeen ? s.statsIn : ""}`}
+        >
+          {STATS.map((st, i) => (
+            <div key={st.label} className={s.stat} style={{ transitionDelay: `${i * 90}ms` }}>
+              <span className={s.statValue}>
+                <StatCount to={st.value} run={statsSeen} />
+                <span className={s.statSuffix}>{st.suffix}</span>
+              </span>
+              <span className={s.statLabel}>{st.label}</span>
             </div>
           ))}
-        </div>
-
-        <div className={s.editorial}>
-          <span className={s.miniKicker}>
-            <span className={s.dot} /> Engineered for heavy extremes
-          </span>
-          <p>
-            Our precision duo-cone seals stop mud, slurry, sand and moisture reaching final drives,
-            wheel hubs, track rollers and tunnel-boring gearboxes. DUO-CONE covers replacement
-            compatibility across the major platforms:
-          </p>
-          <div className={s.chips}>
-            {OEMS.map((o) => (
-              <span key={o} className={s.chip}>
-                {o}
-              </span>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -242,7 +272,7 @@ export function About() {
             <p>
               Every sealing face is precision-lapped to an optical mirror finish. Flatness is verified
               with monochromatic helium and sodium light bands (≤ 2 bands) and surface roughness
-              Ra ≤ 0.2 µm — guaranteeing an instant hydrodynamic oil wedge under load.
+              Ra ≤ 0.2 µm, guaranteeing an instant hydrodynamic oil wedge under load.
             </p>
             <div className={s.checks}>
               <span>✓ DIN EN ISO 9001</span>

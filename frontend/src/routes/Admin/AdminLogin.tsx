@@ -60,7 +60,7 @@ export function AdminLogin() {
           </div>
           <h2>Run the storefront from one place.</h2>
           <p>
-            Prices, stock, catalog, orders, RFQs and customers — manage everything
+            Prices, stock, catalog, orders, RFQs and customers. Manage everything
             for the DuoCone mechanical face seal shop.
           </p>
           <div className={s.authPoints}>

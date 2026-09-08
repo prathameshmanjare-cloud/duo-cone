@@ -19,7 +19,7 @@ export function CtaBanner() {
           <p className={styles.copy}>
             Questions, a part number to cross-reference, or a bulk requirement? Our
             German-based engineering team gives expert guidance and tailored seal
-            solutions &mdash; and replies within one business day.
+            solutions, and replies within one business day.
           </p>
           <div className={styles.contacts}>
             <a className={styles.contact} href={PHONE_HREF}>

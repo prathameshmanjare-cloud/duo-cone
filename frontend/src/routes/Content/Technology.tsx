@@ -13,12 +13,12 @@ import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY } from "../../lib/company";
 import heroImg from "../../assets/industries/heavy.jpg";
-import castImg from "../../assets/industries/mining.jpg";
-import cncImg from "../../assets/industries/construction.jpg";
-import moldImg from "../../assets/industries/pump.jpg";
-import grindImg from "../../assets/industries/cement.jpg";
-import heatImg from "../../assets/industries/forest.jpg";
-import coatImg from "../../assets/industries/tunel.jpg";
+import castImg from "../../assets/technology/centrifugal-casting.png";
+import cncImg from "../../assets/technology/cnc-lapping.png";
+import moldImg from "../../assets/technology/molding.png";
+import grindImg from "../../assets/technology/grinding.png";
+import heatImg from "../../assets/technology/heat-treatment.png";
+import coatImg from "../../assets/technology/coating.png";
 import s from "./Technology.module.css";
 
 type AnatomyKey = "metal" | "toric" | "lapped" | "cavity";
@@ -50,7 +50,7 @@ const ANATOMY: Record<
     tab: "Lapped interface",
     badge: "Optical tolerance: DIN 5401",
     title: "Micro-precision lapped contact band",
-    desc: "Superfinished with multi-stage monocrystalline diamond abrasives to a calibrated band of helium light-band flatness — a microscopic oil meniscus halts abrasive slurry while eliminating friction burn.",
+    desc: "Superfinished with multi-stage monocrystalline diamond abrasives to a calibrated band of helium light-band flatness. A microscopic oil meniscus halts abrasive slurry while eliminating friction burn.",
     s1: ["Roughness", "< 0.13 µm Ra"],
     s2: ["Flatness", "≤ 2 light bands"],
   },
@@ -149,6 +149,44 @@ const LAB = [
   },
 ];
 
+const TESTS = [
+  {
+    n: "T1",
+    title: "Mud packing test",
+    items: ["Mud-submerged wear and leakage under a contamination load"],
+  },
+  {
+    n: "T2",
+    title: "Heat generation test",
+    items: ["Time, pressure and surface speed in lubrication, measuring the heat the face pair generates"],
+  },
+  {
+    n: "T3",
+    title: "Elastomeric test",
+    items: [
+      "Oil compatibility",
+      "Face-load variation against time and temperature",
+      "O-ring squeezing",
+      "O-ring contraction",
+    ],
+  },
+  {
+    n: "T4",
+    title: "P-V test",
+    items: ["Pressure against velocity at linear speed", "Wear, galling and spilling"],
+  },
+  {
+    n: "T5",
+    title: "Seal endurance testing",
+    items: [
+      "Endurance rig running at set speed and temperature",
+      "Up to 1000 rpm to reach 10 m/s linear speed",
+      "Up to 1000 kgf axial load",
+      "Seal sizes 200 to 1000 mm outer diameter",
+    ],
+  },
+];
+
 const MARKERS = [
   { id: "01", top: "26%", left: "20%", title: "Lapped mirror face", value: "< 0.13 µm Ra flatness", tone: "cyan" },
   { id: "02", top: "52%", left: "72%", title: "Ni-Hard alloy matrix", value: "60 – 70 HRC martensitic", tone: "amber" },
@@ -204,7 +242,7 @@ export function Technology() {
   return (
     <div className={s.page}>
       <Helmet>
-        <title>Technology | DuoCon</title>
+        <title>Technology | DuoCone</title>
         <meta
           name="description"
           content="How DUO-CONE mechanical face seals are engineered: centrifugal casting, precision CNC and optical lapping, elastomer moulding, grinding, heat treatment and tribological coatings."
@@ -252,7 +290,7 @@ export function Technology() {
             variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } } }}
           >
             Every DUO-CONE mechanical face seal is the outcome of specialised metallurgy, proprietary
-            centrifugal casting, precision lapping and rigorous elastomer formulation — designed to
+            centrifugal casting, precision lapping and rigorous elastomer formulation, designed to
             resist abrasive slurry, extreme load and high sliding velocities.
           </motion.p>
 
@@ -397,7 +435,6 @@ export function Technology() {
               <figure className={s.techMedia}>
                 <img src={t.img} alt={t.title} loading="lazy" />
                 <span className={s.sheen} aria-hidden="true" />
-                <span className={s.scanLine} data-tone="amber" aria-hidden="true" />
                 <span className={s.phase}>Phase [{t.n}/06]</span>
                 <span className={s.techTag}>{t.tag}</span>
               </figure>
@@ -420,9 +457,8 @@ export function Technology() {
       </section>
 
       {/* 4 — research lab */}
-      <section className={`${s.section} ${s.dark}`}>
+      <section className={`${s.section} ${s.tint}`}>
         <RevealHead
-          onDark
           kicker="Pending patents / ongoing development"
           title="DUO-CONE research lab"
           sub="Continuously testing metallurgy under extreme simulation inside our Engelskirchen facilities."
@@ -435,15 +471,18 @@ export function Technology() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.12 }}
         >
-          {LAB.map((l) => (
+          {LAB.map((l, i) => (
             <motion.div
               key={l.n}
               className={s.labCard}
               variants={gridItem}
-              whileHover={reduce ? undefined : { y: -5 }}
+              whileHover={reduce ? undefined : { y: -6 }}
               transition={{ type: "spring", stiffness: 260, damping: 22 }}
             >
               <span className={s.labBeam} aria-hidden="true" />
+              <span className={s.labIndex} aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <div className={s.labTop}>
                 <span className={s.labNo}>{l.n}</span>
                 <span className={s.labMeta}>{l.meta}</span>
@@ -453,6 +492,61 @@ export function Technology() {
             </motion.div>
           ))}
         </motion.div>
+      </section>
+
+      {/* 4b — seal life testing */}
+      <section className={s.section}>
+        <RevealHead
+          overline="[ Validation ]"
+          title="Seal life testing"
+          sub="Which tests we run on every duo cone face seal before it leaves Engelskirchen."
+        />
+
+        <motion.div
+          className={s.testGrid}
+          variants={gridStagger}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+        >
+          {TESTS.map((t) => (
+            <motion.article key={t.n} className={s.testCard} variants={gridItem}>
+              <span className={s.testNo}>{t.n}</span>
+              <h3>{t.title}</h3>
+              <ul>
+                {t.items.map((it) => (
+                  <li key={it}>{it}</li>
+                ))}
+              </ul>
+            </motion.article>
+          ))}
+        </motion.div>
+
+        <motion.figure
+          className={s.pressureFrame}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={vp}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
+          {/*
+            3D seal-pressure model placeholder. Drop the CAD / FEA export
+            (glTF, MP4 loop or high-res still) into src/assets and replace
+            this block with the viewer or <video>.
+          */}
+          <div className={s.pressurePlaceholder} aria-hidden="true">
+            <span className={s.pressureRing} />
+            <span className={s.pressureRing} />
+            <span className={s.pressureRing} />
+          </div>
+          <figcaption>
+            <strong>Contact-pressure simulation</strong>
+            <span>
+              Finite-element map of face load and hydrodynamic film across the sealing band. 3D model
+              coming soon.
+            </span>
+          </figcaption>
+        </motion.figure>
       </section>
 
       {/* 5 — CTA */}

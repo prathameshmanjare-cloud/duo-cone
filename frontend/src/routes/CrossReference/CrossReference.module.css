@@ -3,3 +3,39 @@
 .form { display: flex; gap: var(--space-3); max-width: 480px; margin-bottom: var(--space-6); }
 .form input { flex: 1; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 1rem; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+
+.catalogs { margin-top: var(--space-8); border-top: 1px solid var(--color-border); padding-top: var(--space-6); }
+.catalogsHead { margin: 0 0 var(--space-4); font-size: 1.15rem; font-weight: 800; color: var(--color-tertiary); }
+.catalogGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+.catalogCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.catalogCard:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  box-shadow: 0 20px 40px -22px rgba(7, 84, 154, 0.4);
+}
+.catalogName { font-size: 1.05rem; font-weight: 800; color: var(--color-tertiary); }
+.catalogDesc { font-size: 0.9rem; line-height: 1.55; color: var(--color-text-muted); }
+.catalogGo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-primary);
+}
+@media (max-width: 620px) {
+  .catalogGrid { grid-template-columns: 1fr; }
+}

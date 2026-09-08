@@ -184,12 +184,12 @@ export function Shop({
       {!embedded && (
         <>
           <Helmet>
-            <title>{categorySlug ? `${categorySlug} seals` : "Shop"} — DuoCon Mechanical Face Seals</title>
+            <title>{categorySlug ? `${categorySlug} seals` : "Shop"} � DuoCone Mechanical Face Seals</title>
           </Helmet>
           <header className={styles.head}>
             <span className={styles.kicker}>Catalog</span>
             <h1>{title}</h1>
-            <p>Mechanical face seals (DF &amp; DO type) — filter by type and price.</p>
+            <p>Mechanical face seals (DF &amp; DO type). Filter by type and price.</p>
           </header>
         </>
       )}

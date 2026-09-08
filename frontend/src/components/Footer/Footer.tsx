@@ -53,7 +53,7 @@ export function Footer() {
 
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
-          <span>© {year} DuoCon. All rights reserved.</span>
+          <span>© {year} DuoCone. All rights reserved.</span>
           <nav>
             <Link to="/privacy-policy">Privacy</Link>
             <Link to="/terms">Terms</Link>

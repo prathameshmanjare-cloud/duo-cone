@@ -112,7 +112,7 @@ export function Industries() {
         <div>
           <span className={styles.kicker}>Where our seals work</span>
           <h2 id="industries-heading">Trusted across industries</h2>
-          <p className={styles.sub}>Twelve demanding sectors — one sealing standard.</p>
+          <p className={styles.sub}>Twelve demanding sectors, one sealing standard.</p>
         </div>
         <Link to="/industries" className={styles.headLink}>
           All industries <IconArrowRight size={16} />

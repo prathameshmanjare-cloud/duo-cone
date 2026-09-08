@@ -43,6 +43,13 @@ function IconClock() {
     </svg>
   );
 }
+function IconWhatsApp() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+      <path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.45 1.33 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.5 0 9.96-4.46 9.96-9.96 0-2.66-1.04-5.16-2.92-7.04A9.9 9.9 0 0 0 12.04 2Zm0 1.67c2.21 0 4.28.86 5.84 2.42a8.2 8.2 0 0 1 2.42 5.87c0 4.56-3.71 8.27-8.28 8.27a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.39c0-4.57 3.71-8.28 8.27-8.28Zm-2.47 4.4c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02 0 1.2.87 2.35.99 2.51.12.16 1.7 2.6 4.19 3.64.58.25 1.04.4 1.4.51.59.19 1.12.16 1.55.1.47-.07 1.45-.59 1.66-1.17.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.45-.72-1.67-.8-.22-.08-.39-.12-.55.12-.16.24-.63.8-.77.96-.14.16-.28.18-.53.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.34-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.41-.55-.42-.14-.01-.3-.01-.46-.01Z" />
+    </svg>
+  );
+}
 
 export function Contact() {
   const [sent, setSent] = useState(false);
@@ -76,22 +83,23 @@ export function Contact() {
   return (
     <div className={styles.wrap}>
       <Helmet>
-        <title>Contact | DuoCon</title>
-        <meta name="description" content="Get in touch with DuoCon — mechanical face seal specialists based in Germany. We reply within one business day." />
+        <title>Contact | DuoCone</title>
+        <meta name="description" content="Get in touch with DuoCone, mechanical face seal specialists based in Germany. We reply within one business day." />
       </Helmet>
 
       <header className={styles.head}>
         <span className={styles.kicker}>Contact</span>
         <h1>We're here to answer your questions and support you.</h1>
         <p>
-          Questions or need support? Reach out by phone, email, or the form below —
-          our German-based team replies within one business day.
+          Send an RFQ or a general enquiry with the form below, or reach us directly by phone,
+          WhatsApp or email. Our German-based team replies within one business day.
         </p>
       </header>
 
       <div className={styles.layout}>
         {/* ---------- form ---------- */}
         <div className={styles.formCard}>
+          {!sent && <h2 className={styles.formTitle}>RFQ &amp; enquiry form</h2>}
           {sent ? (
             <div className={styles.success} role="status">
               <span className={styles.successIcon}>
@@ -200,10 +208,19 @@ export function Contact() {
               </div>
             </li>
             <li>
+              <span className={styles.dIcon}><IconWhatsApp /></span>
+              <div>
+                <b>WhatsApp</b>
+                <a href="https://wa.me/4915510386300" target="_blank" rel="noopener noreferrer">
+                  Chat on WhatsApp
+                </a>
+              </div>
+            </li>
+            <li>
               <span className={styles.dIcon}><IconMail /></span>
               <div>
                 <b>Email</b>
-                <a href="mailto:sales@duo-cone.com">sales@duo-cone.com</a>
+                <a href="mailto:sale@duo-cone.com">sale@duo-cone.com</a>
               </div>
             </li>
             <li>
@@ -214,6 +231,24 @@ export function Contact() {
               </div>
             </li>
           </ul>
+
+          <div className={styles.social}>
+            <b>Follow DUO-CONE</b>
+            <div className={styles.socialRow}>
+              <a className={styles.socialLink} href="#" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.64h.05c.53-1 1.83-2.06 3.77-2.06C20.4 8.58 22 10.6 22 14.06V21h-4v-6.2c0-1.48-.03-3.38-2.06-3.38-2.06 0-2.38 1.6-2.38 3.27V21H9V9Z"/></svg>
+              </a>
+              <a className={styles.socialLink} href="#" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+              </a>
+              <a className={styles.socialLink} href="#" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M23 12s0-3.2-.4-4.7a3 3 0 0 0-2.1-2.1C18.9 4.8 12 4.8 12 4.8s-6.9 0-8.5.4a3 3 0 0 0-2.1 2.1C1 8.8 1 12 1 12s0 3.2.4 4.7a3 3 0 0 0 2.1 2.1c1.6.4 8.5.4 8.5.4s6.9 0 8.5-.4a3 3 0 0 0 2.1-2.1C23 15.2 23 12 23 12ZM9.8 15.3V8.7l5.7 3.3-5.7 3.3Z"/></svg>
+              </a>
+              <a className={styles.socialLink} href="#" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3-.04-1.3-.13-2.47-.13-2.44 0-4.11 1.49-4.11 4.23V9.9H7.7V13h2.72v8h3.08Z"/></svg>
+              </a>
+            </div>
+          </div>
 
           <div className={styles.madeIn}>
             <span className={styles.flag} aria-hidden="true" />

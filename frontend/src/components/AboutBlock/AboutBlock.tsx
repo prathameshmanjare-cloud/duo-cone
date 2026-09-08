@@ -156,7 +156,7 @@ export function AboutBlock() {
           </div>
 
           <span className={styles.titleBlock}>
-            <b>DUO CONE — DF TYPE</b>
+            <b>DUO CONE · DF TYPE</b>
             <span>MADE IN GERMANY · DIN ISO 2768&#8209;m · SHEET 1/1</span>
           </span>
         </motion.div>

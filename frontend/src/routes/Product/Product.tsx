@@ -46,7 +46,7 @@ export function Product() {
   return (
     <div className={styles.page}>
       <Helmet>
-        <title>{product.name} | DuoCon</title>
+        <title>{product.name} | DuoCone</title>
         <meta name="description" content={product.short_description ?? product.name} />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -109,7 +109,7 @@ export function Product() {
 
           <div className={styles.stock}>
             {product.in_stock ? (
-              <span className={styles.inStock}><IconCheck size={16} /> In stock — ships within 72h from Germany</span>
+              <span className={styles.inStock}><IconCheck size={16} /> In stock. Ships within 72h from Germany</span>
             ) : (
               <span className={styles.oos}>Currently on backorder</span>
             )}

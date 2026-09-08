@@ -14,7 +14,7 @@ interface Msg {
 const GREETING: Msg = {
   role: "bot",
   text:
-    "Hi! I'm the DuoCone assistant. Ask about a seal, a part number, shipping or pricing — or I can connect you with sales.",
+    "Hi! I'm the DuoCone assistant. Ask about a seal, a part number, shipping or pricing, or I can connect you with sales.",
   quick_replies: ["Find a seal by part number", "Shipping & delivery", "Request a quote", "Talk to sales"],
 };
 
@@ -169,7 +169,7 @@ function HandoffForm({ onClose }: { onClose: () => void }) {
   if (done) {
     return (
       <div className={styles.handoff}>
-        <p className={styles.ok}>Thanks — sent. Reference {done}. Sales will email you shortly.</p>
+        <p className={styles.ok}>Thanks, sent. Reference {done}. Sales will email you shortly.</p>
         <button type="button" className={styles.linkish} onClick={onClose}>
           Back to chat
         </button>

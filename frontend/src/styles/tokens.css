@@ -50,13 +50,21 @@
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
+html {
+  /* clip (not hidden) stops horizontal overflow without breaking position: sticky */
+  overflow-x: clip;
+}
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: clip;
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+#root { max-width: 100%; overflow-x: clip; }
+img, video, canvas { max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
 svg { display: block; }

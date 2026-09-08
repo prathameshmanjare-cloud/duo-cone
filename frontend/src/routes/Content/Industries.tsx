@@ -4,18 +4,18 @@ import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY } from "../../lib/company";
-import miningImg from "../../assets/industries/mining.jpg";
-import constructionImg from "../../assets/industries/construction.jpg";
-import agriImg from "../../assets/industries/agri.jpg";
-import recImg from "../../assets/industries/rec.jpg";
-import forestImg from "../../assets/industries/forest.jpg";
-import militaryImg from "../../assets/industries/military.jpg";
-import heavyImg from "../../assets/industries/heavy.jpg";
-import cementImg from "../../assets/industries/cement.jpg";
-import waterImg from "../../assets/industries/water.jpg";
-import ucImg from "../../assets/industries/uc.jpg";
-import pumpImg from "../../assets/industries/pump.jpg";
-import tunelImg from "../../assets/industries/tunel.jpg";
+import miningImg from "../../assets/industries/app-mining.png";
+import constructionImg from "../../assets/industries/app-construction.png";
+import agriImg from "../../assets/industries/app-agri.png";
+import recImg from "../../assets/industries/app-recycling.png";
+import forestImg from "../../assets/industries/app-forestry.png";
+import militaryImg from "../../assets/industries/app-military.png";
+import heavyImg from "../../assets/industries/app-drivetrain.png";
+import cementImg from "../../assets/industries/app-cement.png";
+import waterImg from "../../assets/industries/app-wastewater.png";
+import ucImg from "../../assets/industries/app-undercarriage.png";
+import pumpImg from "../../assets/industries/app-pumps.png";
+import tunelImg from "../../assets/industries/app-tunnel.png";
 import doImg from "../../assets/product/do-cut.png";
 import dfImg from "../../assets/product/df-cut.png";
 import s from "./Industries.module.css";
@@ -111,7 +111,6 @@ const INDUSTRIES = [
     title: "Heavy industrial pumps",
     desc: "Zero-leakage face sealing for abrasive dredge pumps, mineral slurry transport, high-viscosity gear pumps and screw feeders.",
     tag: "DO / DF · to 0.5 MPa",
-    wide: true,
   },
   {
     n: "12",
@@ -168,52 +167,68 @@ export function Industries() {
   return (
     <div className={s.page}>
       <Helmet>
-        <title>Industries | DuoCon</title>
+        <title>Industries | DuoCone</title>
         <meta
           name="description"
-          content="The severe-duty industries and drive assemblies where DUO-CONE mechanical face seals guarantee zero leakage — mining, construction, forestry, defense, cement, tunnel boring and more."
+          content="The severe-duty industries and drive assemblies where DUO-CONE mechanical face seals guarantee zero leakage across mining, construction, forestry, defense, cement, tunnel boring and more."
         />
       </Helmet>
 
       {/* 1 — hero */}
       <section className={`${s.section} ${s.dark} ${s.hero}`}>
         <span className={s.dotGrid} aria-hidden="true" />
-        <div className={s.heroInner}>
-          <span className={s.pill}>
-            <span className={s.dot} /> Industries &amp; applications · DIN 3760 compliant
-          </span>
-          <h1 className={s.h1}>Engineered for every environment.</h1>
-          <p className={s.lead}>
-            Explore the severe-duty industries, drive assemblies and extreme mobile machinery where
-            DUO-CONE mechanical face seals guarantee zero leakage and absolute bearing-cavity
-            isolation.
-          </p>
+        <div className={s.heroSplit}>
+          <div className={s.heroInner}>
+            <span className={s.pill}>
+              <span className={s.dot} /> Industries &amp; applications · DIN 3760 compliant
+            </span>
+            <h1 className={s.h1}>Engineered for every environment.</h1>
+            <p className={s.lead}>
+              Explore the severe-duty industries, drive assemblies and extreme mobile machinery where
+              DUO-CONE mechanical face seals guarantee zero leakage and absolute bearing-cavity
+              isolation.
+            </p>
 
-          <div className={s.metricsBar}>
-            <div>
-              <span>Metallurgy</span>
-              <strong>High-chrome cast alloy</strong>
-              <em>60 – 66 HRC hardness</em>
+            <div className={s.metricsBar}>
+              <div>
+                <span>Metallurgy</span>
+                <strong>High-chrome cast alloy</strong>
+                <em>60 – 66 HRC hardness</em>
+              </div>
+              <div>
+                <span>Pressure tolerance</span>
+                <strong>0.3 to 0.5 MPa</strong>
+                <em>continuous operation</em>
+              </div>
+              <div>
+                <span>Surface finish</span>
+                <strong>Ra ≤ 0.2 µm lapped</strong>
+                <em>optical band flatness</em>
+              </div>
             </div>
-            <div>
-              <span>Pressure tolerance</span>
-              <strong>0.3 to 0.5 MPa</strong>
-              <em>continuous operation</em>
-            </div>
-            <div>
-              <span>Surface finish</span>
-              <strong>Ra ≤ 0.2 µm lapped</strong>
-              <em>optical band flatness</em>
+
+            <div className={s.heroActions}>
+              <a className={s.primaryLink} href="#industry-grid">
+                Explore industries <IconArrowRight size={16} />
+              </a>
+              <a className={s.ghostLink} href="#configurator">
+                Find your seal
+              </a>
             </div>
           </div>
 
-          <div className={s.heroActions}>
-            <a className={s.primaryLink} href="#industry-grid">
-              Explore industries <IconArrowRight size={16} />
-            </a>
-            <a className={s.ghostLink} href="#configurator">
-              Find your seal
-            </a>
+          <div className={s.heroMedia}>
+            <video
+              className={s.heroVideo}
+              src="/duocone.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label="DUO-CONE mechanical face seals in operation"
+            />
+            <span className={s.heroMediaFrame} aria-hidden="true" />
           </div>
         </div>
       </section>
@@ -258,20 +273,22 @@ export function Industries() {
 
       {/* 3 — application matrix */}
       <section className={`${s.section} ${s.tint}`} id="matrix">
-        <header className={s.head}>
-          <span className={s.overline}>[ Section 02 · technical reference ]</span>
-          <h2>Explore the application range</h2>
-          <p className={s.sub}>
-            12 industries, primary machinery, target sealing cavity, pressure range and recommended
-            product path.
-          </p>
+        <div className={s.matrixHead}>
+          <header className={s.head}>
+            <span className={s.overline}>[ Section 02 · technical reference ]</span>
+            <h2>Explore the application range</h2>
+            <p className={s.sub}>
+              12 industries, primary machinery, target sealing cavity, pressure range and recommended
+              product path.
+            </p>
+          </header>
           <input
             className={s.search}
             placeholder="Filter machinery, cavity or seal type…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
-        </header>
+        </div>
 
         <div className={s.tableWrap}>
           <table className={s.table}>

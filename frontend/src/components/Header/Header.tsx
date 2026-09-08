@@ -53,7 +53,7 @@ export function Header() {
     <>
       <div className={styles.announcement}>
         <span className={styles.spark} aria-hidden="true" />
-        Express Offer — receive your RFQ within 24 hours.
+        Express Offer. Receive your RFQ within 24 hours.
       </div>
       <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
         <div className={styles.inner}>
@@ -65,7 +65,7 @@ export function Header() {
           >
             {menuOpen ? <IconClose size={22} /> : <IconMenu size={22} />}
           </button>
-          <Link to="/" className={styles.logo} aria-label="DuoCon home">
+          <Link to="/" className={styles.logo} aria-label="DuoCone home">
             <Logo height={30} />
           </Link>
           <nav className={styles.nav} aria-label="Primary">
@@ -83,7 +83,7 @@ export function Header() {
             <IconSearch size={16} aria-hidden="true" />
             <input
               type="search"
-              placeholder="Search by name or OEM part number…"
+              placeholder="Search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               aria-label="Search products"
@@ -135,7 +135,7 @@ export function Header() {
               <IconSearch size={16} aria-hidden="true" />
               <input
                 type="search"
-                placeholder="Search by name or OEM part number…"
+                placeholder="Search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Search products"

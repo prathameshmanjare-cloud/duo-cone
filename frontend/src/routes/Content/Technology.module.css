@@ -1,13 +1,29 @@
-/* ===== Technology — process / metrology themed long-form page ===== */
+/* ===== Technology — Precision Engineering System (Stitch design language) ===== */
 .page {
   --steel: #0d1829;
   --steel-deep: #08101e;
   --cyan: #38bdf8;
   --green: #10b981;
-  --line: var(--color-border);
+  /* Precision Engineering System tokens */
+  --line: #d1d8e0;                 /* grid hairline */
+  --line-dark: rgba(255, 255, 255, 0.08);
+  --pe-shadow: 2px 2px 0 rgba(7, 84, 154, 0.25);   /* sharp machined offset, no blur */
+  --pe-shadow-lg: 4px 4px 0 rgba(7, 84, 154, 0.2);
+  --pe-radius: 0.5rem;             /* containers / inspection panels */
+  --pe-radius-sm: 0.25rem;         /* chips, buttons, tiles */
+  --font-head: "Montserrat", "Poppins", system-ui, sans-serif;
+  --font-body: "Inter", "Poppins", system-ui, sans-serif;
+  --font-tech: "JetBrains Mono", ui-monospace, monospace;
   display: flex;
   flex-direction: column;
   width: 100%;
+  font-family: var(--font-body);
+}
+.page h1,
+.page h2,
+.page h3 {
+  font-family: var(--font-head);
+  letter-spacing: -0.02em;
 }
 
 .section {
@@ -25,31 +41,57 @@
 .dark { background: var(--steel); color: #fff; }
 
 /* ---------- shared heads ---------- */
-.head { display: flex; flex-direction: column; gap: 6px; }
-.overline {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.72rem;
+.head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+.dark .head { border-top-color: var(--line-dark); }
+/* CAD corner registration mark */
+.head::before {
+  content: "+";
+  position: absolute;
+  top: calc(-0.5em - 1px);
+  left: -3px;
+  font-family: var(--font-tech);
+  font-size: 1rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  line-height: 1;
+  color: var(--color-primary);
+}
+.dark .head::before { color: var(--cyan); }
+.overline {
+  font-family: var(--font-tech);
+  font-size: 0.6875rem;      /* 11px */
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-primary);
 }
+.dark .overline { color: var(--cyan); }
 .head h2 {
   margin: 0;
-  font-size: clamp(1.5rem, 3.6vw, 2rem);
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: clamp(1.625rem, 3.6vw, 2.25rem);
+  line-height: 1.15;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: var(--color-tertiary);
 }
 .onDark { color: #fff !important; }
-.sub { margin: 0; color: var(--color-text-muted); font-size: 0.95rem; max-width: 62ch; }
-.subDark { margin: 0; color: rgba(255, 255, 255, 0.72); font-size: 0.95rem; max-width: 62ch; }
+.sub { margin: 0; font-family: var(--font-body); color: var(--color-text-muted); font-size: 0.9375rem; line-height: 1.6; max-width: 62ch; }
+.subDark { margin: 0; font-family: var(--font-body); color: rgba(255, 255, 255, 0.72); font-size: 0.9375rem; line-height: 1.6; max-width: 62ch; }
 .miniKicker {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-family: var(--font-tech);
+  font-size: 0.6875rem;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-secondary);
@@ -79,7 +121,7 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   padding: 6px 12px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
 }
 .h1 {
   margin: 0;
@@ -138,7 +180,7 @@
 .blueprint {
   background: var(--steel-deep);
   border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: var(--radius-lg);
+  border-radius: var(--pe-radius);
   padding: var(--space-2);
   display: flex;
   flex-direction: column;
@@ -147,7 +189,7 @@
 .scanFrame {
   position: relative;
   margin: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--pe-radius-sm);
   overflow: hidden;
   background: var(--steel-deep);
   aspect-ratio: 16 / 10;
@@ -228,7 +270,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -238,7 +280,7 @@
   border: 1px solid rgba(56, 189, 248, 0.3);
   backdrop-filter: blur(4px);
   padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
 }
 .liveDot {
   width: 7px;
@@ -267,7 +309,7 @@
   background: var(--steel-deep);
   color: var(--cyan);
   border: 1px solid currentColor;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.62rem;
   font-weight: 700;
   cursor: default;
@@ -295,7 +337,7 @@
   white-space: nowrap;
   background: rgba(8, 16, 30, 0.95);
   border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
   padding: 5px 8px;
   font-size: 0.68rem;
   color: #fff;
@@ -303,7 +345,7 @@
 }
 .markerTip b {
   display: block;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.6rem;
   color: var(--cyan);
   margin-bottom: 1px;
@@ -320,7 +362,7 @@
 }
 .metricStrip > div {
   background: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
   padding: var(--space-2);
   text-align: center;
   display: flex;
@@ -328,7 +370,7 @@
   gap: 2px;
 }
 .metricStrip span {
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.58rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -351,7 +393,7 @@
   isolation: isolate;
   text-align: left;
   padding: var(--space-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--pe-radius-sm);
   border: 1px solid var(--line);
   background: var(--color-surface);
   color: var(--color-tertiary);
@@ -368,13 +410,13 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  border-radius: var(--radius-md);
+  border-radius: var(--pe-radius-sm);
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--color-primary) 70%, transparent);
+  box-shadow: var(--pe-shadow);
 }
 .tabNo {
   position: relative;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -387,16 +429,16 @@
 .anatomyCard {
   background: var(--color-surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--pe-radius);
   padding: var(--space-5);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--pe-shadow);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
 .anatomyBadge {
   align-self: flex-start;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -404,7 +446,7 @@
   background: var(--color-bg-subtle);
   color: var(--color-primary);
   padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
 }
 .anatomyCard h3 {
   margin: 0;
@@ -424,7 +466,7 @@
 }
 .anatomyStats > div {
   background: var(--color-bg-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
   padding: var(--space-3);
   display: flex;
   flex-direction: column;
@@ -437,7 +479,7 @@
   color: var(--color-text-muted);
 }
 .anatomyStats strong {
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   color: var(--color-tertiary);
 }
 
@@ -452,16 +494,16 @@
   height: 100%;
   background: var(--color-surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--pe-radius);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--pe-shadow);
   display: flex;
   flex-direction: column;
   transform-style: preserve-3d;
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .techCard:hover {
-  box-shadow: 0 24px 50px -22px rgba(7, 84, 154, 0.4);
+  box-shadow: var(--pe-shadow-lg);
   border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
 }
 .techMedia {
@@ -497,7 +539,7 @@
 }
 .techCard:hover .sheen { transform: rotate(18deg) translateX(420%); }
 .techNo {
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   color: var(--color-primary);
   font-weight: 800;
 }
@@ -506,26 +548,26 @@
   top: 8px;
   right: 8px;
   z-index: 3;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.6rem;
   color: #fff;
   background: rgba(8, 16, 30, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 3px 7px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
 }
 .techTag {
   position: absolute;
   bottom: 8px;
   right: 8px;
   z-index: 3;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.62rem;
   font-weight: 700;
   color: var(--steel-deep);
   background: var(--color-secondary);
   padding: 3px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
 }
 .techBody {
   padding: var(--space-4);
@@ -553,35 +595,50 @@
 .chip {
   background: var(--color-bg-subtle);
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--pe-radius-sm);
   padding: 3px 9px;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.7rem;
   color: var(--color-tertiary);
 }
 
 /* ---------- 4 · research lab ---------- */
 .labGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-3);
 }
 .labCard {
+  flex: 1 1 calc(50% - var(--space-3));
+  max-width: calc(50% - var(--space-3) / 2);
   position: relative;
+  isolation: isolate;
   overflow: hidden;
-  background: var(--steel-deep);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--pe-radius);
+  padding: var(--space-4) var(--space-4) calc(var(--space-4) + 2px);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  gap: 8px;
+  box-shadow: var(--pe-shadow);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.labCard::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--cyan), var(--color-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 .labCard:hover {
-  border-color: rgba(56, 189, 248, 0.4);
-  box-shadow: 0 20px 44px -20px rgba(56, 189, 248, 0.35);
+  border-color: color-mix(in srgb, var(--cyan) 45%, transparent);
+  box-shadow: var(--pe-shadow-lg);
 }
+.labCard:hover::before { opacity: 1; }
 .labBeam {
   position: absolute;
   top: 0;
@@ -593,6 +650,18 @@
   transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .labCard:hover .labBeam { transform: translateX(100%); }
+.labIndex {
+  position: absolute;
+  top: -0.5rem;
+  right: 0.75rem;
+  z-index: -1;
+  font-family: var(--font-tech);
+  font-size: 3.6rem;
+  font-weight: 800;
+  line-height: 1;
+  color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  pointer-events: none;
+}
 .labTop {
   display: flex;
   align-items: center;
@@ -600,26 +669,117 @@
   gap: var(--space-2);
 }
 .labNo {
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.66rem;
   font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--cyan);
+  color: var(--color-primary);
 }
 .labMeta {
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.66rem;
-  color: rgba(255, 255, 255, 0.45);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-muted);
 }
 .labCard strong {
-  color: #fff;
-  font-size: 0.98rem;
+  color: var(--color-tertiary);
+  font-size: 1rem;
+  letter-spacing: -0.01em;
 }
 .labCard p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-muted);
   font-size: 0.88rem;
   line-height: 1.6;
+}
+
+/* ---------- 4b · seal life testing ---------- */
+.testGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+.testCard {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--color-secondary);
+  border-radius: var(--pe-radius);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--pe-shadow);
+}
+.testNo {
+  font-family: var(--font-tech);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+}
+.testCard h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-tertiary);
+}
+.testCard ul {
+  margin: 0;
+  padding-left: 1.1em;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.testCard li {
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+.pressureFrame {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--space-5);
+  align-items: center;
+  background: var(--steel);
+  border-radius: var(--pe-radius);
+  padding: var(--space-5);
+  color: #fff;
+}
+.pressurePlaceholder {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.pressureRing {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  border-radius: 999px;
+  border: 2px solid var(--cyan);
+  opacity: 0.5;
+  animation: pressurePulse 3s ease-out infinite;
+}
+.pressureRing:nth-child(2) { animation-delay: 1s; }
+.pressureRing:nth-child(3) { animation-delay: 2s; }
+@keyframes pressurePulse {
+  0% { width: 20%; height: 20%; opacity: 0.8; }
+  100% { width: 100%; height: 100%; opacity: 0; }
+}
+.pressureFrame figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pressureFrame figcaption strong { font-size: 1.05rem; }
+.pressureFrame figcaption span {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 /* ---------- 5 · cta ---------- */
@@ -630,7 +790,7 @@
     radial-gradient(600px 200px at 0% 0%, rgba(7, 84, 154, 0.08), transparent 70%),
     var(--color-bg-subtle);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--pe-radius);
   padding: clamp(var(--space-5), 5vw, var(--space-7));
   display: flex;
   flex-direction: column;
@@ -675,7 +835,7 @@
   align-items: center;
   gap: 8px;
   padding: 11px 18px;
-  border-radius: var(--radius-md);
+  border-radius: var(--pe-radius-sm);
   border: 1.5px solid var(--color-border);
   color: var(--color-tertiary);
   font-weight: 700;
@@ -692,7 +852,7 @@
   margin-top: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--line);
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-tech);
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -705,10 +865,20 @@
 @media (max-width: 900px) {
   .tabs { grid-template-columns: repeat(2, 1fr); }
   .techGrid,
-  .labGrid,
-  .anatomyStats {
+  .anatomyStats,
+  .testGrid {
     grid-template-columns: 1fr;
   }
+  .labCard {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+  .pressureFrame {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .pressurePlaceholder { width: 200px; }
   .markerTip { display: none !important; }
 }
 

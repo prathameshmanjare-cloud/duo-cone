@@ -53,7 +53,7 @@ export const CookiePolicy = () => (
   <StaticPage
     title="Cookie Policy"
     sections={[
-      { heading: "Essential cookies", body: "Used for cart, session and security — required for the site to function." },
+      { heading: "Essential cookies", body: "Used for cart, session and security, required for the site to function." },
       { heading: "Analytics cookies", body: "Help us understand site usage; you may opt out at any time." },
     ]}
   />
