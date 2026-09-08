@@ -508,33 +508,36 @@ export function Technology() {
         />
 
         <motion.div
-          className={s.testGrid}
+          className={s.journey}
           variants={gridStagger}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.12 }}
         >
           {TESTS.map((t, i) => (
-            <motion.article key={t.n} className={s.testCard} variants={gridItem}>
-              <span className={s.testGhost} aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div className={s.testTop}>
-                <span className={s.testBadge}>{t.n}</span>
-                <span className={s.testTag}>{t.tag}</span>
+            <motion.div key={t.n} className={s.step} variants={gridItem}>
+              <div className={s.stepRail}>
+                <span className={s.stepNode}>{t.n}</span>
+                {i < TESTS.length - 1 && <span className={s.stepLine} aria-hidden="true" />}
               </div>
-              <h3>{t.title}</h3>
-              <ul className={s.testList}>
-                {t.items.map((it) => (
-                  <li key={it}>
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                    <span>{it}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.article>
+              <div className={s.stepBody}>
+                <span className={s.stepMeta}>
+                  <span className={s.stepStage}>Stage {i + 1} / {TESTS.length}</span>
+                  <span className={s.testTag}>{t.tag}</span>
+                </span>
+                <h3>{t.title}</h3>
+                <ul className={s.testList}>
+                  {t.items.map((it) => (
+                    <li key={it}>
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                      <span>{it}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
           ))}
         </motion.div>
 
