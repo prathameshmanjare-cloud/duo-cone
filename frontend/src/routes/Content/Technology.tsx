@@ -1,6 +1,14 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import {
+  AnimatePresence,
+  animate,
+  motion,
+  useInView,
+  useMotionValue,
+  useReducedMotion,
+} from "framer-motion";
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY } from "../../lib/company";
@@ -147,9 +155,51 @@ const MARKERS = [
   { id: "03", top: "76%", left: "38%", title: "Toric elastomer", value: "ISO 3601 calibrated", tone: "green" },
 ] as const;
 
+const METRICS = [
+  { label: "Tolerance", value: 0.002, decimals: 3, suffix: " mm" },
+  { label: "Hardness", value: 68, decimals: 0, suffix: " HRC" },
+  { label: "Velocity", value: 10, decimals: 0, suffix: " m/s" },
+];
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+const vp = { once: true, amount: 0.2 } as const;
+
+/* ---------- animated count-up ---------- */
+function CountUp({ to, decimals, suffix }: { to: number; decimals: number; suffix: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.6 });
+  const reduce = useReducedMotion();
+  const mv = useMotionValue(0);
+  const [text, setText] = useState(() => (0).toFixed(decimals) + suffix);
+
+  useEffect(() => {
+    if (reduce) {
+      setText(to.toFixed(decimals) + suffix);
+      return;
+    }
+    if (!inView) return;
+    const controls = animate(mv, to, { duration: 1.4, ease: EASE });
+    const unsub = mv.on("change", (v) => setText(v.toFixed(decimals) + suffix));
+    return () => {
+      controls.stop();
+      unsub();
+    };
+  }, [inView, reduce, to, decimals, suffix, mv]);
+
+  return <span ref={ref}>{text}</span>;
+}
+
+const gridStagger = { hidden: {}, visible: { transition: { staggerChildren: 0.09 } } };
+const gridItem = {
+  hidden: { opacity: 0, y: 32 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
+};
+
 export function Technology() {
   const [part, setPart] = useState<AnatomyKey>("metal");
   const a = ANATOMY[part];
+  const reduce = useReducedMotion();
+  const words = "Engineered at the molecular & micron level.".split(" ");
 
   return (
     <div className={s.page}>
@@ -164,19 +214,54 @@ export function Technology() {
       {/* 1 — hero */}
       <section className={`${s.section} ${s.dark} ${s.hero}`}>
         <span className={s.dotGrid} aria-hidden="true" />
-        <div className={s.heroInner}>
-          <span className={s.pill}>
+        <span className={`${s.orb} ${s.orbA}`} aria-hidden="true" />
+        <span className={`${s.orb} ${s.orbB}`} aria-hidden="true" />
+
+        <motion.div
+          className={s.heroInner}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+        >
+          <motion.span
+            className={s.pill}
+            variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } } }}
+          >
             <span className={s.dot} /> Manufacturing metallurgy &amp; tribology
-          </span>
-          <h1 className={s.h1}>Engineered at the molecular &amp; micron level.</h1>
-          <p className={s.lead}>
+          </motion.span>
+
+          <h1 className={s.h1} aria-label="Engineered at the molecular & micron level.">
+            {words.map((w, i) => (
+              <motion.span
+                key={i}
+                className={s.word}
+                variants={{
+                  hidden: { opacity: 0, y: 24, filter: "blur(6px)" },
+                  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: EASE, delay: i * 0.05 } },
+                }}
+              >
+                {w === "&" ? <em className={s.amp}>&amp;</em> : w}
+                {i < words.length - 1 ? " " : ""}
+              </motion.span>
+            ))}
+          </h1>
+
+          <motion.p
+            className={s.lead}
+            variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } } }}
+          >
             Every DUO-CONE mechanical face seal is the outcome of specialised metallurgy, proprietary
             centrifugal casting, precision lapping and rigorous elastomer formulation — designed to
             resist abrasive slurry, extreme load and high sliding velocities.
-          </p>
+          </motion.p>
 
-          <div className={s.blueprint}>
+          <motion.div
+            className={s.blueprint}
+            variants={{ hidden: { opacity: 0, scale: 0.94 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: EASE } } }}
+          >
             <figure className={s.scanFrame}>
+              <span className={s.ringGlow} aria-hidden="true" />
               <img src={heroImg} alt="DUO-CONE precision-engineered mechanical face seals" loading="lazy" />
               <span className={s.corner} data-c="tl" />
               <span className={s.corner} data-c="tr" />
@@ -186,49 +271,53 @@ export function Technology() {
               <span className={s.feedTag}>
                 <span className={s.liveDot} /> Live optical sensor feed · 4K metrology
               </span>
-              {MARKERS.map((m) => (
-                <span
+              {MARKERS.map((m, i) => (
+                <motion.span
                   key={m.id}
                   className={s.marker}
                   data-tone={m.tone}
                   style={{ top: m.top, left: m.left }}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ type: "spring", stiffness: 300, damping: 18, delay: 0.5 + i * 0.15 }}
                 >
                   <span className={s.markerPin}>{m.id}</span>
                   <span className={s.markerTip}>
                     <b>{m.title}</b>
                     {m.value}
                   </span>
-                </span>
+                </motion.span>
               ))}
             </figure>
+
             <div className={s.metricStrip}>
-              <div>
-                <span>Tolerance</span>
-                <strong>0.002 mm</strong>
-              </div>
-              <div>
-                <span>Hardness</span>
-                <strong>68 HRC</strong>
-              </div>
-              <div>
-                <span>Velocity</span>
-                <strong>10 m/s</strong>
-              </div>
+              {METRICS.map((m) => (
+                <motion.div
+                  key={m.label}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={vp}
+                  transition={{ duration: 0.5, ease: EASE }}
+                >
+                  <span>{m.label}</span>
+                  <strong>
+                    <CountUp to={m.value} decimals={m.decimals} suffix={m.suffix} />
+                  </strong>
+                </motion.div>
+              ))}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* 2 — interactive anatomy */}
       <section className={s.section}>
-        <header className={s.head}>
-          <span className={s.overline}>[ Cross-section engineering ]</span>
-          <h2>Interactive seal anatomy</h2>
-          <p className={s.sub}>
-            Pick a component to see how complementary mechanical forces guarantee zero leakage under
-            high particulate intrusion.
-          </p>
-        </header>
+        <RevealHead
+          overline="[ Cross-section engineering ]"
+          title="Interactive seal anatomy"
+          sub="Pick a component to see how complementary mechanical forces guarantee zero leakage under high particulate intrusion."
+        />
 
         <div className={s.anatomy}>
           <div className={s.tabs} role="tablist" aria-label="Seal components">
@@ -240,53 +329,81 @@ export function Technology() {
                 className={`${s.tab} ${part === k ? s.tabActive : ""}`}
                 onClick={() => setPart(k)}
               >
+                {part === k && (
+                  <motion.span
+                    layoutId="anatomyTab"
+                    className={s.tabHighlight}
+                    transition={{ type: "spring", stiffness: 320, damping: 30 }}
+                  />
+                )}
                 <span className={s.tabNo}>{ANATOMY[k].n}</span>
                 <span className={s.tabName}>{ANATOMY[k].tab}</span>
               </button>
             ))}
           </div>
 
-          <div className={s.anatomyCard}>
-            <span className={s.anatomyBadge}>{a.badge}</span>
-            <h3>{a.title}</h3>
-            <p>{a.desc}</p>
-            <div className={s.anatomyStats}>
-              <div>
-                <span>{a.s1[0]}</span>
-                <strong>{a.s1[1]}</strong>
-              </div>
-              <div>
-                <span>{a.s2[0]}</span>
-                <strong>{a.s2[1]}</strong>
-              </div>
-            </div>
+          <div className={s.anatomyStage}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={part}
+                className={s.anatomyCard}
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={{ duration: 0.35, ease: EASE }}
+              >
+                <span className={s.anatomyBadge}>{a.badge}</span>
+                <h3>{a.title}</h3>
+                <p>{a.desc}</p>
+                <div className={s.anatomyStats}>
+                  <div>
+                    <span>{a.s1[0]}</span>
+                    <strong>{a.s1[1]}</strong>
+                  </div>
+                  <div>
+                    <span>{a.s2[0]}</span>
+                    <strong>{a.s2[1]}</strong>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </section>
 
       {/* 3 — 6 core technologies */}
       <section className={`${s.section} ${s.tint}`}>
-        <header className={s.head}>
-          <span className={s.overline}>[ Process architecture ]</span>
-          <h2>The 6 core technologies</h2>
-          <p className={s.sub}>
-            From molten-alloy centrifugal pouring to optical helium testing, every phase reflects
-            rigorous German manufacturing standards.
-          </p>
-        </header>
+        <RevealHead
+          overline="[ Process architecture ]"
+          title="The 6 core technologies"
+          sub="From molten-alloy centrifugal pouring to optical helium testing, every phase reflects rigorous German manufacturing standards."
+        />
 
-        <div className={s.techGrid}>
+        <motion.div
+          className={s.techGrid}
+          variants={gridStagger}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+        >
           {TECHS.map((t) => (
-            <article key={t.n} className={s.techCard}>
+            <motion.article
+              key={t.n}
+              className={s.techCard}
+              variants={gridItem}
+              whileHover={reduce ? undefined : { y: -8 }}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
+            >
               <figure className={s.techMedia}>
                 <img src={t.img} alt={t.title} loading="lazy" />
+                <span className={s.sheen} aria-hidden="true" />
                 <span className={s.scanLine} data-tone="amber" aria-hidden="true" />
                 <span className={s.phase}>Phase [{t.n}/06]</span>
                 <span className={s.techTag}>{t.tag}</span>
               </figure>
               <div className={s.techBody}>
                 <h3>
-                  {t.n} {t.title}
+                  <span className={s.techNo}>{t.n}</span> {t.title}
                 </h3>
                 <p>{t.desc}</p>
                 <div className={s.chips}>
@@ -297,41 +414,57 @@ export function Technology() {
                   ))}
                 </div>
               </div>
-            </article>
+            </motion.article>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* 4 — research lab */}
       <section className={`${s.section} ${s.dark}`}>
-        <header className={s.head}>
-          <span className={s.miniKicker}>
-            <span className={s.dot} /> Pending patents / ongoing development
-          </span>
-          <h2 className={s.onDark}>DUO-CONE research lab</h2>
-          <p className={s.subDark}>
-            Continuously testing metallurgy under extreme simulation inside our Engelskirchen
-            facilities.
-          </p>
-        </header>
+        <RevealHead
+          onDark
+          kicker="Pending patents / ongoing development"
+          title="DUO-CONE research lab"
+          sub="Continuously testing metallurgy under extreme simulation inside our Engelskirchen facilities."
+        />
 
-        <div className={s.labGrid}>
+        <motion.div
+          className={s.labGrid}
+          variants={gridStagger}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+        >
           {LAB.map((l) => (
-            <div key={l.n} className={s.labCard}>
+            <motion.div
+              key={l.n}
+              className={s.labCard}
+              variants={gridItem}
+              whileHover={reduce ? undefined : { y: -5 }}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
+            >
+              <span className={s.labBeam} aria-hidden="true" />
               <div className={s.labTop}>
                 <span className={s.labNo}>{l.n}</span>
                 <span className={s.labMeta}>{l.meta}</span>
               </div>
               <strong>{l.title}</strong>
               <p>{l.desc}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* 5 — CTA */}
       <section className={s.section}>
-        <div className={s.cta}>
+        <motion.div
+          className={s.cta}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.7, ease: EASE }}
+        >
+          <span className={s.ctaShimmer} aria-hidden="true" />
           <span className={s.overline}>[ Direct engineering desk ]</span>
           <h2>Specific dimensional or metallurgical requirements?</h2>
           <p>
@@ -353,8 +486,42 @@ export function Technology() {
             <span>{COMPANY.certification}</span>
             <span>100% optical test</span>
           </div>
-        </div>
+        </motion.div>
       </section>
     </div>
+  );
+}
+
+/* ---------- animated section header ---------- */
+function RevealHead({
+  overline,
+  kicker,
+  title,
+  sub,
+  onDark,
+}: {
+  overline?: string;
+  kicker?: string;
+  title: string;
+  sub: string;
+  onDark?: boolean;
+}) {
+  return (
+    <motion.header
+      className={s.head}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.6 }}
+      transition={{ duration: 0.6, ease: EASE }}
+    >
+      {overline && <span className={s.overline}>{overline}</span>}
+      {kicker && (
+        <span className={s.miniKicker}>
+          <span className={s.dot} /> {kicker}
+        </span>
+      )}
+      <h2 className={onDark ? s.onDark : undefined}>{title}</h2>
+      <p className={onDark ? s.subDark : s.sub}>{sub}</p>
+    </motion.header>
   );
 }

@@ -88,6 +88,45 @@
   text-transform: uppercase;
   letter-spacing: -0.02em;
 }
+.word {
+  display: inline-block;
+  white-space: pre;
+  will-change: transform, opacity, filter;
+}
+.amp {
+  font-style: normal;
+  color: var(--cyan);
+}
+
+/* floating hero glow orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+.orbA {
+  width: 340px;
+  height: 340px;
+  top: -80px;
+  right: -60px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.55), transparent 70%);
+  animation: drift 16s ease-in-out infinite;
+}
+.orbB {
+  width: 300px;
+  height: 300px;
+  bottom: -120px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(253, 196, 0, 0.4), transparent 70%);
+  animation: drift 20s ease-in-out infinite reverse;
+}
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(24px, -30px) scale(1.08); }
+}
 .lead {
   margin: 0;
   max-width: 62ch;
@@ -120,6 +159,32 @@
   object-fit: cover;
   display: block;
   filter: saturate(0.9) contrast(1.05);
+}
+/* rotating conic gradient border */
+.ringGlow {
+  position: absolute;
+  inset: -2px;
+  z-index: 4;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--cyan) 60deg,
+    transparent 130deg,
+    transparent 230deg,
+    var(--color-secondary) 300deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin 6s linear infinite;
+  opacity: 0.9;
+  pointer-events: none;
+}
+@keyframes spin {
+  to { transform: rotate(1turn); }
 }
 .corner {
   position: absolute;
@@ -282,6 +347,8 @@
   gap: var(--space-2);
 }
 .tab {
+  position: relative;
+  isolation: isolate;
   text-align: left;
   padding: var(--space-3);
   border-radius: var(--radius-md);
@@ -292,22 +359,30 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
-.tab:hover { border-color: color-mix(in srgb, var(--color-primary) 40%, transparent); }
-.tabActive {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
+.tab:hover { border-color: color-mix(in srgb, var(--color-primary) 40%, transparent); transform: translateY(-2px); }
+.tabActive { border-color: var(--color-primary); color: #fff; }
+.tabHighlight {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--color-primary) 70%, transparent);
 }
 .tabNo {
+  position: relative;
   font-family: var(--font-mono, monospace);
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   opacity: 0.75;
 }
-.tabName { font-weight: 700; font-size: 0.92rem; }
+.tabName { position: relative; font-weight: 700; font-size: 0.92rem; }
+
+.anatomyStage { position: relative; min-height: 260px; }
 
 .anatomyCard {
   background: var(--color-surface);
@@ -372,7 +447,9 @@
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-4);
 }
+.techCardWrap { height: 100%; }
 .techCard {
+  height: 100%;
   background: var(--color-surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -380,6 +457,12 @@
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
+  transform-style: preserve-3d;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.techCard:hover {
+  box-shadow: 0 24px 50px -22px rgba(7, 84, 154, 0.4);
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
 }
 .techMedia {
   position: relative;
@@ -393,6 +476,30 @@
   height: 100%;
   object-fit: cover;
   filter: brightness(0.82) saturate(0.9);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+}
+.techCard:hover .techMedia img {
+  transform: scale(1.08);
+  filter: brightness(0.95) saturate(1.05);
+}
+/* diagonal light sweep on hover */
+.sheen {
+  position: absolute;
+  top: -60%;
+  left: -40%;
+  width: 40%;
+  height: 220%;
+  z-index: 2;
+  transform: rotate(18deg) translateX(-120%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.techCard:hover .sheen { transform: rotate(18deg) translateX(420%); }
+.techNo {
+  font-family: var(--font-mono, monospace);
+  color: var(--color-primary);
+  font-weight: 800;
 }
 .phase {
   position: absolute;
@@ -460,6 +567,8 @@
   gap: var(--space-3);
 }
 .labCard {
+  position: relative;
+  overflow: hidden;
   background: var(--steel-deep);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
@@ -467,7 +576,23 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+.labCard:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 20px 44px -20px rgba(56, 189, 248, 0.35);
+}
+.labBeam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.labCard:hover .labBeam { transform: translateX(100%); }
 .labTop {
   display: flex;
   align-items: center;
@@ -499,13 +624,32 @@
 
 /* ---------- 5 · cta ---------- */
 .cta {
-  background: var(--color-bg-subtle);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(600px 200px at 0% 0%, rgba(7, 84, 154, 0.08), transparent 70%),
+    var(--color-bg-subtle);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: clamp(var(--space-5), 5vw, var(--space-7));
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+.ctaShimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-18deg) translateX(-160%);
+  animation: shimmer 6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shimmer {
+  0%, 60% { transform: skewX(-18deg) translateX(-160%); }
+  100% { transform: skewX(-18deg) translateX(320%); }
 }
 .cta h2 {
   margin: 0;
@@ -571,7 +715,13 @@
 @media (prefers-reduced-motion: reduce) {
   .scanLine,
   .liveDot,
-  .markerPin::after {
+  .markerPin::after,
+  .orbA,
+  .orbB,
+  .ringGlow,
+  .ctaShimmer {
     animation: none;
   }
+  .ringGlow { opacity: 0.5; }
+  .word { transform: none !important; }
 }
