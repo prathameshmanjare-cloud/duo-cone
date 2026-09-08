@@ -152,7 +152,7 @@
   gap: 6px;
   font-size: 0.86rem;
   font-weight: 700;
-  color: var(--color-secondary-dark);
+  color: var(--color-primary);
   text-decoration: none;
   transition: gap var(--transition-fast);
 }
@@ -193,7 +193,7 @@
   z-index: 0;
   background: radial-gradient(
     220px circle at var(--mx) var(--my),
-    color-mix(in srgb, var(--color-secondary) 26%, transparent),
+    color-mix(in srgb, var(--color-primary) 16%, transparent),
     transparent 70%
   );
   opacity: 0;
@@ -204,8 +204,8 @@
 }
 .brand:hover {
   transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--color-secondary) 70%, transparent);
-  box-shadow: 0 24px 46px -26px rgba(253, 196, 0, 0.55);
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  box-shadow: 0 24px 46px -26px rgba(7, 84, 154, 0.5);
 }
 
 /* oversized watermark initials */
@@ -224,7 +224,7 @@
   transition: color 0.3s ease, transform 0.3s ease;
 }
 .brand:hover .ghost {
-  color: color-mix(in srgb, var(--color-secondary) 22%, transparent);
+  color: color-mix(in srgb, var(--color-primary) 12%, transparent);
   transform: translateX(-4px);
 }
 
@@ -238,15 +238,15 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--color-secondary) 22%, transparent);
-  color: var(--color-secondary-dark);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
   font-size: 0.8rem;
   font-weight: 800;
   transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
 }
 .brand:hover .mono {
-  background: var(--color-secondary);
-  color: var(--color-tertiary);
+  background: var(--color-primary);
+  color: #fff;
   transform: rotate(-6deg);
 }
 
@@ -285,36 +285,32 @@
   transition: transform 0.25s ease, color 0.25s ease, background 0.25s ease;
 }
 .brand:hover .brandArrow {
-  background: color-mix(in srgb, var(--color-secondary) 26%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
 }
 .brandFeatured .brandArrow {
   background: rgba(255, 255, 255, 0.12);
 }
 .brand:hover .brandArrow {
   transform: translateX(3px);
-  color: var(--color-secondary-dark);
+  color: var(--color-primary);
 }
 
 .brandOn {
-  border-color: var(--color-secondary);
-  background: color-mix(in srgb, var(--color-secondary) 14%, #fff);
-}
-.brandOn .mono {
-  background: var(--color-secondary);
-  color: var(--color-tertiary);
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 7%, #fff);
 }
 
 /* featured first tile */
 .brandFeatured {
   grid-column: span 2;
   grid-row: span 2;
-  background: radial-gradient(120% 120% at 0% 0%, #ffd84d 0%, #fdc400 55%, #e5b000 100%);
+  background: radial-gradient(120% 120% at 0% 0%, #123a63 0%, #0b2544 60%, #071a30 100%);
   border-color: transparent;
-  color: var(--color-tertiary);
+  color: #fff;
 }
 .brandFeatured .mono {
-  background: rgba(13, 24, 41, 0.14);
-  color: var(--color-tertiary);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
   width: 46px;
   height: 46px;
   font-size: 1rem;
@@ -324,31 +320,26 @@
   font-weight: 800;
 }
 .brandFeatured .brandSub {
-  color: rgba(13, 24, 41, 0.65);
+  color: rgba(180, 210, 255, 0.8);
 }
 .brandFeatured .brandArrow {
-  background: rgba(13, 24, 41, 0.12);
-  color: rgba(13, 24, 41, 0.75);
+  color: rgba(255, 255, 255, 0.7);
 }
 .brandFeatured .ghost {
-  color: rgba(13, 24, 41, 0.08);
+  color: rgba(255, 255, 255, 0.06);
   font-size: 8rem;
   bottom: -30px;
 }
 .brandFeatured::after {
   background: radial-gradient(
     260px circle at var(--mx) var(--my),
-    rgba(255, 255, 255, 0.35),
+    rgba(120, 180, 255, 0.22),
     transparent 70%
   );
 }
-.brandFeatured:hover {
-  border-color: transparent;
-  box-shadow: 0 24px 46px -26px rgba(253, 196, 0, 0.7);
-}
 .brandFeatured:hover .mono {
-  background: var(--color-tertiary);
-  color: var(--color-secondary);
+  background: var(--color-secondary);
+  color: var(--color-tertiary);
 }
 
 /* ---------- responsive ---------- */
