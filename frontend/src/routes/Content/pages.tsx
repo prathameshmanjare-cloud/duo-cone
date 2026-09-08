@@ -2,19 +2,7 @@ import { StaticPage } from "./StaticPage";
 
 export { About } from "./About";
 export { Technology } from "./Technology";
-
-export const Industries = () => (
-  <StaticPage
-    title="Industries We Serve"
-    intro="We drive progress across key sectors with sealing solutions engineered for the harshest environments."
-    sections={[
-      { heading: "Mining", body: "High-pressure face seals for excavators and haul equipment operating in abrasive conditions." },
-      { heading: "Construction", body: "Reliable seals for hydraulic systems in excavators, loaders and construction machinery." },
-      { heading: "Agriculture & Forestry", body: "Wear-resistant seals for tractors, harvesters and forestry equipment." },
-      { heading: "Recycling & Defense", body: "Custom sealing solutions for recycling machinery and defense-grade equipment." },
-    ]}
-  />
-);
+export { Industries } from "./Industries";
 
 export const Shipping = () => (
   <StaticPage
