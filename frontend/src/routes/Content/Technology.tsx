@@ -153,16 +153,19 @@ const TESTS = [
   {
     n: "T1",
     title: "Mud packing test",
+    tag: "Contamination",
     items: ["Mud-submerged wear and leakage under a contamination load"],
   },
   {
     n: "T2",
     title: "Heat generation test",
+    tag: "Thermal",
     items: ["Time, pressure and surface speed in lubrication, measuring the heat the face pair generates"],
   },
   {
     n: "T3",
     title: "Elastomeric test",
+    tag: "Rubber science",
     items: [
       "Oil compatibility",
       "Face-load variation against time and temperature",
@@ -173,11 +176,13 @@ const TESTS = [
   {
     n: "T4",
     title: "P-V test",
+    tag: "Tribology",
     items: ["Pressure against velocity at linear speed", "Wear, galling and spilling"],
   },
   {
     n: "T5",
     title: "Seal endurance testing",
+    tag: "Lifecycle rig",
     items: [
       "Endurance rig running at set speed and temperature",
       "Up to 1000 rpm to reach 10 m/s linear speed",
@@ -509,13 +514,24 @@ export function Technology() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.12 }}
         >
-          {TESTS.map((t) => (
+          {TESTS.map((t, i) => (
             <motion.article key={t.n} className={s.testCard} variants={gridItem}>
-              <span className={s.testNo}>{t.n}</span>
+              <span className={s.testGhost} aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className={s.testTop}>
+                <span className={s.testBadge}>{t.n}</span>
+                <span className={s.testTag}>{t.tag}</span>
+              </div>
               <h3>{t.title}</h3>
-              <ul>
+              <ul className={s.testList}>
                 {t.items.map((it) => (
-                  <li key={it}>{it}</li>
+                  <li key={it}>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                    <span>{it}</span>
+                  </li>
                 ))}
               </ul>
             </motion.article>
@@ -534,17 +550,25 @@ export function Technology() {
             (glTF, MP4 loop or high-res still) into src/assets and replace
             this block with the viewer or <video>.
           */}
-          <div className={s.pressurePlaceholder} aria-hidden="true">
+          <div className={s.pressureViz} aria-hidden="true">
+            <span className={s.pressureCore} />
             <span className={s.pressureRing} />
             <span className={s.pressureRing} />
             <span className={s.pressureRing} />
+            <span className={s.pressureGrid} />
           </div>
           <figcaption>
+            <span className={s.pressureKicker}>[ FEA · contact model ]</span>
             <strong>Contact-pressure simulation</strong>
-            <span>
-              Finite-element map of face load and hydrodynamic film across the sealing band. 3D model
-              coming soon.
+            <span className={s.pressureText}>
+              Finite-element map of face load and hydrodynamic film across the sealing band.
             </span>
+            <div className={s.pressureScale} aria-hidden="true">
+              <span>low</span>
+              <span className={s.pressureBar} />
+              <span>peak</span>
+            </div>
+            <span className={s.pressureSoon}>3D model coming soon</span>
           </figcaption>
         </motion.figure>
       </section>
