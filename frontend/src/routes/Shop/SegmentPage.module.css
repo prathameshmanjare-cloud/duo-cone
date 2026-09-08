@@ -193,7 +193,7 @@
   z-index: 0;
   background: radial-gradient(
     220px circle at var(--mx) var(--my),
-    color-mix(in srgb, var(--color-primary) 16%, transparent),
+    color-mix(in srgb, var(--color-secondary) 26%, transparent),
     transparent 70%
   );
   opacity: 0;
@@ -204,8 +204,8 @@
 }
 .brand:hover {
   transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
-  box-shadow: 0 24px 46px -26px rgba(7, 84, 154, 0.5);
+  border-color: color-mix(in srgb, var(--color-secondary) 70%, transparent);
+  box-shadow: 0 24px 46px -26px rgba(253, 196, 0, 0.55);
 }
 
 /* oversized watermark initials */
@@ -224,7 +224,7 @@
   transition: color 0.3s ease, transform 0.3s ease;
 }
 .brand:hover .ghost {
-  color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: color-mix(in srgb, var(--color-secondary) 22%, transparent);
   transform: translateX(-4px);
 }
 
@@ -289,19 +289,19 @@
   transition: transform 0.25s ease, color 0.25s ease, background 0.25s ease;
 }
 .brand:hover .brandArrow {
-  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  background: color-mix(in srgb, var(--color-secondary) 26%, transparent);
 }
 .brandFeatured .brandArrow {
   background: rgba(255, 255, 255, 0.12);
 }
 .brand:hover .brandArrow {
   transform: translateX(3px);
-  color: var(--color-primary);
+  color: var(--color-secondary-dark);
 }
 
 .brandOn {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 7%, #fff);
+  border-color: var(--color-secondary);
+  background: color-mix(in srgb, var(--color-secondary) 14%, #fff);
 }
 
 /* featured first tile */
