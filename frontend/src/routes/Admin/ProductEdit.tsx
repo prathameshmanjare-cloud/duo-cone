@@ -296,12 +296,19 @@ function ImageEditor({ productId }: { productId: string }) {
   const [url, setUrl] = useState("");
   const [alt, setAlt] = useState("");
   const [pos, setPos] = useState("0");
+  const [file, setFile] = useState<File | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
 
   const add = useMutation({
     mutationFn: () => adminApi.addImage(productId, { url, alt: alt || null, position: Number(pos) || 0 }),
     onSuccess: () => { setUrl(""); setAlt(""); setPos("0"); invalidate(); },
+    onError: (e) => setMsg((e as Error).message),
+  });
+  const upload = useMutation({
+    mutationFn: () =>
+      adminApi.uploadImage(productId, file as File, { alt: alt || undefined, position: Number(pos) || 0 }),
+    onSuccess: () => { setFile(null); setAlt(""); setPos("0"); invalidate(); },
     onError: (e) => setMsg((e as Error).message),
   });
   const del = useMutation({
@@ -313,6 +320,32 @@ function ImageEditor({ productId }: { productId: string }) {
     <div className={s.card} style={{ padding: "var(--space-5)", marginTop: "var(--space-5)" }}>
       <h2 style={{ marginTop: 0 }}>Images</h2>
       {msg && <p className={s.error}>{msg}</p>}
+
+      <div className={s.toolbar} style={{ alignItems: "center" }}>
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+          onChange={(e) => { setMsg(null); setFile(e.target.files?.[0] ?? null); }}
+        />
+        {file && (
+          <img
+            src={URL.createObjectURL(file)}
+            alt=""
+            style={{ height: 40, width: 40, objectFit: "cover", borderRadius: 6 }}
+          />
+        )}
+        <button
+          className={s.btn}
+          disabled={!file || upload.isPending}
+          onClick={() => { setMsg(null); upload.mutate(); }}
+        >
+          {upload.isPending ? "Uploading…" : "Upload photo"}
+        </button>
+      </div>
+
+      <p className={s.muted} style={{ margin: "6px 0 10px" }}>
+        …or add an image already hosted somewhere:
+      </p>
       <div className={s.toolbar}>
         <input className={s.input} placeholder="Image URL or /path" value={url} onChange={(e) => setUrl(e.target.value)} />
         <input className={s.input} placeholder="Alt text" value={alt} onChange={(e) => setAlt(e.target.value)} />

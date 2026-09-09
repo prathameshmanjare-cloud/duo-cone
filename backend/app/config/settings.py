@@ -44,6 +44,10 @@ class Settings(BaseSettings):
 
     image_base_url: str = "https://raw.githubusercontent.com/duocone/product-images/main/"
 
+    # public base URL of this API, used to build absolute URLs for uploaded
+    # product photos. Leave blank to derive it from the incoming request.
+    api_public_url: str = ""
+
     email_provider: str = "sendgrid"  # sendgrid | mailgun
     sendgrid_api_key: str = ""
     mailgun_api_key: str = ""

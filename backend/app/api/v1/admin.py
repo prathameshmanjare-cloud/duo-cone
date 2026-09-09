@@ -9,7 +9,17 @@ from __future__ import annotations
 import re
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+    status,
+)
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,6 +33,7 @@ from app.models.catalog import (
     Category,
     CrossReference,
     Inventory,
+    MediaAsset,
     Product,
     ProductCategory,
     ProductImage,
@@ -712,6 +723,62 @@ async def add_image(
 ) -> ProductImageOut:
     await _get_product_or_404(db, product_id)
     row = ProductImage(product_id=product_id, **payload.model_dump())
+    db.add(row)
+    await db.commit()
+    await db.refresh(row)
+    return ProductImageOut.model_validate(row)
+
+
+_ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"}
+_MAX_UPLOAD_BYTES = 6 * 1024 * 1024  # 6 MB
+
+
+@router.post(
+    "/products/{product_id}/images/upload",
+    response_model=ProductImageOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_image(
+    product_id: uuid.UUID,
+    request: Request,
+    file: UploadFile = File(...),
+    alt: str | None = Form(None),
+    position: int = Form(0),
+    db: AsyncSession = Depends(get_db),
+) -> ProductImageOut:
+    """Accept a real photo file, store the bytes in the DB and link it as a
+    product image. Kept in the database so it survives ephemeral-disk hosts."""
+    await _get_product_or_404(db, product_id)
+
+    content_type = (file.content_type or "").lower()
+    if content_type not in _ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=415, detail="Unsupported image type")
+
+    data = await file.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty file")
+    if len(data) > _MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="Image exceeds 6 MB limit")
+
+    asset = MediaAsset(
+        product_id=product_id,
+        content_type=content_type,
+        filename=file.filename,
+        size=len(data),
+        data=data,
+    )
+    db.add(asset)
+    await db.flush()
+
+    from app.config.settings import get_settings
+
+    base = get_settings().api_public_url.rstrip("/") or str(request.base_url).rstrip("/")
+    row = ProductImage(
+        product_id=product_id,
+        url=f"{base}/api/v1/media/{asset.id}",
+        alt=alt or None,
+        position=position or 0,
+    )
     db.add(row)
     await db.commit()
     await db.refresh(row)

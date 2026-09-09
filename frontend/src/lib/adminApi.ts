@@ -399,6 +399,30 @@ export const adminApi = {
     req<ProductImageRow[]>(`/admin/products/${productId}/images`),
   addImage: (productId: string, data: Record<string, unknown>) =>
     req<ProductImageRow>(`/admin/products/${productId}/images`, { method: "POST", body: body(data) }),
+  uploadImage: async (
+    productId: string,
+    file: File,
+    opts: { alt?: string; position?: number } = {}
+  ): Promise<ProductImageRow> => {
+    const fd = new FormData();
+    fd.append("file", file);
+    if (opts.alt) fd.append("alt", opts.alt);
+    fd.append("position", String(opts.position ?? 0));
+    // hand-rolled fetch: never set Content-Type so the browser adds the
+    // multipart boundary; keep auth + one refresh retry.
+    const send = () =>
+      fetch(`${API_URL}/admin/products/${productId}/images/upload`, {
+        method: "POST",
+        headers: tokenStore.access ? { Authorization: `Bearer ${tokenStore.access}` } : {},
+        body: fd,
+      });
+    let res = await send();
+    if (res.status === 401 && tokenStore.refresh && (await tryRefresh())) {
+      res = await send();
+    }
+    if (!res.ok) throw new AdminApiError(res.status, parseDetail(await res.text()));
+    return (await res.json()) as ProductImageRow;
+  },
   updateImage: (productId: string, imageId: number, data: Record<string, unknown>) =>
     req<ProductImageRow>(`/admin/products/${productId}/images/${imageId}`, {
       method: "PATCH",

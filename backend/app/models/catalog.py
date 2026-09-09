@@ -8,6 +8,7 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     Integer,
+    LargeBinary,
     Numeric,
     String,
     Text,
@@ -135,6 +136,27 @@ class ProductImage(Base):
     height: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     product: Mapped["Product"] = relationship(back_populates="images")
+
+
+class MediaAsset(Base):
+    """Binary blob for an uploaded product photo, served from the DB so it
+    survives on hosts with an ephemeral filesystem (Render free tier)."""
+
+    __tablename__ = "media_assets"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    product_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("products.id"), nullable=True
+    )
+    content_type: Mapped[str] = mapped_column(String(120))
+    filename: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    size: Mapped[int] = mapped_column(Integer, default=0)
+    data: Mapped[bytes] = mapped_column(LargeBinary)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 class ProductAttribute(Base):
