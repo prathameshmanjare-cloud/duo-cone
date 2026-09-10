@@ -15,8 +15,6 @@ export function SealCanvas({ className }: { className?: string }) {
     const container = containerRef.current;
     if (!container) return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     let width = container.clientWidth || window.innerWidth;
     let height = container.clientHeight || window.innerHeight || 1;
 
@@ -108,24 +106,17 @@ export function SealCanvas({ className }: { className?: string }) {
       seal.add(p.obj);
     });
 
-    // present at a 3/4 angle
+    // present at a fixed 3/4 angle with a gentle static explode — no animation
     seal.rotation.x = -0.42;
     seal.rotation.y = -0.4;
-    seal.scale.setScalar(1);
+    seal.scale.setScalar(0.58);
+    const STATIC_EXPLODE = 1.28;
+    parts.forEach((p) => {
+      p.obj.position.z = p.baseZ * STATIC_EXPLODE;
+    });
     scene.add(seal);
 
-    // ---- interaction ----
-    let targetTilt = 0;
-    let scrollY = window.scrollY;
-    const onScroll = () => {
-      scrollY = window.scrollY;
-    };
-    const onPointer = (e: PointerEvent) => {
-      const r = container.getBoundingClientRect();
-      targetTilt = ((e.clientX - r.left) / r.width - 0.5) * 0.5;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("pointermove", onPointer, { passive: true });
+    const render = () => renderer.render(scene, camera);
 
     const onResize = () => {
       const w = container.clientWidth || container.offsetWidth || window.innerWidth;
@@ -136,39 +127,21 @@ export function SealCanvas({ className }: { className?: string }) {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      render();
     };
     window.addEventListener("resize", onResize);
     const ro =
       typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     ro?.observe(container);
-    requestAnimationFrame(onResize);
+    requestAnimationFrame(() => {
+      onResize();
+      render();
+    });
 
-    const clock = new THREE.Clock();
-    let raf = 0;
-    const animate = () => {
-      raf = requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
-      if (!reduce) {
-        seal.rotation.y += 0.0032;
-        seal.rotation.x = -0.42 + Math.sin(t * 0.5) * 0.05 - scrollY * 0.0004;
-        seal.position.y = Math.sin(t * 0.7) * 0.12;
-        seal.rotation.z = THREE.MathUtils.lerp(seal.rotation.z, targetTilt * 0.4, 0.05);
-        // breathe the exploded parts apart and back
-        const explode = 1 + (Math.sin(t * 0.55) * 0.5 + 0.5) * 0.55;
-        parts.forEach((p) => {
-          p.obj.position.z = p.baseZ * explode;
-          p.obj.rotation.z = Math.sin(t * 0.4 + p.drift * 3) * 0.06 * p.drift;
-        });
-      }
-      renderer.render(scene, camera);
-    };
-    animate();
+    render();
 
     return () => {
-      cancelAnimationFrame(raf);
       ro?.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("resize", onResize);
       envRT.dispose();
       pmrem.dispose();
