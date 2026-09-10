@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.v1 import admin, auth, catalog, categories, chat, products, rfq
+from app.api.v1 import admin, auth, catalog, categories, chat, contact, orders, products, rfq
 from app.config.settings import get_settings
 from app.db.seed_data import ensure_seed_data
 from app.db.bootstrap import ensure_admin_user
@@ -69,6 +69,8 @@ app.include_router(products.router, prefix="/api/v1")
 app.include_router(categories.router, prefix="/api/v1")
 app.include_router(catalog.router, prefix="/api/v1")
 app.include_router(rfq.router, prefix="/api/v1")
+app.include_router(contact.router, prefix="/api/v1")
+app.include_router(orders.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")

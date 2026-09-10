@@ -10,3 +10,7 @@
 .profile dt { width: 100px; color: var(--color-text-muted); font-size: 0.9rem; margin: 0; }
 .profile dd { margin: 0; font-weight: 600; }
 @media (max-width: 700px) { .page { grid-template-columns: 1fr; } .side { flex-direction: row; overflow-x: auto; } }
+
+.list { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-2); }
+.listRow { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); border: 1px solid var(--color-border); border-radius: 10px; padding: var(--space-3) var(--space-4); }
+.muted { color: var(--color-text-muted, #6b7280); font-size: 0.85rem; }

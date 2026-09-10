@@ -100,6 +100,63 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export interface OrderLine {
+  sku: string;
+  name: string;
+  qty: number;
+  unit_price_cents: number;
+  total_cents: number;
+}
+
+export interface Order {
+  id: string;
+  number: string;
+  email: string;
+  status: string;
+  currency: string;
+  subtotal_cents: number;
+  tax_cents: number;
+  shipping_cents: number;
+  total_cents: number;
+  vat_reverse_charge: boolean;
+  customer_note?: string | null;
+  created_at: string;
+  items: OrderLine[];
+}
+
+export interface CreateOrderPayload {
+  email: string;
+  currency?: string;
+  vat_id?: string;
+  shipping_address: {
+    name: string;
+    company?: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    region?: string;
+    postal_code: string;
+    country_code: string;
+    phone?: string;
+  };
+  billing_address?: CreateOrderPayload["shipping_address"];
+  shipping_method?: string;
+  customer_note?: string;
+  items: { product_id?: string; sku: string; name: string; qty: number; unit_price_cents: number }[];
+  terms_accepted: boolean;
+}
+
+export interface MyRfq {
+  id: string;
+  number: string;
+  email: string;
+  company?: string | null;
+  message?: string | null;
+  status: string;
+  created_at: string;
+  items: { sku?: string | null; name?: string | null; qty: number; note?: string | null }[];
+}
+
 export interface SessionUser {
   id: string;
   email: string;
@@ -126,7 +183,17 @@ export const api = {
   submitRfq: (payload: unknown) =>
     request<{ id: string; number: string }>(`/rfq`, { method: "POST", body: JSON.stringify(payload) }),
   submitContact: (payload: unknown) =>
-    request<{ id: string }>(`/contact`, { method: "POST", body: JSON.stringify(payload) }),
+    request<{ id: string; number: string }>(`/contact`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  createOrder: (payload: CreateOrderPayload) =>
+    request<Order>(`/orders`, { method: "POST", body: JSON.stringify(payload) }),
+  listOrders: () => request<Order[]>(`/orders`),
+  getOrder: (number: string, email?: string) =>
+    request<Order>(`/orders/${encodeURIComponent(number)}${email ? `?email=${encodeURIComponent(email)}` : ""}`),
+  listMyRfqs: () => request<MyRfq[]>(`/rfq`),
 
   login: (email: string, password: string) =>
     request<{ access_token: string; refresh_token: string }>(`/auth/login`, {

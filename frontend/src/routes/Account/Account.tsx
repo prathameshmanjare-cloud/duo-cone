@@ -1,6 +1,9 @@
 import { useEffect } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useSession } from "../../store/session";
+import { api } from "../../lib/api";
+import { Price } from "../../components/Price/Price";
 import styles from "./Account.module.css";
 
 const LINKS = [
@@ -64,8 +67,59 @@ export const AccountOverview = () => {
   );
 };
 
-export const AccountOrders = () => <div><h1>Orders</h1><p>No orders yet.</p></div>;
-export const AccountRfqs = () => <div><h1>RFQs</h1><p>No RFQs yet.</p></div>;
+export const AccountOrders = () => {
+  const { data, isLoading, isError } = useQuery({ queryKey: ["my-orders"], queryFn: api.listOrders, retry: false });
+  return (
+    <div>
+      <h1>Orders</h1>
+      {isLoading && <p>Loading…</p>}
+      {isError && <p>Couldn't load your orders. Please try again later.</p>}
+      {data && data.length === 0 && <p>No orders yet. <Link to="/shop">Browse products</Link>.</p>}
+      {data && data.length > 0 && (
+        <ul className={styles.list}>
+          {data.map((o) => (
+            <li key={o.id} className={styles.listRow}>
+              <div>
+                <strong>{o.number}</strong>
+                <span className={styles.muted}> · {new Date(o.created_at).toLocaleDateString()} · {o.status}</span>
+                <div className={styles.muted}>{o.items.map((i) => `${i.qty}× ${i.name}`).join(", ")}</div>
+              </div>
+              <Price cents={o.total_cents} currency={o.currency} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export const AccountRfqs = () => {
+  const { data, isLoading, isError } = useQuery({ queryKey: ["my-rfqs"], queryFn: api.listMyRfqs, retry: false });
+  return (
+    <div>
+      <h1>RFQs</h1>
+      {isLoading && <p>Loading…</p>}
+      {isError && <p>Couldn't load your RFQs. Please try again later.</p>}
+      {data && data.length === 0 && <p>No RFQs yet. <Link to="/rfq">Request a quote</Link>.</p>}
+      {data && data.length > 0 && (
+        <ul className={styles.list}>
+          {data.map((r) => (
+            <li key={r.id} className={styles.listRow}>
+              <div>
+                <strong>{r.number}</strong>
+                <span className={styles.muted}> · {new Date(r.created_at).toLocaleDateString()} · {r.status}</span>
+                <div className={styles.muted}>
+                  {r.items.map((i) => `${i.qty}× ${i.sku || i.name || "item"}`).join(", ") || "—"}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 export const AccountAddresses = () => <div><h1>Addresses</h1><p>No saved addresses yet.</p></div>;
 export const AccountWishlist = () => <div><h1>Wishlist</h1><p>Your wishlist is empty.</p></div>;
 

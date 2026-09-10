@@ -170,6 +170,29 @@ class Rfq(Base):
     items: Mapped[list["RfqItem"]] = relationship(back_populates="rfq")
 
 
+class ContactStatus(str, enum.Enum):
+    new = "new"
+    handled = "handled"
+    spam = "spam"
+
+
+class ContactMessage(Base):
+    __tablename__ = "contact_messages"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    number: Mapped[str] = mapped_column(String(40), unique=True)
+    name: Mapped[str] = mapped_column(String(200))
+    email: Mapped[str] = mapped_column(String(255))
+    phone: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    company: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    product: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    message: Mapped[str] = mapped_column(Text)
+    status: Mapped[ContactStatus] = mapped_column(
+        Enum(ContactStatus, name="contact_status"), default=ContactStatus.new
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class RfqItem(Base):
     __tablename__ = "rfq_items"
 

@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useCartStore } from "../../store/cart";
 import { useSession } from "../../store/session";
+import { api, ApiError } from "../../lib/api";
 import { Price } from "../../components/Price/Price";
 import { Button } from "../../components/Button/Button";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
@@ -27,6 +29,7 @@ export function Checkout() {
   const { lines, subtotalCents, clear } = useCartStore();
   const navigate = useNavigate();
   const status = useSession((s) => s.status);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -47,11 +50,38 @@ export function Checkout() {
     );
   }
 
-  async function onSubmit() {
-    // TODO: POST /api/v1/checkout once backend order endpoint is wired.
-    const orderId = crypto.randomUUID();
-    clear();
-    navigate(`/order-success/${orderId}`);
+  async function onSubmit(v: FormValues) {
+    setSubmitError(null);
+    try {
+      const order = await api.createOrder({
+        email: v.email,
+        vat_id: v.vatId || undefined,
+        shipping_address: {
+          name: v.fullName,
+          company: v.company || undefined,
+          line1: v.address1,
+          city: v.city,
+          postal_code: v.postalCode,
+          country_code: v.countryCode.toUpperCase(),
+        },
+        items: lines.map((l) => ({
+          product_id: l.product.id,
+          sku: l.product.sku,
+          name: l.product.name,
+          qty: l.qty,
+          unit_price_cents: l.product.sale_price_cents ?? l.product.price_cents,
+        })),
+        terms_accepted: v.terms,
+      });
+      clear();
+      navigate(`/order-success/${order.number}`);
+    } catch (e) {
+      setSubmitError(
+        e instanceof ApiError
+          ? e.message
+          : "Could not place the order. Please try again or email sales@duo-cone.com.",
+      );
+    }
   }
 
   return (
@@ -90,6 +120,7 @@ export function Checkout() {
           </ul>
           <div className={styles.row}><span>Subtotal</span><Price cents={subtotalCents()} /></div>
           <p className={styles.note}>Payment by invoice (net 30) for verified B2B accounts, or card at delivery.</p>
+          {submitError && <p className={styles.err}>{submitError}</p>}
           <Button type="submit" variant="primary" style={{ width: "100%" }} disabled={isSubmitting}>
             {isSubmitting ? "Placing order…" : "Place order"}
           </Button>
