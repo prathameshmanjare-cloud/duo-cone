@@ -5,9 +5,10 @@ One `send_email(...)` entry point that dispatches to a provider chosen by
 
 * ``sendgrid`` — POST https://api.sendgrid.com/v3/mail/send
 * ``mailgun``  — POST https://api.mailgun.net/v3/<domain>/messages
+* ``smtp``     — smtplib to any SMTP server (STARTTLS or implicit TLS)
 * ``console``  — no network; logs the full message. Also the automatic
-  fallback whenever the selected provider has no API key configured, so the
-  app is fully functional in dev / on hosts without mail creds.
+  fallback whenever the selected provider has no credentials configured, so
+  the app is fully functional in dev / on hosts without mail creds.
 
 Never raises: returns ``True`` on accepted send, ``False`` otherwise, so a
 failed notification can't break the request that triggered it.
@@ -16,7 +17,10 @@ failed notification can't break the request that triggered it.
 from __future__ import annotations
 
 import logging
+import smtplib
+import ssl
 from dataclasses import dataclass
+from email.message import EmailMessage as MIMEEmailMessage
 
 import httpx
 
@@ -57,6 +61,8 @@ def _effective_provider() -> str:
         return "sendgrid"
     if p == "mailgun" and settings.mailgun_api_key and settings.mailgun_domain:
         return "mailgun"
+    if p == "smtp" and settings.smtp_host:
+        return "smtp"
     return "console"
 
 
@@ -106,6 +112,37 @@ def _send_mailgun(msg: EmailMessage) -> bool:
     return ok
 
 
+def _send_smtp(msg: EmailMessage) -> bool:
+    mime = MIMEEmailMessage()
+    mime["From"] = f"{settings.email_from_name} <{settings.email_from}>"
+    mime["To"] = ", ".join(msg.recipients)
+    mime["Subject"] = msg.subject
+    if msg.reply_to:
+        mime["Reply-To"] = msg.reply_to
+    mime.set_content(msg.text_body)
+    mime.add_alternative(msg.html, subtype="html")
+
+    host, port = settings.smtp_host, settings.smtp_port
+    if settings.smtp_ssl:
+        server = smtplib.SMTP_SSL(host, port, timeout=_TIMEOUT, context=ssl.create_default_context())
+    else:
+        server = smtplib.SMTP(host, port, timeout=_TIMEOUT)
+    try:
+        server.ehlo()
+        if settings.smtp_starttls and not settings.smtp_ssl:
+            server.starttls(context=ssl.create_default_context())
+            server.ehlo()
+        if settings.smtp_user:
+            server.login(settings.smtp_user, settings.smtp_password)
+        server.send_message(mime, from_addr=settings.email_from, to_addrs=msg.recipients)
+        return True
+    finally:
+        try:
+            server.quit()
+        except Exception:  # noqa: BLE001
+            pass
+
+
 def _send_console(msg: EmailMessage) -> bool:
     logger.info(
         "EMAIL (console provider — not delivered)\n"
@@ -137,6 +174,8 @@ def send_email(
             return _send_sendgrid(msg)
         if provider == "mailgun":
             return _send_mailgun(msg)
+        if provider == "smtp":
+            return _send_smtp(msg)
         return _send_console(msg)
     except Exception:  # noqa: BLE001 — a notification must never break its caller
         logger.exception("send_email failed (provider=%s, subject=%r)", provider, subject)

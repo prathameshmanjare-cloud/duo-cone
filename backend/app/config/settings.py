@@ -56,11 +56,19 @@ class Settings(BaseSettings):
     stripe_publishable_key: str = ""
     stripe_webhook_secret: str = ""
 
-    email_provider: str = "sendgrid"  # sendgrid | mailgun
+    email_provider: str = "sendgrid"  # sendgrid | mailgun | smtp
     sendgrid_api_key: str = ""
     mailgun_api_key: str = ""
     mailgun_domain: str = ""
+    # generic SMTP (used when email_provider = "smtp")
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_starttls: bool = True
+    smtp_ssl: bool = False  # True for implicit TLS on port 465
     email_from: str = "no-reply@duo-cone.com"
+    email_from_name: str = "DuoCone"
     sales_email: str = "sales@duo-cone.com"
 
     twilio_account_sid: str = ""

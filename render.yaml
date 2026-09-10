@@ -45,6 +45,27 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      # Email over SMTP — set the secrets in the Render dashboard
+      - key: EMAIL_PROVIDER
+        value: smtp
+      - key: EMAIL_FROM
+        value: no-reply@duo-cone.com
+      - key: EMAIL_FROM_NAME
+        value: DuoCone
+      - key: SALES_EMAIL
+        value: sales@duo-cone.com
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_STARTTLS
+        value: "true"
+      - key: SMTP_SSL
+        value: "false"
 
 databases:
   - name: duocone-db
