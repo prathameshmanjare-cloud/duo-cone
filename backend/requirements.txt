@@ -16,6 +16,7 @@ bleach==6.1.0
 openpyxl==3.1.5
 fpdf2==2.8.1
 sendgrid==6.11.0
+stripe==11.1.0
 twilio==9.3.2
 pytest==8.3.3
 pytest-asyncio==0.24.0

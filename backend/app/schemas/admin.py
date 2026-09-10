@@ -218,6 +218,8 @@ class OrderAdminOut(BaseModel):
     shipping_cents: int
     tax_cents: int
     total_cents: int
+    payment_method: str = "invoice"
+    paid_at: datetime | None = None
     shipping_address: dict | None = None
     billing_address: dict | None = None
     shipping_method: str | None = None

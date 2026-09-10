@@ -117,6 +117,10 @@ class Order(Base):
     billing_address: Mapped[dict] = mapped_column(JSON)
     shipping_method: Mapped[str | None] = mapped_column(String(120), nullable=True)
     customer_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    payment_method: Mapped[str] = mapped_column(String(20), default="invoice")  # invoice | card
+    stripe_session_id: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
+    stripe_payment_intent: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

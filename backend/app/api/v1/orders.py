@@ -21,6 +21,7 @@ from app.auth.deps import get_current_user
 from app.auth.security import decode_token
 from app.background.tasks import notify_order
 from app.db.session import get_db
+from app.integrations.payments import stripe_gateway
 from app.models.commerce import Order, OrderItem, User
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -76,6 +77,7 @@ class OrderIn(BaseModel):
     billing_address: AddressIn | None = None
     shipping_method: str | None = Field(default=None, max_length=120)
     customer_note: str | None = Field(default=None, max_length=2000)
+    payment_method: str = Field(default="invoice", pattern="^(invoice|card)$")
     items: list[OrderLineIn] = Field(min_length=1)
     terms_accepted: bool
 
@@ -103,9 +105,12 @@ class OrderOut(BaseModel):
     shipping_cents: int
     total_cents: int
     vat_reverse_charge: bool
+    payment_method: str = "invoice"
     customer_note: str | None = None
     created_at: str
     items: list[OrderLineOut] = []
+    # only set on the create response when payment_method == "card"
+    checkout_url: str | None = None
 
 
 def _serialize(o: Order) -> OrderOut:
@@ -120,6 +125,7 @@ def _serialize(o: Order) -> OrderOut:
         shipping_cents=o.shipping_cents,
         total_cents=o.total_cents,
         vat_reverse_charge=o.vat_reverse_charge,
+        payment_method=o.payment_method,
         customer_note=o.customer_note,
         created_at=o.created_at.isoformat(),
         items=[
@@ -144,6 +150,11 @@ async def create_order(
 ) -> OrderOut:
     if not payload.terms_accepted:
         raise HTTPException(status_code=422, detail="Terms must be accepted")
+    if payload.payment_method == "card" and not stripe_gateway.enabled():
+        raise HTTPException(
+            status_code=503,
+            detail="Card payment is not available right now — please choose invoice.",
+        )
 
     subtotal = payload.total()
     reverse_charge = bool(
@@ -168,6 +179,7 @@ async def create_order(
         billing_address=(payload.billing_address or payload.shipping_address).model_dump(),
         shipping_method=payload.shipping_method,
         customer_note=payload.customer_note,
+        payment_method=payload.payment_method,
     )
     db.add(order)
     await db.flush()
@@ -186,15 +198,40 @@ async def create_order(
     await db.commit()
     await db.refresh(order, attribute_names=["items"])
 
-    background.add_task(
-        notify_order,
-        order_number=number,
-        email=payload.email,
-        total_cents=subtotal,
-        currency=order.currency,
-        item_lines=[f"{li.qty}× {li.name} ({li.sku})" for li in payload.items],
-    )
-    return _serialize(order)
+    checkout_url: str | None = None
+    if payload.payment_method == "card":
+        try:
+            session = stripe_gateway.create_checkout_session(
+                order_number=number,
+                email=payload.email,
+                currency=order.currency,
+                line_items=[
+                    {"name": li.name, "sku": li.sku, "unit_price_cents": li.unit_price_cents, "qty": li.qty}
+                    for li in payload.items
+                ],
+            )
+            order.stripe_session_id = session.id
+            await db.commit()
+            checkout_url = session.url
+        except Exception as exc:  # noqa: BLE001
+            # order row stays as an unpaid card order the customer can retry
+            raise HTTPException(
+                status_code=502, detail="Could not start the card payment. Please try again."
+            ) from exc
+    else:
+        # invoice orders confirm immediately; card orders confirm on webhook
+        background.add_task(
+            notify_order,
+            order_number=number,
+            email=payload.email,
+            total_cents=subtotal,
+            currency=order.currency,
+            item_lines=[f"{li.qty}× {li.name} ({li.sku})" for li in payload.items],
+        )
+
+    out = _serialize(order)
+    out.checkout_url = checkout_url
+    return out
 
 
 @router.get("", response_model=list[OrderOut])

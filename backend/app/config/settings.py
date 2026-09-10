@@ -48,6 +48,14 @@ class Settings(BaseSettings):
     # product photos. Leave blank to derive it from the incoming request.
     api_public_url: str = ""
 
+    # public base URL of the storefront, for Stripe success/cancel redirects
+    frontend_url: str = "http://localhost:5173"
+
+    # Stripe — leave blank to disable card payments (checkout falls back to invoice)
+    stripe_secret_key: str = ""
+    stripe_publishable_key: str = ""
+    stripe_webhook_secret: str = ""
+
     email_provider: str = "sendgrid"  # sendgrid | mailgun
     sendgrid_api_key: str = ""
     mailgun_api_key: str = ""

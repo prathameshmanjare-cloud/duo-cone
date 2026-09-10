@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { Button } from "../../components/Button/Button";
@@ -8,6 +8,8 @@ import styles from "./OrderSuccess.module.css";
 
 export function OrderSuccess() {
   const { id } = useParams<{ id: string }>();
+  const [params] = useSearchParams();
+  const paid = params.get("paid") === "1";
 
   // resolves for the signed-in owner (or admin); guests just see the generic
   // confirmation — the number + email is enough for support to look it up.
@@ -16,13 +18,20 @@ export function OrderSuccess() {
     queryFn: () => api.getOrder(id!),
     enabled: Boolean(id),
     retry: false,
+    // after a Stripe redirect the webhook may lag — refetch briefly
+    refetchInterval: (q) =>
+      paid && q.state.data && q.state.data.status !== "paid" ? 2000 : false,
   });
 
   return (
     <div className={styles.page}>
       <div className={styles.check} aria-hidden="true"><IconCheck size={32} /></div>
-      <h1>Order placed</h1>
-      <p>Thank you. We've received your order.</p>
+      <h1>{paid ? "Payment received" : "Order placed"}</h1>
+      <p>
+        {paid
+          ? "Thank you — your card payment went through and your order is confirmed."
+          : "Thank you. We've received your order."}
+      </p>
       <p className={styles.orderNo}>Order reference: <strong>{order?.number ?? id}</strong></p>
 
       {order && (

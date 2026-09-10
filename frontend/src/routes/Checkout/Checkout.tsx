@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate, Link, Navigate } from "react-router-dom";
+import { useNavigate, Link, Navigate, useSearchParams } from "react-router-dom";
 import { useCartStore } from "../../store/cart";
 import { useSession } from "../../store/session";
 import { api, ApiError } from "../../lib/api";
@@ -20,6 +20,7 @@ const schema = z.object({
   city: z.string().min(1),
   postalCode: z.string().min(1),
   countryCode: z.string().min(2).max(2),
+  paymentMethod: z.enum(["card", "invoice"]),
   terms: z.literal(true, { message: "You must accept the terms" }),
 });
 
@@ -30,11 +31,16 @@ export function Checkout() {
   const navigate = useNavigate();
   const status = useSession((s) => s.status);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [params] = useSearchParams();
+  const cancelled = params.get("cancelled") === "1";
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { paymentMethod: "card" },
+  });
 
   if (status === "idle" || status === "loading") {
     return <div className={styles.page}>Loading…</div>;
@@ -71,8 +77,14 @@ export function Checkout() {
           qty: l.qty,
           unit_price_cents: l.product.sale_price_cents ?? l.product.price_cents,
         })),
+        payment_method: v.paymentMethod,
         terms_accepted: v.terms,
       });
+      if (order.checkout_url) {
+        // card: hand off to Stripe-hosted Checkout (cart cleared on return)
+        window.location.href = order.checkout_url;
+        return;
+      }
       clear();
       navigate(`/order-success/${order.number}`);
     } catch (e) {
@@ -87,6 +99,9 @@ export function Checkout() {
   return (
     <div className={styles.page}>
       <h1>Checkout</h1>
+      {cancelled && (
+        <p className={styles.err}>Payment was cancelled — your cart is still here. Try again when ready.</p>
+      )}
       <form className={styles.layout} onSubmit={handleSubmit(onSubmit)}>
         <div className={styles.fields}>
           <section>
@@ -119,10 +134,26 @@ export function Checkout() {
             ))}
           </ul>
           <div className={styles.row}><span>Subtotal</span><Price cents={subtotalCents()} /></div>
-          <p className={styles.note}>Payment by invoice (net 30) for verified B2B accounts, or card at delivery.</p>
+
+          <fieldset className={styles.pay}>
+            <legend>Payment</legend>
+            <label>
+              <input type="radio" value="card" {...register("paymentMethod")} />
+              Pay now by card (Stripe)
+            </label>
+            <label>
+              <input type="radio" value="invoice" {...register("paymentMethod")} />
+              Request an invoice (net 30, verified B2B accounts)
+            </label>
+          </fieldset>
+
+          <p className={styles.note}>
+            Card payments are processed securely by Stripe. Invoice orders are
+            confirmed pending a credit check.
+          </p>
           {submitError && <p className={styles.err}>{submitError}</p>}
           <Button type="submit" variant="primary" style={{ width: "100%" }} disabled={isSubmitting}>
-            {isSubmitting ? "Placing order…" : "Place order"}
+            {isSubmitting ? "Processing…" : "Place order"}
           </Button>
         </aside>
       </form>

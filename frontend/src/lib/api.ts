@@ -119,9 +119,12 @@ export interface Order {
   shipping_cents: number;
   total_cents: number;
   vat_reverse_charge: boolean;
+  payment_method: "invoice" | "card";
   customer_note?: string | null;
   created_at: string;
   items: OrderLine[];
+  /** present on the create response when payment_method === "card" */
+  checkout_url?: string | null;
 }
 
 export interface CreateOrderPayload {
@@ -143,6 +146,7 @@ export interface CreateOrderPayload {
   shipping_method?: string;
   customer_note?: string;
   items: { product_id?: string; sku: string; name: string; qty: number; unit_price_cents: number }[];
+  payment_method?: "invoice" | "card";
   terms_accepted: boolean;
 }
 

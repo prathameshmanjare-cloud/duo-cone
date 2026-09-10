@@ -5,10 +5,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.v1 import admin, auth, catalog, categories, chat, contact, orders, products, rfq
+from app.api.v1 import (
+    admin,
+    auth,
+    catalog,
+    categories,
+    chat,
+    contact,
+    orders,
+    products,
+    rfq,
+    stripe_webhook,
+)
 from app.config.settings import get_settings
 from app.db.seed_data import ensure_seed_data
-from app.db.bootstrap import ensure_admin_user
+from app.db.bootstrap import ensure_admin_user, ensure_schema_upgrades
 from app.db.session import Base, SessionLocal, engine
 
 # import models so metadata is populated before create_all
@@ -26,6 +37,11 @@ async def lifespan(_: FastAPI):
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         log.info("Ensured database tables exist")
+        try:
+            async with SessionLocal() as db:
+                await ensure_schema_upgrades(db)
+        except Exception:  # noqa: BLE001
+            log.exception("Schema upgrade failed")
     if settings.auto_seed:
         try:
             async with SessionLocal() as db:
@@ -71,6 +87,7 @@ app.include_router(catalog.router, prefix="/api/v1")
 app.include_router(rfq.router, prefix="/api/v1")
 app.include_router(contact.router, prefix="/api/v1")
 app.include_router(orders.router, prefix="/api/v1")
+app.include_router(stripe_webhook.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")

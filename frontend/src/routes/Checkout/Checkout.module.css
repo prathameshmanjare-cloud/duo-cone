@@ -17,3 +17,7 @@
   .layout { grid-template-columns: 1fr; }
   .row2 { grid-template-columns: 1fr; }
 }
+
+.pay { border: 1px solid var(--color-border); border-radius: 10px; padding: var(--space-3) var(--space-4); margin: var(--space-3) 0; display: grid; gap: var(--space-2); }
+.pay legend { font-weight: 700; font-size: 0.9rem; padding: 0 var(--space-2); }
+.pay label { display: flex; align-items: center; gap: var(--space-2); font-size: 0.9rem; }

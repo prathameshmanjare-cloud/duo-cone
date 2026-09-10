@@ -35,6 +35,16 @@ services:
       # product photos. Set to the Render service URL.
       - key: API_PUBLIC_URL
         value: https://duocone-api.onrender.com
+      # storefront URL — Stripe success/cancel redirects
+      - key: FRONTEND_URL
+        value: https://duo-cone.vercel.app
+      # Stripe — set in the Render dashboard (Environment tab), kept out of git
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
 
 databases:
   - name: duocone-db
