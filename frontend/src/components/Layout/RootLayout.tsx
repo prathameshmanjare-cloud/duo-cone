@@ -4,6 +4,8 @@ import { Footer } from "../Footer/Footer";
 import { CartDrawer } from "../CartDrawer/CartDrawer";
 import { ChatWidget } from "../ChatWidget/ChatWidget";
 import { CtaBanner } from "../CtaBanner/CtaBanner";
+import { ScrollProgress } from "../ScrollProgress/ScrollProgress";
+import { PageTransition } from "../PageTransition/PageTransition";
 import { useSession } from "../../store/session";
 import styles from "./RootLayout.module.css";
 
@@ -18,12 +20,14 @@ export function RootLayout() {
       <a href="#main" className="skip-link">
         Skip to content
       </a>
+      <ScrollProgress />
       <Header />
       <main id="main">
-        {/* key remount re-triggers the CSS enter animation on route change */}
-        <div key={location.pathname} className={styles.page}>
-          <Outlet />
-        </div>
+        <PageTransition>
+          <div className={styles.page}>
+            <Outlet />
+          </div>
+        </PageTransition>
       </main>
       {!hideCta && <CtaBanner />}
       <Footer />

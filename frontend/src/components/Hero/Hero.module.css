@@ -1,80 +1,200 @@
 .hero {
   position: relative;
-  overflow: hidden;
-  background: #ffffff;
-  color: var(--color-tertiary);
+  height: 420vh; /* scroll track for the 4-chapter scrub */
+  background: #05070f;
+  color: #fff;
 }
 
-/* 3D metallic seal backdrop */
-.stage {
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  perspective: 1500px;
+}
+
+.bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 82% 62% at 52% 42%, #16294f 0%, #0b1836 38%, #05070f 78%),
+    linear-gradient(to bottom, #06090f, #05070f);
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(64px);
+  will-change: transform;
+}
+.glowA {
+  top: 2%;
+  left: 40%;
+  width: 48vw;
+  height: 48vw;
+  background: radial-gradient(circle, rgba(52, 124, 214, 0.42), transparent 68%);
+}
+.glowB {
+  bottom: -4%;
+  right: 4%;
+  width: 42vw;
+  height: 42vw;
+  background: radial-gradient(circle, rgba(24, 80, 165, 0.34), transparent 70%);
+}
+
+.particles {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
-
-.ringGlow {
+.particle {
   position: absolute;
-  top: 46%;
-  left: 50%;
-  width: min(820px, 90vw);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle at 50% 45%, rgba(7, 84, 154, 0.16), rgba(7, 84, 154, 0.05) 45%, transparent 70%);
-  filter: blur(24px);
+  border-radius: 50%;
+  background: rgba(168, 205, 255, 0.9);
+  box-shadow: 0 0 8px rgba(120, 180, 255, 0.85);
 }
 
-.canvas {
+/* stacked product image layers */
+.stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity, filter, clip-path;
+  transform-style: preserve-3d;
+}
+.layerImg,
+.layerImgCover {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  animation: fadeIn 1.6s ease both;
+  object-fit: cover;
+  object-position: center;
+}
+.layerImg {
+  transform: scale(1.05); /* headroom so the idle float never shows an edge */
+  filter: brightness(0.8) contrast(1.03);
 }
 
-.vignette {
+/* dark wash behind the centered copy so white type stays legible over chrome */
+.textScrim {
   position: absolute;
   inset: 0;
+  z-index: 3;
+  pointer-events: none;
   background:
-    radial-gradient(closest-side at 50% 50%, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.55) 100%);
+    radial-gradient(ellipse 60% 46% at 50% 50%, rgba(3, 6, 12, 0.82) 0%, rgba(3, 6, 12, 0.5) 45%, rgba(3, 6, 12, 0) 78%),
+    linear-gradient(to bottom, rgba(3, 6, 12, 0.55) 0%, rgba(3, 6, 12, 0.12) 30%, rgba(3, 6, 12, 0.12) 62%, rgba(3, 6, 12, 0.7) 100%);
+}
+.heroFloat {
+  position: absolute;
+  inset: 0;
+  will-change: transform, filter, opacity;
 }
 
-.inner {
-  position: relative;
-  z-index: 2;
-  max-width: 980px;
+/* initial visibility handled by GSAP; hide the later chapters up front */
+.layerExplode { opacity: 0; visibility: hidden; }
+.layerMacro { opacity: 0; visibility: hidden; }
+.layerRot { opacity: 0.22; }
+
+/* copy */
+.copy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  text-align: center;
+  z-index: 4;
+  pointer-events: none;
+}
+.copy a { pointer-events: auto; }
+
+.copyInner,
+.chapter {
+  position: absolute;
+  max-width: 1080px;
+  will-change: transform, opacity;
+}
+
+.kicker {
+  display: block;
+  font-size: clamp(0.7rem, 1.3vw, 0.9rem);
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #6db0f0;
+  margin-bottom: var(--space-4);
+}
+.title {
+  margin: 0 0 var(--space-4);
+  font-size: clamp(2.6rem, 9vw, 7rem);
+  line-height: 0.94;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 12px 50px rgba(0, 0, 0, 0.7);
+}
+.charWrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.char {
+  display: inline-block;
+  white-space: pre;
+  transform-origin: 50% 100%;
+}
+.sub {
   margin: 0 auto;
-  padding: clamp(220px, 26vw, 340px) var(--space-4) clamp(90px, 12vw, 130px);
-  min-height: 72vh;
+  max-width: 46ch;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85), 0 2px 24px rgba(0, 0, 0, 0.7);
+}
+
+.chapter {
+  opacity: 0;
+  font-size: clamp(1.9rem, 5.2vw, 3.9rem);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 10px 44px rgba(0, 0, 0, 0.7);
+}
+.chapter span {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: clamp(0.95rem, 1.8vw, 1.35rem);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+.c4 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  text-align: center;
+  gap: var(--space-4);
 }
-.inner::before {
-  content: "";
-  position: absolute;
-  inset: 4% 6%;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.5) 42%, rgba(255, 255, 255, 0) 72%);
-  z-index: -1;
-}
-
-.inner h1 {
-  font-size: clamp(2.1rem, 6vw, 4rem);
-  line-height: 1.05;
-  letter-spacing: 0.01em;
-  margin: 0 0 var(--space-4);
-  font-weight: 800;
+.c4 h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 3.4rem);
   text-transform: uppercase;
-  color: var(--color-tertiary);
+  letter-spacing: 0.01em;
 }
-
-.inner p {
-  color: var(--color-tertiary);
-  font-size: clamp(1rem, 1.6vw, 1.2rem);
-  line-height: 1.65;
-  margin: 0 0 var(--space-6);
-  max-width: 62ch;
+.c4 p {
+  margin: 0;
+  max-width: 52ch;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .actions {
@@ -82,31 +202,86 @@
   gap: var(--space-3);
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: var(--space-2);
 }
-
+.cta { display: inline-block; }
 .ghostOnDark {
-  /* hero is light — default ghost styling */
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
-.reveal {
+.specs {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(58px, 12vh, 116px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: clamp(var(--space-4), 6vw, var(--space-8));
+  z-index: 4;
+}
+.spec {
+  text-align: center;
   opacity: 0;
-  animation: revealUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.spec b {
+  display: block;
+  font-size: clamp(1.1rem, 2.4vw, 1.9rem);
+  font-weight: 800;
+}
+.spec span {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
 }
 
-@keyframes revealUp {
-  from { opacity: 0; transform: translateY(26px); }
-  to { opacity: 1; transform: translateY(0); }
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+
+.scrollCue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(16px, 4vh, 32px);
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  z-index: 4;
+  animation: cueBob 1.9s ease-in-out infinite;
+}
+.scrollCue span::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 24px;
+  margin: 8px auto 0;
+  background: linear-gradient(rgba(255, 255, 255, 0.7), transparent);
+}
+@keyframes cueBob {
+  0%, 100% { transform: translate(-50%, 0); opacity: 0.7; }
+  50% { transform: translate(-50%, 6px); opacity: 0.3; }
 }
 
 @media (max-width: 700px) {
-  .inner { min-height: 66vh; padding: 200px var(--space-4) var(--space-8); }
+  .layerImg { width: 92vw; }
+  .specs { gap: var(--space-4); bottom: 88px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .canvas { animation: none; opacity: 1; }
-  .reveal { animation: none; opacity: 1; }
+  .hero { height: auto; }
+  .sticky { position: relative; min-height: 92vh; }
+  .layerExplode, .layerMacro { display: none; }
+  .layerRot { opacity: 0; }
+  .char { transform: none !important; }
+  .chapter.c4 { opacity: 1; position: relative; }
+  .c2, .c3 { display: none; }
+  .spec { opacity: 1; }
+  .scrollCue { display: none; }
 }

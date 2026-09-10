@@ -1,4 +1,5 @@
 import { COMPANY, COMPANY_ADDRESS, MAP_EMBED_URL } from "../../lib/company";
+import { Reveal } from "../Reveal/Reveal";
 import styles from "./CtaBanner.module.css";
 
 const PHONE_DISPLAY = COMPANY.phoneDisplay;
@@ -11,7 +12,7 @@ export function CtaBanner() {
   return (
     <section className={styles.section} aria-labelledby="cta-title">
       <div className={styles.grid}>
-        <div className={styles.panel}>
+        <Reveal className={styles.panel}>
           <span className={styles.eyebrow}>Let&rsquo;s work together</span>
           <h2 id="cta-title" className={styles.title}>
             Get in touch to start your next project<span>.</span>
@@ -29,9 +30,9 @@ export function CtaBanner() {
               <IconMail /> {EMAIL}
             </a>
           </div>
-        </div>
+        </Reveal>
 
-        <div className={styles.mapCard}>
+        <Reveal className={styles.mapCard} delay={0.12}>
           <iframe
             src={MAP_EMBED}
             title={`Map showing ${ADDRESS}`}
@@ -39,7 +40,7 @@ export function CtaBanner() {
             referrerPolicy="no-referrer-when-downgrade"
           />
           <span className={styles.mapCaption}>Headquarters &amp; home of engineering</span>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

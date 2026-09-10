@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import gsap from "gsap";
 import { useCartStore } from "../../store/cart";
 import { useSession } from "../../store/session";
 import { Logo } from "../Logo/Logo";
@@ -27,6 +28,7 @@ const NAV = [
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   const [query, setQuery] = useState("");
   const count = useCartStore((s) => s.count());
   const openCart = useCartStore((s) => s.open);
@@ -38,11 +40,35 @@ export function Header() {
   }, [status, hydrate]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 4);
+    const el = headerRef.current;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let last = window.scrollY;
+    let hidden = false;
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 4);
+
+      if (el && !reduce && !menuOpen) {
+        const goingDown = y > last && y > 160;
+        if (goingDown && !hidden) {
+          hidden = true;
+          gsap.to(el, { yPercent: -100, duration: 0.4, ease: "power3.out" });
+        } else if (!goingDown && hidden) {
+          hidden = false;
+          gsap.to(el, { yPercent: 0, duration: 0.4, ease: "power3.out" });
+        }
+      }
+      last = y;
+    };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (el) gsap.set(el, { yPercent: 0 });
+    };
+  }, [menuOpen]);
 
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -55,7 +81,7 @@ export function Header() {
         <span className={styles.spark} aria-hidden="true" />
         Express Offer. Receive your RFQ within 24 hours.
       </div>
-      <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
+      <header ref={headerRef} className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
         <div className={styles.inner}>
           <button
             className={styles.burger}
