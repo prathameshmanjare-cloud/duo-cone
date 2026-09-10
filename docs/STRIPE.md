@@ -12,11 +12,18 @@ data — the browser is redirected to `checkout.stripe.com` and back.
 3. On success Stripe redirects to
    `FRONTEND_URL/order-success/<number>?paid=1`; on cancel to
    `FRONTEND_URL/checkout?cancelled=1`.
-4. Stripe calls `POST /api/v1/stripe/webhook`. On
-   `checkout.session.completed` / `checkout.session.async_payment_succeeded`
-   the order flips to `status = paid`, `paid_at` is set,
-   `stripe_payment_intent` is stored, and a confirmation email is sent.
-   The handler is idempotent (safe to replay).
+4. **Two confirmation paths** (both idempotent, both call the same
+   `mark_order_paid` helper — sending one confirmation email, setting
+   `paid_at` + `stripe_payment_intent`):
+   * **Webhook** (authoritative, async) — Stripe calls
+     `POST /api/v1/stripe/webhook` on `checkout.session.completed` /
+     `checkout.session.async_payment_succeeded`. Needs `STRIPE_WEBHOOK_SECRET`.
+   * **Sync on return** (no webhook needed) — the success page calls
+     `POST /api/v1/orders/<number>/sync-payment`, which pulls the Checkout
+     Session straight from Stripe and flips the order if
+     `payment_status == "paid"`. This means **card payments work even with
+     zero webhook configuration**; the webhook just makes it instant and
+     covers delayed/async payment methods.
 
 Invoice orders (`payment_method: "invoice"`, the fallback) skip Stripe
 entirely and are confirmed immediately with `status = pending`.

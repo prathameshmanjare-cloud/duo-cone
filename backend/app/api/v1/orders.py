@@ -9,6 +9,7 @@ sales via a background task.
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -22,7 +23,7 @@ from app.auth.security import decode_token
 from app.background.tasks import notify_order
 from app.db.session import get_db
 from app.integrations.payments import stripe_gateway
-from app.models.commerce import Order, OrderItem, User
+from app.models.commerce import Order, OrderItem, OrderStatus, User
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
@@ -111,6 +112,20 @@ class OrderOut(BaseModel):
     items: list[OrderLineOut] = []
     # only set on the create response when payment_method == "card"
     checkout_url: str | None = None
+
+
+async def mark_order_paid(
+    db: AsyncSession, order: Order, payment_intent: str | None = None
+) -> bool:
+    """Flip an order to paid exactly once. Returns True if this call changed it."""
+    if order.status == OrderStatus.paid:
+        return False
+    order.status = OrderStatus.paid
+    order.paid_at = datetime.now(timezone.utc)
+    if payment_intent:
+        order.stripe_payment_intent = payment_intent
+    await db.commit()
+    return True
 
 
 def _serialize(o: Order) -> OrderOut:
@@ -247,6 +262,48 @@ async def my_orders(
         )
     ).scalars().all()
     return [_serialize(o) for o in rows]
+
+
+@router.post("/{number}/sync-payment", response_model=OrderOut)
+async def sync_payment(
+    number: str,
+    background: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+) -> OrderOut:
+    """Webhook-free confirmation: pull the Checkout Session straight from Stripe
+    and mark the order paid if Stripe says so. Safe to call repeatedly — the
+    frontend hits this on the success page so payment resolves even when no
+    Stripe webhook endpoint is configured."""
+    order = (
+        await db.execute(
+            select(Order).where(Order.number == number).options(selectinload(Order.items))
+        )
+    ).scalar_one_or_none()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.status == OrderStatus.paid:
+        return _serialize(order)
+    if not order.stripe_session_id or not stripe_gateway.enabled():
+        return _serialize(order)
+
+    try:
+        session = stripe_gateway.retrieve_session(order.stripe_session_id)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail="Could not reach Stripe") from exc
+
+    if session.get("payment_status") == "paid":
+        changed = await mark_order_paid(db, order, session.get("payment_intent"))
+        if changed:
+            background.add_task(
+                notify_order,
+                order_number=order.number,
+                email=order.email,
+                total_cents=order.total_cents,
+                currency=order.currency,
+                item_lines=[f"{i.qty}× {i.name} ({i.sku})" for i in order.items],
+            )
+        await db.refresh(order, attribute_names=["items"])
+    return _serialize(order)
 
 
 @router.get("/{number}", response_model=OrderOut)

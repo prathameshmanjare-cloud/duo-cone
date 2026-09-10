@@ -14,13 +14,15 @@ export function OrderSuccess() {
   // resolves for the signed-in owner (or admin); guests just see the generic
   // confirmation — the number + email is enough for support to look it up.
   const { data: order } = useQuery({
-    queryKey: ["order", id],
-    queryFn: () => api.getOrder(id!),
+    queryKey: ["order", id, paid],
+    // on a Stripe return, sync-payment confirms with Stripe directly (no auth,
+    // works for guests, no webhook required); otherwise just read the order
+    queryFn: () => (paid ? api.syncPayment(id!) : api.getOrder(id!)),
     enabled: Boolean(id),
     retry: false,
-    // after a Stripe redirect the webhook may lag — refetch briefly
+    // keep polling briefly if Stripe hasn't settled the payment yet
     refetchInterval: (q) =>
-      paid && q.state.data && q.state.data.status !== "paid" ? 2000 : false,
+      paid && q.state.data && q.state.data.status !== "paid" ? 2500 : false,
   });
 
   return (

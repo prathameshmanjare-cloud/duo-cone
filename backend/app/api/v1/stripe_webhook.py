@@ -8,12 +8,12 @@ and set ``STRIPE_WEBHOOK_SECRET``.
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.orders import mark_order_paid
 from app.background.tasks import notify_order
 from app.config.settings import get_settings
 from app.db.session import get_db
@@ -62,13 +62,9 @@ async def stripe_webhook(
         logger.error("Stripe webhook: order %s not found", number)
         return {"received": True, "order_not_found": number}
 
-    if order.status == OrderStatus.paid:
+    changed = await mark_order_paid(db, order, session.get("payment_intent"))
+    if not changed:
         return {"received": True, "already_paid": number}
-
-    order.status = OrderStatus.paid
-    order.paid_at = datetime.now(timezone.utc)
-    order.stripe_payment_intent = session.get("payment_intent")
-    await db.commit()
 
     background.add_task(
         notify_order,
@@ -78,5 +74,5 @@ async def stripe_webhook(
         currency=order.currency,
         item_lines=None,
     )
-    logger.info("Order %s marked paid via Stripe", number)
+    logger.info("Order %s marked paid via Stripe webhook", number)
     return {"received": True, "paid": number}

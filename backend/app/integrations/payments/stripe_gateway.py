@@ -58,6 +58,10 @@ def create_checkout_session(
     )
 
 
+def retrieve_session(session_id: str) -> stripe.checkout.Session:
+    return stripe.checkout.Session.retrieve(session_id)
+
+
 def construct_event(payload: bytes, sig_header: str) -> stripe.Event:
     """Raises stripe.error.SignatureVerificationError / ValueError on bad input."""
     return stripe.Webhook.construct_event(

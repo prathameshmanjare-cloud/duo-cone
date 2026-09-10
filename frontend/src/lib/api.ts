@@ -197,6 +197,9 @@ export const api = {
   listOrders: () => request<Order[]>(`/orders`),
   getOrder: (number: string, email?: string) =>
     request<Order>(`/orders/${encodeURIComponent(number)}${email ? `?email=${encodeURIComponent(email)}` : ""}`),
+  // webhook-free: ask the API to check Stripe and flip the order to paid
+  syncPayment: (number: string) =>
+    request<Order>(`/orders/${encodeURIComponent(number)}/sync-payment`, { method: "POST" }),
   listMyRfqs: () => request<MyRfq[]>(`/rfq`),
 
   login: (email: string, password: string) =>
