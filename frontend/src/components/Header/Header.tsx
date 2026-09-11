@@ -134,9 +134,9 @@ export function Header() {
                     navigate("/");
                   }}
                   aria-label="Sign out"
+                  title="Sign out"
                 >
                   <IconLogout size={16} />
-                  <span className={styles.signOutLabel}>Sign out</span>
                 </button>
                 <button className={styles.cartBtn} onClick={openCart} aria-label={`Cart, ${count} items`}>
                   <IconCart size={20} />
