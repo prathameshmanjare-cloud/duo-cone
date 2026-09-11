@@ -46,8 +46,9 @@ export function Footer() {
         </RevealItem>
         <RevealItem className={styles.col}>
           <h4>Legal</h4>
-          <Link to="/privacy-policy">Privacy Policy</Link>
+          <Link to="/legal-notice">Legal Notice</Link>
           <Link to="/terms">Terms &amp; Conditions</Link>
+          <Link to="/privacy-policy">Privacy Policy</Link>
           <Link to="/cookie-policy">Cookie Policy</Link>
         </RevealItem>
       </RevealGroup>
@@ -56,9 +57,9 @@ export function Footer() {
         <div className={styles.bottomInner}>
           <span>© {year} DuoCone. All rights reserved.</span>
           <nav>
-            <Link to="/privacy-policy">Privacy</Link>
-            <Link to="/terms">Terms</Link>
-            <Link to="/cookie-policy">Cookies</Link>
+            <Link to="/legal-notice">Legal Notice</Link>
+            <Link to="/terms">Terms &amp; Conditions</Link>
+            <Link to="/privacy-policy">Privacy Policy</Link>
           </nav>
         </div>
       </div>

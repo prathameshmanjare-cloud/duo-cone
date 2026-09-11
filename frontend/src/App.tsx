@@ -20,7 +20,7 @@ import {
   AccountWishlist,
   AccountProfile,
 } from "./routes/Account/Account";
-import { About, Technology, Industries, Shipping, Returns, Privacy, Terms, CookiePolicy } from "./routes/Content/pages";
+import { About, Technology, Industries, Shipping, Returns, Privacy, Terms, CookiePolicy, LegalNotice } from "./routes/Content/pages";
 import { Contact } from "./routes/Content/Contact";
 import { Faq } from "./routes/Content/Faq";
 import { NotFound } from "./routes/NotFound/NotFound";
@@ -76,6 +76,7 @@ export default function App() {
         <Route path="/privacy-policy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/cookie-policy" element={<CookiePolicy />} />
+        <Route path="/legal-notice" element={<LegalNotice />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>
