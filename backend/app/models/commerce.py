@@ -210,3 +210,39 @@ class RfqItem(Base):
     note: Mapped[str | None] = mapped_column(String(300), nullable=True)
 
     rfq: Mapped["Rfq"] = relationship(back_populates="items")
+
+
+class EmailTemplate(Base):
+    """Editable subject/body for a fixed set of transactional emails.
+
+    Keys are seeded at startup (see ``app.db.bootstrap.ensure_email_templates``)
+    and are not creatable/deletable from the admin API — only subject/html_body
+    may be edited, keyed by the fixed ``key`` the code triggers by.
+    """
+
+    __tablename__ = "email_templates"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(String(60), unique=True, index=True)
+    subject: Mapped[str] = mapped_column(String(300))
+    html_body: Mapped[str] = mapped_column(Text)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class AppSetting(Base):
+    """Generic persisted key/value override store.
+
+    Currently used for a single key, ``notify_email`` — the internal address
+    that new-order / new-inquiry alerts go to, overriding ``settings.sales_email``
+    when set.
+    """
+
+    __tablename__ = "app_settings"
+
+    key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    value: Mapped[str | None] = mapped_column(Text, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
