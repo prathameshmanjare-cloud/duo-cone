@@ -76,9 +76,27 @@ async def unhandled_exception_handler(request, exc):  # noqa: ANN001
     return JSONResponse(status_code=500, content={"type": "internal_error", "title": "Internal server error"})
 
 
+def _fingerprint(secret: str) -> dict:
+    """Masked shape of a configured secret — safe to expose publicly, but
+    enough to catch a truncated/mangled env var (e.g. Stripe key pasted as
+    just "sk_test_") without ever revealing the value itself."""
+    if not secret:
+        return {"configured": False}
+    head = secret[:8]
+    tail = secret[-4:] if len(secret) > 12 else ""
+    return {"configured": True, "length": len(secret), "starts": head, "ends": tail}
+
+
 @app.get("/healthz")
 async def healthz():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        # masked fingerprints only — never the secret values — so a
+        # mis-set env var (wrong length / truncated / wrong prefix) is
+        # visible from the outside without pulling deploy logs
+        "stripe_secret_key": _fingerprint(settings.stripe_secret_key),
+        "stripe_webhook_secret": _fingerprint(settings.stripe_webhook_secret),
+    }
 
 
 app.include_router(products.router, prefix="/api/v1")
