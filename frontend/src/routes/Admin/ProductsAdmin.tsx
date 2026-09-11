@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import { adminApi, type AdminProduct } from "../../lib/adminApi";
 import { formatPrice } from "../../lib/format";
 import { ExportButtons } from "./ExportButtons";
+import { ConfirmModal } from "./ConfirmModal";
+import { usePrefersReducedMotion } from "./motionPrefs";
 import s from "./Admin.module.css";
 
 const PAGE_SIZE = 50;
@@ -106,9 +109,11 @@ export function ProductsAdmin() {
                 </tr>
               </thead>
               <tbody>
-                {data.items.map((p) => (
-                  <ProductRow key={p.id} product={p} onChanged={invalidate} onDelete={() => del.mutate(p.id)} />
-                ))}
+                <AnimatePresence initial={false}>
+                  {data.items.map((p) => (
+                    <ProductRow key={p.id} product={p} onChanged={invalidate} onDelete={() => del.mutate(p.id)} />
+                  ))}
+                </AnimatePresence>
                 {data.items.length === 0 && (
                   <tr>
                     <td colSpan={8} className={s.muted}>No products match.</td>
@@ -154,6 +159,8 @@ function ProductRow({
   );
   const [qty, setQty] = useState((product.inventory?.stock_qty ?? 0).toString());
   const [msg, setMsg] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
 
   const patch = useMutation({
     mutationFn: (data: Record<string, unknown>) => adminApi.updateProduct(product.id, data),
@@ -206,7 +213,13 @@ function ProductRow({
   const stockQty = product.inventory?.stock_qty ?? 0;
 
   return (
-    <tr>
+    <motion.tr
+      layout={reduceMotion ? undefined : true}
+      initial={reduceMotion ? undefined : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={reduceMotion ? undefined : { opacity: 0, x: -12 }}
+      transition={{ duration: reduceMotion ? 0 : 0.18 }}
+    >
       <td>
         <Link to={`/admin/products/${product.id}`}>{product.name}</Link>
         {msg && <span className={s.muted}> · {msg}</span>}
@@ -261,15 +274,27 @@ function ProductRow({
         <span className={s.muted} title={`current: ${formatPrice(product.price_cents, product.currency)}`}>
           {product.currency}
         </span>
-        <button
+        <motion.button
           className={`${s.btn} ${s.btnDanger}`}
-          onClick={() => {
-            if (confirm(`Delete "${product.name}"? This cannot be undone.`)) onDelete();
-          }}
+          onClick={() => setConfirming(true)}
+          whileHover={reduceMotion ? undefined : { scale: 1.05 }}
+          whileTap={reduceMotion ? undefined : { scale: 0.95 }}
         >
           Del
-        </button>
+        </motion.button>
       </td>
-    </tr>
+      {confirming && (
+        <ConfirmModal
+          title="Delete product"
+          message={`Delete "${product.name}"? This cannot be undone.`}
+          confirmLabel="Delete"
+          onConfirm={() => {
+            setConfirming(false);
+            onDelete();
+          }}
+          onClose={() => setConfirming(false)}
+        />
+      )}
+    </motion.tr>
   );
 }

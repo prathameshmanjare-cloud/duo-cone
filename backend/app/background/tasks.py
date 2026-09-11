@@ -10,13 +10,47 @@ from __future__ import annotations
 
 import logging
 
+from sqlalchemy import select
+
 from app.config.settings import get_settings
+from app.db.bootstrap import get_app_setting
+from app.db.session import SessionLocal
 from app.integrations.email import send_email
+from app.models.commerce import EmailTemplate
 
 logger = logging.getLogger("duocon.background")
 settings = get_settings()
 
 _BRAND = "DuoCone"
+
+
+def _render(template_str: str, vars: dict[str, str]) -> str:
+    """Simple {{var}} substitution — no templating engine dependency."""
+    out = template_str
+    for k, v in vars.items():
+        out = out.replace("{{" + k + "}}", v)
+    return out
+
+
+async def _get_template(key: str) -> EmailTemplate | None:
+    try:
+        async with SessionLocal() as db:
+            return (
+                await db.execute(select(EmailTemplate).where(EmailTemplate.key == key))
+            ).scalar_one_or_none()
+    except Exception:  # noqa: BLE001 — template store must never break sending
+        logger.exception("Could not load email template %s", key)
+        return None
+
+
+async def _notify_address() -> str:
+    """notify_email override (DB) falls back to settings.sales_email (env)."""
+    try:
+        async with SessionLocal() as db:
+            override = await get_app_setting(db, "notify_email")
+            return override or settings.sales_email
+    except Exception:  # noqa: BLE001
+        return settings.sales_email
 
 
 def _wrap(title: str, body_html: str) -> str:
@@ -67,24 +101,38 @@ async def notify_rfq(
                 f'Message</td><td style="padding:4px 0">{message}</td></tr>'
             )
         table = f'<table style="border-collapse:collapse;font-size:14px">{detail}</table>'
+        notify_to = await _notify_address()
 
         send_email(
-            to=settings.sales_email,
+            to=notify_to,
             subject=f"New RFQ {rfq_number} from {email}",
             html=_wrap("New request for quote", table),
             reply_to=email,
         )
+
+        tpl = await _get_template("rfq_received")
+        vars = {
+            "customer_name": company or email,
+            "order_id": rfq_number,
+            "email": email,
+            "items": table,
+        }
+        if tpl:
+            subject = _render(tpl.subject, vars)
+            body_html = _render(tpl.html_body, vars)
+        else:
+            subject = f"We received your RFQ ({rfq_number})"
+            body_html = (
+                f"<p>Your reference is <strong>{rfq_number}</strong>. "
+                f"Our engineering team replies within one business day.</p>{table}"
+            )
         send_email(
             to=email,
-            subject=f"We received your RFQ ({rfq_number})",
-            html=_wrap(
-                "Thanks — your RFQ is in",
-                f"<p>Your reference is <strong>{rfq_number}</strong>. "
-                f"Our engineering team replies within one business day.</p>{table}",
-            ),
-            reply_to=settings.sales_email,
+            subject=subject,
+            html=_wrap("Thanks — your RFQ is in", body_html),
+            reply_to=notify_to,
         )
-        logger.info("RFQ %s notifications sent (customer + %s)", rfq_number, settings.sales_email)
+        logger.info("RFQ %s notifications sent (customer + %s)", rfq_number, notify_to)
     except Exception:  # noqa: BLE001
         logger.exception("notify_rfq failed for %s", rfq_number)
 
@@ -100,24 +148,41 @@ async def notify_order(
 ) -> None:
     try:
         lines = "".join(f"<li>{ln}</li>" for ln in (item_lines or [])) or "<li>—</li>"
-        body = (
+        items_html = f'<ul style="font-size:14px">{lines}</ul>'
+        total_str = _money(total_cents, currency)
+        fallback_body = (
             f"<p>Order <strong>{order_number}</strong> is confirmed and now "
             f"<strong>pending</strong>. We invoice verified B2B accounts (net 30); "
             f"otherwise payment is arranged before dispatch.</p>"
-            f'<ul style="font-size:14px">{lines}</ul>'
-            f"<p style=\"font-size:14px\">Total: <strong>{_money(total_cents, currency)}</strong> "
-            f"(excl. VAT)</p>"
+            f"{items_html}"
+            f"<p style=\"font-size:14px\">Total: <strong>{total_str}</strong> (excl. VAT)</p>"
         )
+        notify_to = await _notify_address()
+
+        tpl = await _get_template("order_confirmation")
+        vars = {
+            "customer_name": email,
+            "order_id": order_number,
+            "total": total_str,
+            "items": items_html,
+        }
+        if tpl:
+            subject = _render(tpl.subject, vars)
+            body_html = _render(tpl.html_body, vars)
+        else:
+            subject = f"Order {order_number} confirmed"
+            body_html = fallback_body
+
         send_email(
             to=email,
-            subject=f"Order {order_number} confirmed",
-            html=_wrap("Order received", body),
-            reply_to=settings.sales_email,
+            subject=subject,
+            html=_wrap("Order received", body_html),
+            reply_to=notify_to,
         )
         send_email(
-            to=settings.sales_email,
-            subject=f"New order {order_number} — {_money(total_cents, currency)}",
-            html=_wrap("New order", body),
+            to=notify_to,
+            subject=f"New order {order_number} — {total_str}",
+            html=_wrap("New order", fallback_body),
             reply_to=email,
         )
         logger.info("Order %s notifications sent", order_number)
@@ -147,22 +212,30 @@ async def notify_contact(
         )
         table = f'<table style="border-collapse:collapse;font-size:14px">{inner}</table>'
         body = f'{table}<p style="margin-top:16px">{message}</p>'
+        notify_to = await _notify_address()
+
         send_email(
-            to=settings.sales_email,
+            to=notify_to,
             subject=f"Contact form — {name}",
             html=_wrap("New contact enquiry", body),
             reply_to=email,
         )
+
+        tpl = await _get_template("inquiry_received")
+        vars = {"customer_name": name, "message": message, "email": email}
+        if tpl:
+            subject = _render(tpl.subject, vars)
+            body_html = _render(tpl.html_body, vars)
+        else:
+            subject = "We received your message"
+            body_html = "<p>Our German-based team replies within one business day.</p>" + body
         send_email(
             to=email,
-            subject="We received your message",
-            html=_wrap(
-                "Thanks for reaching out",
-                "<p>Our German-based team replies within one business day.</p>" + body,
-            ),
-            reply_to=settings.sales_email,
+            subject=subject,
+            html=_wrap("Thanks for reaching out", body_html),
+            reply_to=notify_to,
         )
-        logger.info("Contact enquiry from %s notified to %s", email, settings.sales_email)
+        logger.info("Contact enquiry from %s notified to %s", email, notify_to)
     except Exception:  # noqa: BLE001
         logger.exception("notify_contact failed for %s", email)
 

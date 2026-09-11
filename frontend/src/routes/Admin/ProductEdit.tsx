@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi } from "../../lib/adminApi";
+import { AnimatePresence, motion } from "framer-motion";
+import { adminApi, type ProductImageRow } from "../../lib/adminApi";
+import { ConfirmModal } from "./ConfirmModal";
+import { usePrefersReducedMotion } from "./motionPrefs";
 import s from "./Admin.module.css";
 
 type Form = Record<string, string | boolean>;
@@ -298,6 +301,8 @@ function ImageEditor({ productId }: { productId: string }) {
   const [pos, setPos] = useState("0");
   const [file, setFile] = useState<File | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<ProductImageRow | null>(null);
+  const reduceMotion = usePrefersReducedMotion();
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
 
   const add = useMutation({
@@ -315,6 +320,23 @@ function ImageEditor({ productId }: { productId: string }) {
     mutationFn: (iid: number) => adminApi.deleteImage(productId, iid),
     onSuccess: invalidate,
   });
+  const reorder = useMutation({
+    mutationFn: (args: { id: number; position: number }) =>
+      adminApi.updateImage(productId, args.id, { position: args.position }),
+    onSuccess: invalidate,
+    onError: (e) => setMsg((e as Error).message),
+  });
+
+  const images = [...(data ?? [])].sort((a, b) => a.position - b.position || a.id - b.id);
+
+  function move(index: number, dir: -1 | 1) {
+    const other = images[index + dir];
+    const self = images[index];
+    if (!other) return;
+    // swap positions so ordering (and any tie-break on id) moves as expected
+    reorder.mutate({ id: self.id, position: other.position });
+    reorder.mutate({ id: other.id, position: self.position });
+  }
 
   return (
     <div className={s.card} style={{ padding: "var(--space-5)", marginTop: "var(--space-5)" }}>
@@ -334,13 +356,15 @@ function ImageEditor({ productId }: { productId: string }) {
             style={{ height: 40, width: 40, objectFit: "cover", borderRadius: 6 }}
           />
         )}
-        <button
+        <motion.button
           className={s.btn}
           disabled={!file || upload.isPending}
           onClick={() => { setMsg(null); upload.mutate(); }}
+          whileHover={reduceMotion || !file ? undefined : { scale: 1.03 }}
+          whileTap={reduceMotion || !file ? undefined : { scale: 0.97 }}
         >
           {upload.isPending ? "Uploading…" : "Upload photo"}
-        </button>
+        </motion.button>
       </div>
 
       <p className={s.muted} style={{ margin: "6px 0 10px" }}>
@@ -353,20 +377,61 @@ function ImageEditor({ productId }: { productId: string }) {
         <button className={s.btn} disabled={!url || add.isPending} onClick={() => { setMsg(null); add.mutate(); }}>Add</button>
       </div>
       <table className={s.table}>
-        <thead><tr><th>Preview</th><th>URL</th><th>Alt</th><th>Pos</th><th></th></tr></thead>
+        <thead><tr><th>Preview</th><th>URL</th><th>Alt</th><th>Pos</th><th>Order</th><th></th></tr></thead>
         <tbody>
-          {data?.map((img) => (
-            <tr key={img.id}>
-              <td><img src={img.url} alt={img.alt ?? ""} style={{ height: 40, width: 40, objectFit: "cover" }} /></td>
-              <td style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis" }}>{img.url}</td>
-              <td>{img.alt ?? "—"}</td>
-              <td>{img.position}</td>
-              <td><button className={`${s.btn} ${s.btnDanger}`} onClick={() => del.mutate(img.id)}>Del</button></td>
-            </tr>
-          ))}
-          {data?.length === 0 && <tr><td colSpan={5} className={s.muted}>No images.</td></tr>}
+          <AnimatePresence initial={false}>
+            {images.map((img, i) => (
+              <motion.tr
+                key={img.id}
+                layout={reduceMotion ? undefined : true}
+                initial={reduceMotion ? undefined : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={reduceMotion ? undefined : { opacity: 0, x: -12 }}
+                transition={{ duration: reduceMotion ? 0 : 0.18 }}
+              >
+                <td><img src={img.url} alt={img.alt ?? ""} style={{ height: 40, width: 40, objectFit: "cover" }} /></td>
+                <td style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis" }}>{img.url}</td>
+                <td>{img.alt ?? "—"}</td>
+                <td>{img.position}</td>
+                <td className={s.row}>
+                  <button
+                    type="button"
+                    className={`${s.btn} ${s.btnGhost}`}
+                    disabled={i === 0 || reorder.isPending}
+                    onClick={() => move(i, -1)}
+                    title="Move up"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className={`${s.btn} ${s.btnGhost}`}
+                    disabled={i === images.length - 1 || reorder.isPending}
+                    onClick={() => move(i, 1)}
+                    title="Move down"
+                  >
+                    ↓
+                  </button>
+                </td>
+                <td>
+                  <button className={`${s.btn} ${s.btnDanger}`} onClick={() => setDeleting(img)}>Del</button>
+                </td>
+              </motion.tr>
+            ))}
+          </AnimatePresence>
+          {images.length === 0 && <tr><td colSpan={6} className={s.muted}>No images.</td></tr>}
         </tbody>
       </table>
+
+      {deleting && (
+        <ConfirmModal
+          title="Delete image"
+          message="Remove this image from the product? This cannot be undone."
+          confirmLabel="Delete"
+          onConfirm={() => { del.mutate(deleting.id); setDeleting(null); }}
+          onClose={() => setDeleting(null)}
+        />
+      )}
     </div>
   );
 }

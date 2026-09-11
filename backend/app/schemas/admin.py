@@ -350,6 +350,70 @@ class ProductImageOut(BaseModel):
     position: int = 0
 
 
+# --------------------------------------------------------- email settings ----
+class SecretFingerprint(BaseModel):
+    configured: bool
+    length: int | None = None
+    starts: str | None = None
+    ends: str | None = None
+
+
+class EmailSettingsOut(BaseModel):
+    """Effective email/SMTP config, secrets masked (fingerprint only)."""
+
+    provider: str
+    effective_provider: str
+    email_from: str
+    email_from_name: str
+    sales_email: str
+    sendgrid_api_key: SecretFingerprint
+    mailgun_api_key: SecretFingerprint
+    mailgun_domain: str | None = None
+    smtp_host: str | None = None
+    smtp_port: int
+    smtp_user: str | None = None
+    smtp_password: SecretFingerprint
+    smtp_starttls: bool
+    smtp_ssl: bool
+
+
+class SendTestEmailIn(BaseModel):
+    to: str = Field(min_length=3, max_length=320)
+
+
+class SendTestEmailOut(BaseModel):
+    sent: bool
+    provider: str
+
+
+class NotificationSettingsOut(BaseModel):
+    notify_email: str
+    is_override: bool  # True when notify_email was explicitly set, False when falling back to sales_email
+
+
+class NotificationSettingsIn(BaseModel):
+    # empty/None clears the override, falling back to settings.sales_email
+    notify_email: str | None = Field(default=None, max_length=320)
+
+
+class EmailTemplateListOut(BaseModel):
+    key: str
+    subject: str
+    updated_at: str
+
+
+class EmailTemplateOut(BaseModel):
+    key: str
+    subject: str
+    html_body: str
+    updated_at: str
+
+
+class EmailTemplateUpdateIn(BaseModel):
+    subject: str = Field(min_length=1, max_length=300)
+    html_body: str = Field(min_length=1)
+
+
 # --------------------------------------------------------------- dashboard ----
 class DashboardStats(BaseModel):
     products_total: int

@@ -24,14 +24,29 @@
   letter-spacing: 0.02em;
 }
 
+.navScroll { display: flex; flex-direction: column; gap: var(--space-4); overflow-y: auto; flex: 1; min-height: 0; }
+.navGroup { display: flex; flex-direction: column; gap: 2px; }
+.navGroupLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+  padding: var(--space-2) var(--space-3) 4px;
+}
+
 .navlink {
-  display: block;
-  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px var(--space-3);
   border-radius: var(--radius-sm);
   color: rgba(255, 255, 255, 0.82);
   text-decoration: none;
   font-size: 0.92rem;
+  transition: background var(--transition-fast, 0.15s), color var(--transition-fast, 0.15s);
 }
+.navIcon { font-size: 1rem; line-height: 1; width: 1.1em; text-align: center; flex: none; }
 .navlink:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 .navlinkActive { background: var(--color-secondary); color: #222; font-weight: 600; }
 

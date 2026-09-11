@@ -300,6 +300,48 @@ export interface ProductImageRow {
   position: number;
 }
 
+export interface SecretFingerprint {
+  configured: boolean;
+  length: number | null;
+  starts: string | null;
+  ends: string | null;
+}
+
+export interface EmailSettings {
+  provider: string;
+  effective_provider: string;
+  email_from: string;
+  email_from_name: string;
+  sales_email: string;
+  sendgrid_api_key: SecretFingerprint;
+  mailgun_api_key: SecretFingerprint;
+  mailgun_domain: string | null;
+  smtp_host: string | null;
+  smtp_port: number;
+  smtp_user: string | null;
+  smtp_password: SecretFingerprint;
+  smtp_starttls: boolean;
+  smtp_ssl: boolean;
+}
+
+export interface NotificationSettings {
+  notify_email: string;
+  is_override: boolean;
+}
+
+export interface EmailTemplateListRow {
+  key: string;
+  subject: string;
+  updated_at: string;
+}
+
+export interface EmailTemplate {
+  key: string;
+  subject: string;
+  html_body: string;
+  updated_at: string;
+}
+
 export interface DashboardStats {
   products_total: number;
   products_active: number;
@@ -430,4 +472,26 @@ export const adminApi = {
     }),
   deleteImage: (productId: string, imageId: number) =>
     req<void>(`/admin/products/${productId}/images/${imageId}`, { method: "DELETE" }),
+
+  getEmailSettings: () => req<EmailSettings>("/admin/settings/email"),
+  sendTestEmail: (to: string) =>
+    req<{ sent: boolean; provider: string }>("/admin/settings/email/test", {
+      method: "POST",
+      body: body({ to }),
+    }),
+
+  getNotificationSettings: () => req<NotificationSettings>("/admin/settings/notifications"),
+  updateNotificationSettings: (notify_email: string | null) =>
+    req<NotificationSettings>("/admin/settings/notifications", {
+      method: "PUT",
+      body: body({ notify_email }),
+    }),
+
+  listEmailTemplates: () => req<EmailTemplateListRow[]>("/admin/email-templates"),
+  getEmailTemplate: (key: string) => req<EmailTemplate>(`/admin/email-templates/${key}`),
+  updateEmailTemplate: (key: string, data: { subject: string; html_body: string }) =>
+    req<EmailTemplate>(`/admin/email-templates/${key}`, {
+      method: "PUT",
+      body: body(data),
+    }),
 };

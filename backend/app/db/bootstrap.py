@@ -8,9 +8,75 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.security import hash_password, needs_rehash, verify_password
-from app.models.commerce import User
+from app.models.commerce import AppSetting, EmailTemplate, User
 
 logger = logging.getLogger("duocon.bootstrap")
+
+# Fixed set of templates the code triggers by key. Seeded once; an admin may
+# edit subject/html_body afterwards but the set of keys itself is fixed.
+_DEFAULT_EMAIL_TEMPLATES: list[dict] = [
+    {
+        "key": "order_confirmation",
+        "subject": "Order {{order_id}} confirmed",
+        "html_body": (
+            "<p>Hi {{customer_name}},</p>"
+            "<p>Order <strong>{{order_id}}</strong> is confirmed and now pending. "
+            "We invoice verified B2B accounts (net 30); otherwise payment is "
+            "arranged before dispatch.</p>"
+            "<div>{{items}}</div>"
+            "<p>Total: <strong>{{total}}</strong> (excl. VAT)</p>"
+        ),
+    },
+    {
+        "key": "inquiry_received",
+        "subject": "We received your message",
+        "html_body": (
+            "<p>Hi {{customer_name}},</p>"
+            "<p>Thanks for reaching out — our team replies within one business day.</p>"
+            "<p><em>{{message}}</em></p>"
+            "<p>We'll follow up at {{email}}.</p>"
+        ),
+    },
+    {
+        "key": "rfq_received",
+        "subject": "We received your RFQ ({{order_id}})",
+        "html_body": (
+            "<p>Hi {{customer_name}},</p>"
+            "<p>Your reference is <strong>{{order_id}}</strong>. "
+            "Our engineering team replies within one business day.</p>"
+            "<div>{{items}}</div>"
+        ),
+    },
+]
+
+
+async def ensure_email_templates(db: AsyncSession) -> None:
+    """Idempotently seed the fixed set of default templates if missing.
+
+    Never overwrites an existing row — an admin's edits are never clobbered
+    by a redeploy.
+    """
+    for tpl in _DEFAULT_EMAIL_TEMPLATES:
+        existing = (
+            await db.execute(select(EmailTemplate).where(EmailTemplate.key == tpl["key"]))
+        ).scalar_one_or_none()
+        if existing is None:
+            db.add(EmailTemplate(**tpl))
+    await db.commit()
+
+
+async def get_app_setting(db: AsyncSession, key: str) -> str | None:
+    row = (await db.execute(select(AppSetting).where(AppSetting.key == key))).scalar_one_or_none()
+    return row.value if row else None
+
+
+async def set_app_setting(db: AsyncSession, key: str, value: str | None) -> None:
+    row = (await db.execute(select(AppSetting).where(AppSetting.key == key))).scalar_one_or_none()
+    if row is None:
+        db.add(AppSetting(key=key, value=value))
+    else:
+        row.value = value
+    await db.commit()
 
 # Lightweight forward-only column adds for tables that already exist in prod
 # (SQLAlchemy's create_all only creates missing tables, never ALTERs).

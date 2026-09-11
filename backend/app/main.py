@@ -19,7 +19,7 @@ from app.api.v1 import (
 )
 from app.config.settings import get_settings
 from app.db.seed_data import ensure_seed_data
-from app.db.bootstrap import ensure_admin_user, ensure_schema_upgrades
+from app.db.bootstrap import ensure_admin_user, ensure_email_templates, ensure_schema_upgrades
 from app.db.session import Base, SessionLocal, engine
 
 # import models so metadata is populated before create_all
@@ -42,6 +42,11 @@ async def lifespan(_: FastAPI):
                 await ensure_schema_upgrades(db)
         except Exception:  # noqa: BLE001
             log.exception("Schema upgrade failed")
+        try:
+            async with SessionLocal() as db:
+                await ensure_email_templates(db)
+        except Exception:  # noqa: BLE001 — never block startup on seeding
+            log.exception("Email template seeding failed")
     if settings.auto_seed:
         try:
             async with SessionLocal() as db:
