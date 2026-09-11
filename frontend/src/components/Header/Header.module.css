@@ -223,6 +223,9 @@
   white-space: nowrap;
 }
 .signOut {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
@@ -232,6 +235,7 @@
   color: var(--color-text-muted);
   padding: 6px 8px;
   border-radius: var(--radius-sm);
+  white-space: nowrap;
 }
 .signOut:hover { color: var(--color-danger); }
 
@@ -295,6 +299,23 @@
   }
   .search {
     flex-basis: 210px;
+  }
+  .userName {
+    max-width: 90px;
+  }
+  .signOutLabel {
+    display: none;
+  }
+}
+
+/* between the mobile-nav collapse and the mid-width tier: the search bar
+   is the first thing to give way when the authed-user cluster (RFQ +
+   divider + name + sign-out + cart) needs the room, so nav/actions never
+   silently overflow past #root's overflow-x:clip */
+@media (max-width: 1500px) {
+  .search {
+    flex-basis: 160px;
+    min-width: 110px;
   }
 }
 
