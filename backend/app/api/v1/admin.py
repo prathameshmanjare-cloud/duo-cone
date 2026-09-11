@@ -30,7 +30,7 @@ from app.auth.security import hash_password
 from app.config.settings import get_settings
 from app.db.bootstrap import get_app_setting, set_app_setting
 from app.db.session import get_db
-from app.integrations.email import _effective_provider, send_email
+from app.integrations.email import _effective_provider, send_email_diagnostic
 from app.models.catalog import (
     Brand,
     Category,
@@ -1134,13 +1134,13 @@ async def send_test_email(payload: SendTestEmailIn) -> SendTestEmailOut:
     so an operator can verify SMTP/SendGrid/Mailgun creds without digging
     through server logs."""
     provider = _effective_provider()
-    ok = send_email(
+    ok, error = send_email_diagnostic(
         to=payload.to,
         subject="DuoCone admin — test email",
         html="<p>This is a test email sent from the DuoCone admin CMS to verify your email configuration.</p>",
         text="This is a test email sent from the DuoCone admin CMS to verify your email configuration.",
     )
-    return SendTestEmailOut(sent=ok, provider=provider)
+    return SendTestEmailOut(sent=ok, provider=provider, error=error)
 
 
 @router.get("/settings/notifications", response_model=NotificationSettingsOut)

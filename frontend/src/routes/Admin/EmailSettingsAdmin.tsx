@@ -33,7 +33,7 @@ export function EmailSettingsAdmin() {
       setTestResult(
         r.sent
           ? `Sent via "${r.provider}" provider. Check the inbox (or server logs if provider is "console").`
-          : `Send failed via "${r.provider}" provider — check server logs.`
+          : `Send failed via "${r.provider}" provider${r.error ? `: ${r.error}` : " — check server logs."}`
       ),
     onError: (e) => setTestResult((e as Error).message),
   });

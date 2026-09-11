@@ -180,3 +180,31 @@ def send_email(
     except Exception:  # noqa: BLE001 — a notification must never break its caller
         logger.exception("send_email failed (provider=%s, subject=%r)", provider, subject)
         return False
+
+
+def send_email_diagnostic(
+    to: str | list[str],
+    subject: str,
+    html: str,
+    text: str | None = None,
+) -> tuple[bool, str | None]:
+    """Same dispatch as send_email, but surfaces the exception message on
+    failure instead of swallowing it — used only by the admin "send test
+    email" endpoint so an operator can see *why* a send failed (e.g. the
+    SMTP server's auth-rejection response) without pulling server logs.
+    Never include credential values in the message: smtplib/httpx error
+    text only ever echoes the remote server's own response, never a
+    request payload, so this stays safe to return to the admin UI."""
+    msg = EmailMessage(to=to, subject=subject, html=html, text=text)
+    provider = _effective_provider()
+    try:
+        if provider == "sendgrid":
+            return _send_sendgrid(msg), None
+        if provider == "mailgun":
+            return _send_mailgun(msg), None
+        if provider == "smtp":
+            return _send_smtp(msg), None
+        return _send_console(msg), None
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("send_email_diagnostic failed (provider=%s, subject=%r)", provider, subject)
+        return False, f"{type(exc).__name__}: {exc}"

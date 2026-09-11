@@ -384,6 +384,7 @@ class SendTestEmailIn(BaseModel):
 class SendTestEmailOut(BaseModel):
     sent: bool
     provider: str
+    error: str | None = None
 
 
 class NotificationSettingsOut(BaseModel):

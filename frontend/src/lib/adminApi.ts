@@ -475,7 +475,7 @@ export const adminApi = {
 
   getEmailSettings: () => req<EmailSettings>("/admin/settings/email"),
   sendTestEmail: (to: string) =>
-    req<{ sent: boolean; provider: string }>("/admin/settings/email/test", {
+    req<{ sent: boolean; provider: string; error: string | null }>("/admin/settings/email/test", {
       method: "POST",
       body: body({ to }),
     }),
