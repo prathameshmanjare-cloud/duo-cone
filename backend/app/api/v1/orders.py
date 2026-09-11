@@ -8,6 +8,7 @@ sales via a background task.
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime, timezone
 
@@ -26,6 +27,7 @@ from app.integrations.payments import stripe_gateway
 from app.models.commerce import Order, OrderItem, OrderStatus, User
 
 router = APIRouter(prefix="/orders", tags=["orders"])
+logger = logging.getLogger("duocon.orders")
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -230,8 +232,13 @@ async def create_order(
             checkout_url = session.url
         except Exception as exc:  # noqa: BLE001
             # order row stays as an unpaid card order the customer can retry
+            logger.error(
+                "Stripe checkout session creation failed for order %s: %s", number, exc
+            )
+            # Stripe error strings don't carry the secret key — safe to surface
+            # so a misconfigured deploy is diagnosable from the browser network tab.
             raise HTTPException(
-                status_code=502, detail="Could not start the card payment. Please try again."
+                status_code=502, detail=f"Could not start the card payment: {exc}"
             ) from exc
     else:
         # invoice orders confirm immediately; card orders confirm on webhook
