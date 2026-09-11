@@ -324,6 +324,24 @@ export interface EmailSettings {
   smtp_ssl: boolean;
 }
 
+export interface NotificationSettings {
+  notify_email: string;
+  is_override: boolean;
+}
+
+export interface EmailTemplateListRow {
+  key: string;
+  subject: string;
+  updated_at: string;
+}
+
+export interface EmailTemplate {
+  key: string;
+  subject: string;
+  html_body: string;
+  updated_at: string;
+}
+
 export interface DashboardStats {
   products_total: number;
   products_active: number;
@@ -460,5 +478,20 @@ export const adminApi = {
     req<{ sent: boolean; provider: string }>("/admin/settings/email/test", {
       method: "POST",
       body: body({ to }),
+    }),
+
+  getNotificationSettings: () => req<NotificationSettings>("/admin/settings/notifications"),
+  updateNotificationSettings: (notify_email: string | null) =>
+    req<NotificationSettings>("/admin/settings/notifications", {
+      method: "PUT",
+      body: body({ notify_email }),
+    }),
+
+  listEmailTemplates: () => req<EmailTemplateListRow[]>("/admin/email-templates"),
+  getEmailTemplate: (key: string) => req<EmailTemplate>(`/admin/email-templates/${key}`),
+  updateEmailTemplate: (key: string, data: { subject: string; html_body: string }) =>
+    req<EmailTemplate>(`/admin/email-templates/${key}`, {
+      method: "PUT",
+      body: body(data),
     }),
 };
