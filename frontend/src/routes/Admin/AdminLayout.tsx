@@ -3,34 +3,35 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuthStore } from "../../store/auth";
 import { usePrefersReducedMotion } from "./motionPrefs";
+import { NavIcon, type NavIconName } from "./NavIcons";
 import s from "./Admin.module.css";
 
-const NAV_GROUPS = [
+const NAV_GROUPS: { label: string; items: { to: string; end?: boolean; label: string; icon: NavIconName }[] }[] = [
   {
     label: "Overview",
-    items: [{ to: "/admin", end: true, label: "Dashboard", icon: "📊" }],
+    items: [{ to: "/admin", end: true, label: "Dashboard", icon: "dashboard" }],
   },
   {
     label: "Catalog",
     items: [
-      { to: "/admin/products", label: "Products & stock", icon: "📦" },
-      { to: "/admin/brands", label: "Brands", icon: "🏷️" },
-      { to: "/admin/categories", label: "Categories", icon: "🗂️" },
+      { to: "/admin/products", label: "Products & stock", icon: "box" },
+      { to: "/admin/brands", label: "Brands", icon: "tag" },
+      { to: "/admin/categories", label: "Categories", icon: "folder" },
     ],
   },
   {
     label: "Sales",
     items: [
-      { to: "/admin/orders", label: "Orders", icon: "🧾" },
-      { to: "/admin/rfqs", label: "RFQs", icon: "✉️" },
+      { to: "/admin/orders", label: "Orders", icon: "receipt" },
+      { to: "/admin/rfqs", label: "RFQs", icon: "mail" },
     ],
   },
   {
     label: "Admin",
     items: [
-      { to: "/admin/users", label: "Users", icon: "👤" },
-      { to: "/admin/settings/email", label: "Email settings", icon: "⚙️" },
-      { to: "/admin/account", label: "My account", icon: "🔑" },
+      { to: "/admin/users", label: "Users", icon: "users" },
+      { to: "/admin/settings/email", label: "Email settings", icon: "settings" },
+      { to: "/admin/account", label: "My account", icon: "key" },
     ],
   },
 ];
@@ -69,14 +70,13 @@ export function AdminLayout() {
                   end={"end" in n ? n.end : undefined}
                   className={({ isActive }) => `${s.navlink} ${isActive ? s.navlinkActive : ""}`}
                 >
-                  <span className={s.navIcon} aria-hidden="true">{n.icon}</span>
+                  <NavIcon name={n.icon} className={s.navIcon} />
                   {n.label}
                 </NavLink>
               ))}
             </div>
           ))}
         </nav>
-        <div className={s.spacer} />
         <div className={s.muted} style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.7)" }}>
           {user?.email}
         </div>

@@ -46,7 +46,7 @@
   font-size: 0.92rem;
   transition: background var(--transition-fast, 0.15s), color var(--transition-fast, 0.15s);
 }
-.navIcon { font-size: 1rem; line-height: 1; width: 1.1em; text-align: center; flex: none; }
+.navIcon { flex: none; opacity: 0.85; }
 .navlink:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 .navlinkActive { background: var(--color-secondary); color: #222; font-weight: 600; }
 
