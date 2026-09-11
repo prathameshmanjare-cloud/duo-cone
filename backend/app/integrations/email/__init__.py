@@ -66,7 +66,7 @@ def _effective_provider() -> str:
     return "console"
 
 
-def _send_sendgrid(msg: EmailMessage) -> bool:
+def _send_sendgrid(msg: EmailMessage, _err: list[str] | None = None) -> bool:
     payload = {
         "personalizations": [{"to": [{"email": r} for r in msg.recipients]}],
         "from": {"email": settings.email_from},
@@ -87,10 +87,12 @@ def _send_sendgrid(msg: EmailMessage) -> bool:
     ok = r.status_code in (200, 201, 202)
     if not ok:
         logger.error("SendGrid send failed %s: %s", r.status_code, r.text[:300])
+        if _err is not None:
+            _err.append(f"HTTP {r.status_code}: {r.text[:300]}")
     return ok
 
 
-def _send_mailgun(msg: EmailMessage) -> bool:
+def _send_mailgun(msg: EmailMessage, _err: list[str] | None = None) -> bool:
     data = {
         "from": settings.email_from,
         "to": msg.recipients,
@@ -109,6 +111,8 @@ def _send_mailgun(msg: EmailMessage) -> bool:
     ok = r.status_code in (200, 201, 202)
     if not ok:
         logger.error("Mailgun send failed %s: %s", r.status_code, r.text[:300])
+        if _err is not None:
+            _err.append(f"HTTP {r.status_code}: {r.text[:300]}")
     return ok
 
 
@@ -197,11 +201,14 @@ def send_email_diagnostic(
     request payload, so this stays safe to return to the admin UI."""
     msg = EmailMessage(to=to, subject=subject, html=html, text=text)
     provider = _effective_provider()
+    err: list[str] = []
     try:
         if provider == "sendgrid":
-            return _send_sendgrid(msg), None
+            ok = _send_sendgrid(msg, err)
+            return ok, (err[0] if not ok and err else None)
         if provider == "mailgun":
-            return _send_mailgun(msg), None
+            ok = _send_mailgun(msg, err)
+            return ok, (err[0] if not ok and err else None)
         if provider == "smtp":
             return _send_smtp(msg), None
         return _send_console(msg), None
