@@ -35,6 +35,7 @@ import { OrdersAdmin } from "./routes/Admin/OrdersAdmin";
 import { RfqsAdmin } from "./routes/Admin/RfqsAdmin";
 import { UsersAdmin } from "./routes/Admin/UsersAdmin";
 import { AdminAccount } from "./routes/Admin/AdminAccount";
+import { EmailSettingsAdmin } from "./routes/Admin/EmailSettingsAdmin";
 
 export default function App() {
   return (
@@ -90,6 +91,7 @@ export default function App() {
         <Route path="orders" element={<OrdersAdmin />} />
         <Route path="rfqs" element={<RfqsAdmin />} />
         <Route path="users" element={<UsersAdmin />} />
+        <Route path="settings/email" element={<EmailSettingsAdmin />} />
         <Route path="account" element={<AdminAccount />} />
       </Route>
     </Routes>

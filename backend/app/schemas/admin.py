@@ -350,6 +350,42 @@ class ProductImageOut(BaseModel):
     position: int = 0
 
 
+# --------------------------------------------------------- email settings ----
+class SecretFingerprint(BaseModel):
+    configured: bool
+    length: int | None = None
+    starts: str | None = None
+    ends: str | None = None
+
+
+class EmailSettingsOut(BaseModel):
+    """Effective email/SMTP config, secrets masked (fingerprint only)."""
+
+    provider: str
+    effective_provider: str
+    email_from: str
+    email_from_name: str
+    sales_email: str
+    sendgrid_api_key: SecretFingerprint
+    mailgun_api_key: SecretFingerprint
+    mailgun_domain: str | None = None
+    smtp_host: str | None = None
+    smtp_port: int
+    smtp_user: str | None = None
+    smtp_password: SecretFingerprint
+    smtp_starttls: bool
+    smtp_ssl: bool
+
+
+class SendTestEmailIn(BaseModel):
+    to: str = Field(min_length=3, max_length=320)
+
+
+class SendTestEmailOut(BaseModel):
+    sent: bool
+    provider: str
+
+
 # --------------------------------------------------------------- dashboard ----
 class DashboardStats(BaseModel):
     products_total: int

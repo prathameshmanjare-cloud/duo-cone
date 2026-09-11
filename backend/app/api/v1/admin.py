@@ -27,7 +27,9 @@ from sqlalchemy.orm import selectinload
 
 from app.auth.deps import require_admin
 from app.auth.security import hash_password
+from app.config.settings import get_settings
 from app.db.session import get_db
+from app.integrations.email import _effective_provider, send_email
 from app.models.catalog import (
     Brand,
     Category,
@@ -68,6 +70,12 @@ from app.schemas.admin import (
     RfqStatusIn,
     UserAdminOut,
     UserUpdateIn,
+)
+from app.schemas.admin import (
+    EmailSettingsOut,
+    SecretFingerprint,
+    SendTestEmailIn,
+    SendTestEmailOut,
 )
 from app.services.export import export_response
 
@@ -1071,3 +1079,59 @@ async def export_categories(
         ("sort", "Sort"),
     ]
     return export_response(fmt, "categories", "DuoCone — Categories", data, columns)
+
+
+# ===================================================== email / SMTP settings ====
+def _mask_secret(secret: str) -> SecretFingerprint:
+    """Same masking approach as the /healthz Stripe fingerprint: never return
+    the raw value, only enough shape to sanity-check what's configured."""
+    if not secret:
+        return SecretFingerprint(configured=False)
+    return SecretFingerprint(
+        configured=True,
+        length=len(secret),
+        starts=secret[:4],
+        ends=secret[-4:] if len(secret) > 8 else None,
+    )
+
+
+@router.get("/settings/email", response_model=EmailSettingsOut)
+async def get_email_settings() -> EmailSettingsOut:
+    """Effective email/SMTP config sourced from env vars (settings.py).
+
+    Read-only view: secrets are masked, never echoed back in full. There is
+    currently no DB-backed override store, so this always reflects the
+    process's env configuration.
+    """
+    settings = get_settings()
+    return EmailSettingsOut(
+        provider=settings.email_provider,
+        effective_provider=_effective_provider(),
+        email_from=settings.email_from,
+        email_from_name=settings.email_from_name,
+        sales_email=settings.sales_email,
+        sendgrid_api_key=_mask_secret(settings.sendgrid_api_key),
+        mailgun_api_key=_mask_secret(settings.mailgun_api_key),
+        mailgun_domain=settings.mailgun_domain or None,
+        smtp_host=settings.smtp_host or None,
+        smtp_port=settings.smtp_port,
+        smtp_user=settings.smtp_user or None,
+        smtp_password=_mask_secret(settings.smtp_password),
+        smtp_starttls=settings.smtp_starttls,
+        smtp_ssl=settings.smtp_ssl,
+    )
+
+
+@router.post("/settings/email/test", response_model=SendTestEmailOut)
+async def send_test_email(payload: SendTestEmailIn) -> SendTestEmailOut:
+    """Send a one-off test message through the currently configured provider
+    so an operator can verify SMTP/SendGrid/Mailgun creds without digging
+    through server logs."""
+    provider = _effective_provider()
+    ok = send_email(
+        to=payload.to,
+        subject="DuoCone admin — test email",
+        html="<p>This is a test email sent from the DuoCone admin CMS to verify your email configuration.</p>",
+        text="This is a test email sent from the DuoCone admin CMS to verify your email configuration.",
+    )
+    return SendTestEmailOut(sent=ok, provider=provider)
