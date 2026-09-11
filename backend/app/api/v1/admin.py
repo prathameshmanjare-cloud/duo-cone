@@ -28,6 +28,7 @@ from sqlalchemy.orm import selectinload
 from app.auth.deps import require_admin
 from app.auth.security import hash_password
 from app.config.settings import get_settings
+from app.db.bootstrap import get_app_setting, set_app_setting
 from app.db.session import get_db
 from app.integrations.email import _effective_provider, send_email
 from app.models.catalog import (
@@ -40,7 +41,7 @@ from app.models.catalog import (
     ProductCategory,
     ProductImage,
 )
-from app.models.commerce import Order, OrderStatus, Rfq, User
+from app.models.commerce import EmailTemplate, Order, OrderStatus, Rfq, User
 from app.schemas.admin import (
     BrandIn,
     BrandOut,
@@ -76,6 +77,11 @@ from app.schemas.admin import (
     SecretFingerprint,
     SendTestEmailIn,
     SendTestEmailOut,
+    EmailTemplateListOut,
+    EmailTemplateOut,
+    EmailTemplateUpdateIn,
+    NotificationSettingsIn,
+    NotificationSettingsOut,
 )
 from app.services.export import export_response
 
@@ -1135,3 +1141,72 @@ async def send_test_email(payload: SendTestEmailIn) -> SendTestEmailOut:
         text="This is a test email sent from the DuoCone admin CMS to verify your email configuration.",
     )
     return SendTestEmailOut(sent=ok, provider=provider)
+
+
+@router.get("/settings/notifications", response_model=NotificationSettingsOut)
+async def get_notification_settings(db: AsyncSession = Depends(get_db)) -> NotificationSettingsOut:
+    """The internal address new-order / new-inquiry alerts go to. Reads the
+    DB override when set, otherwise reports the env-configured sales_email."""
+    settings = get_settings()
+    override = await get_app_setting(db, "notify_email")
+    return NotificationSettingsOut(
+        notify_email=override or settings.sales_email,
+        is_override=bool(override),
+    )
+
+
+@router.put("/settings/notifications", response_model=NotificationSettingsOut)
+async def update_notification_settings(
+    payload: NotificationSettingsIn, db: AsyncSession = Depends(get_db)
+) -> NotificationSettingsOut:
+    """Set (or clear, by passing null/empty) the notify_email override."""
+    value = (payload.notify_email or "").strip() or None
+    await set_app_setting(db, "notify_email", value)
+    settings = get_settings()
+    return NotificationSettingsOut(
+        notify_email=value or settings.sales_email,
+        is_override=bool(value),
+    )
+
+
+# ============================================================ email templates ====
+async def _get_template_or_404(db: AsyncSession, key: str) -> EmailTemplate:
+    tpl = (
+        await db.execute(select(EmailTemplate).where(EmailTemplate.key == key))
+    ).scalar_one_or_none()
+    if tpl is None:
+        raise HTTPException(status_code=404, detail="Unknown template key")
+    return tpl
+
+
+@router.get("/email-templates", response_model=list[EmailTemplateListOut])
+async def list_email_templates(db: AsyncSession = Depends(get_db)) -> list[EmailTemplateListOut]:
+    rows = (await db.execute(select(EmailTemplate).order_by(EmailTemplate.key))).scalars().all()
+    return [
+        EmailTemplateListOut(key=r.key, subject=r.subject, updated_at=r.updated_at.isoformat())
+        for r in rows
+    ]
+
+
+@router.get("/email-templates/{key}", response_model=EmailTemplateOut)
+async def get_email_template(key: str, db: AsyncSession = Depends(get_db)) -> EmailTemplateOut:
+    tpl = await _get_template_or_404(db, key)
+    return EmailTemplateOut(
+        key=tpl.key, subject=tpl.subject, html_body=tpl.html_body, updated_at=tpl.updated_at.isoformat()
+    )
+
+
+@router.put("/email-templates/{key}", response_model=EmailTemplateOut)
+async def update_email_template(
+    key: str, payload: EmailTemplateUpdateIn, db: AsyncSession = Depends(get_db)
+) -> EmailTemplateOut:
+    """Edit subject/body only — the fixed set of keys is not renameable or
+    deletable from here; the code triggers emails by key."""
+    tpl = await _get_template_or_404(db, key)
+    tpl.subject = payload.subject
+    tpl.html_body = payload.html_body
+    await db.commit()
+    await db.refresh(tpl)
+    return EmailTemplateOut(
+        key=tpl.key, subject=tpl.subject, html_body=tpl.html_body, updated_at=tpl.updated_at.isoformat()
+    )

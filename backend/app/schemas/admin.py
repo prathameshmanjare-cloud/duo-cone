@@ -386,6 +386,34 @@ class SendTestEmailOut(BaseModel):
     provider: str
 
 
+class NotificationSettingsOut(BaseModel):
+    notify_email: str
+    is_override: bool  # True when notify_email was explicitly set, False when falling back to sales_email
+
+
+class NotificationSettingsIn(BaseModel):
+    # empty/None clears the override, falling back to settings.sales_email
+    notify_email: str | None = Field(default=None, max_length=320)
+
+
+class EmailTemplateListOut(BaseModel):
+    key: str
+    subject: str
+    updated_at: str
+
+
+class EmailTemplateOut(BaseModel):
+    key: str
+    subject: str
+    html_body: str
+    updated_at: str
+
+
+class EmailTemplateUpdateIn(BaseModel):
+    subject: str = Field(min_length=1, max_length=300)
+    html_body: str = Field(min_length=1)
+
+
 # --------------------------------------------------------------- dashboard ----
 class DashboardStats(BaseModel):
     products_total: int
