@@ -62,13 +62,13 @@ export function EmailSettingsAdmin() {
             <Field label="From address" value={data.email_from} />
             <Field label="From name" value={data.email_from_name} />
             <Field label="Sales email" value={data.sales_email} />
-            <Field label="SendGrid API key" value={fmt(data.sendgrid_api_key)} />
-            <Field label="Mailgun API key" value={fmt(data.mailgun_api_key)} />
+            <Field label="SendGrid API key" value={fmt(data.sendgrid_api_key)} secret />
+            <Field label="Mailgun API key" value={fmt(data.mailgun_api_key)} secret />
             <Field label="Mailgun domain" value={data.mailgun_domain ?? "—"} />
             <Field label="SMTP host" value={data.smtp_host ?? "—"} />
             <Field label="SMTP port" value={String(data.smtp_port)} />
             <Field label="SMTP user" value={data.smtp_user ?? "—"} />
-            <Field label="SMTP password" value={fmt(data.smtp_password)} />
+            <Field label="SMTP password" value={fmt(data.smtp_password)} secret />
             <Field label="SMTP STARTTLS" value={data.smtp_starttls ? "yes" : "no"} />
             <Field label="SMTP implicit TLS (SSL)" value={data.smtp_ssl ? "yes" : "no"} />
           </div>
@@ -308,11 +308,36 @@ function TemplateEditor({ templateKey }: { templateKey: string }) {
   );
 }
 
-function Field({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Field({
+  label,
+  value,
+  hint,
+  secret,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  secret?: boolean;
+}) {
+  const [revealed, setRevealed] = useState(false);
+  const isSet = secret && value !== "not set";
+  const shown = secret && isSet && !revealed ? "•".repeat(Math.min(value.length, 20)) : value;
   return (
     <div className={s.field}>
       <label>{label}</label>
-      <input className={s.input} value={value} readOnly title={hint} />
+      <div className={s.row} style={{ gap: 6 }}>
+        <input className={s.input} value={shown} readOnly title={hint} style={{ flex: 1 }} />
+        {secret && isSet && (
+          <button
+            type="button"
+            className={s.btnGhost}
+            style={{ padding: "6px 10px", fontSize: "0.8rem" }}
+            onClick={() => setRevealed((r) => !r)}
+          >
+            {revealed ? "Hide" : "Show"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
