@@ -157,9 +157,22 @@ export function SegmentPage({ slug }: { slug: string }) {
           </div>
         </div>
         <div className={styles.heroArt} aria-hidden="true">
-          <span className={styles.artGrid} />
-          <span className={styles.artRing} />
-          <span className={styles.artRing2} />
+          {seg.slug === "replacement" ? (
+            <video
+              className={styles.heroArtVideo}
+              src="/logo-anim.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          ) : (
+            <>
+              <span className={styles.artGrid} />
+              <span className={styles.artRing} />
+              <span className={styles.artRing2} />
+            </>
+          )}
           <span className={styles.artTag}>DF · DO · UNIVERSAL</span>
         </div>
       </header>
