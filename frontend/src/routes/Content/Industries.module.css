@@ -418,6 +418,11 @@
 }
 .table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--color-bg-subtle) 55%, #fff); }
 .table tbody tr:hover { background: color-mix(in srgb, var(--color-secondary) 12%, #fff); }
+.rowHighlight,
+.rowHighlight:nth-child(even) {
+  background: color-mix(in srgb, var(--color-accent, #fdc400) 22%, #fff) !important;
+  box-shadow: inset 3px 0 0 var(--color-accent, #fdc400);
+}
 .tNum { font-family: var(--font-mono, monospace); color: var(--color-primary); font-weight: 700; }
 .tStrong { font-weight: 700; color: var(--color-tertiary); }
 .tMono { font-family: var(--font-mono, monospace); font-size: 0.8rem; }
@@ -444,7 +449,7 @@
 }
 .stage {
   position: relative;
-  background: rgba(255, 255, 255, 0.04);
+  background: #fff;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
   padding: var(--space-5) var(--space-4) var(--space-4);
@@ -453,7 +458,7 @@
   gap: 8px;
   transition: transform 0.25s ease, background 0.25s ease;
 }
-.stage:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.06); }
+.stage:hover { transform: translateY(-4px); background: #fff; }
 .stage::before {
   counter-increment: stage;
   content: counter(stage);
@@ -462,38 +467,43 @@
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  background: rgba(56, 189, 248, 0.14);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: var(--cyan);
+  background: color-mix(in srgb, var(--color-primary) 14%, #fff);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
   font-family: var(--font-mono, monospace);
   font-weight: 700;
   font-size: 0.85rem;
   margin-bottom: 4px;
 }
 .stageAccent {
-  background: linear-gradient(160deg, var(--color-primary), var(--color-primary-dark));
-  border-color: var(--color-primary);
+  background: var(--color-accent, #fdc400);
+  border-color: var(--color-accent, #fdc400);
 }
-.stageAccent::before { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.5); color: #fff; }
+.stageAccent::before { background: rgba(0, 20, 42, 0.12); border-color: var(--color-tertiary); color: var(--color-tertiary); }
 .stageNo {
   font-family: var(--font-mono, monospace);
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-secondary);
+  color: var(--color-primary);
 }
-.stageAccent .stageNo { color: rgba(255, 255, 255, 0.75); }
-.stage strong { color: #fff; font-size: 1rem; text-transform: uppercase; letter-spacing: -0.01em; }
-.stage p { margin: 0; color: rgba(255, 255, 255, 0.74); font-size: 0.87rem; line-height: 1.6; }
-.stageAccent p { color: rgba(255, 255, 255, 0.88); }
+.stageAccent .stageNo { color: var(--color-tertiary); }
+.stage strong { color: var(--color-primary); font-size: 1rem; text-transform: uppercase; letter-spacing: -0.01em; }
+.stage p { margin: 0; color: var(--color-primary-dark, var(--color-primary)); font-size: 0.87rem; line-height: 1.6; }
+.stageAccent strong,
+.stageAccent p { color: var(--color-tertiary); }
 .stage em {
   font-style: normal;
   margin-top: auto;
   padding-top: var(--space-2);
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
   font-family: var(--font-mono, monospace);
   font-size: 0.66rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
+}
+.stageAccent em {
+  border-top-color: rgba(0, 20, 42, 0.2);
+  color: var(--color-tertiary);
 }
 
 /* ---------- 5 · configurator ---------- */

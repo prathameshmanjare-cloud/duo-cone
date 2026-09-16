@@ -155,6 +155,7 @@ export function Industries() {
   const [q, setQ] = useState("");
   const [cfgIndustry, setCfgIndustry] = useState(CONFIG_INDUSTRIES[0]);
   const [result, setResult] = useState<null | "DO" | "DF">(null);
+  const [highlightRow, setHighlightRow] = useState<string | null>(null);
 
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -260,7 +261,7 @@ export function Industries() {
                 <h3>{it.title}</h3>
                 <p>{it.desc}</p>
                 <div className={s.cardFoot}>
-                  <a href="#matrix">
+                  <a href="#matrix" onClick={() => setHighlightRow(it.n)}>
                     Inspect specs <IconArrowRight size={14} />
                   </a>
                   <span>{it.tag}</span>
@@ -304,7 +305,7 @@ export function Industries() {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.n}>
+                <tr key={r.n} className={r.n === highlightRow ? s.rowHighlight : undefined}>
                   <td className={s.tNum}>{r.n}</td>
                   <td className={s.tStrong}>{r.industry}</td>
                   <td>{r.machinery}</td>
