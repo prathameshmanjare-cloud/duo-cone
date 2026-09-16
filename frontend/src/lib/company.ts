@@ -2,12 +2,12 @@
  *  Update here and every CTA / footer / About block stays in sync. */
 
 export const COMPANY = {
-  legalName: "DUO-CONE GmbH",
+  legalName: "SAPPARTS EUROPE GMBH",
   phoneDisplay: "+49 155 10386300",
   phoneHref: "tel:+4915510386300",
   email: "sale@duo-cone.com",
-  street: "Wohlandstraße 20",
-  postcodeCity: "51766 Engelskirchen",
+  street: "Benzstraße 21",
+  postcodeCity: "51381 Leverkusen",
   country: "Germany",
   hours: "Mon – Fri: 08:00 – 18:00 CET",
   certification: "DIN EN ISO 9001:2015",

@@ -33,7 +33,7 @@ export const LegalNotice = () => (
     sections={[
       {
         heading: "Provider",
-        body: "Kumar Chugh, Wohlandstraße 20, 51766 Engelskirchen, Germany. Tel.: +49 155 10386300. E-mail: sale@duo-cone.com.",
+        body: "Kumar Chugh, Benzstraße 21, 51381 Leverkusen, Germany. Tel.: +49 155 10386300. E-mail: sale@duo-cone.com.",
       },
       {
         heading: "Registration details",
@@ -57,7 +57,7 @@ export const Privacy = () => (
     sections={[
       {
         heading: "1) Information on the collection of personal data and contact details of the controller",
-        body: "We are pleased that you are visiting our website and thank you for your interest. On the following pages, we inform you about the handling of your personal data when using our website. Personal data is all data with which you can be personally identified. The controller in charge of data processing on this website, within the meaning of the General Data Protection Regulation (GDPR), is Kumar Chugh, Wohlandstraße 20, 51766 Engelskirchen, Phone: +49 155 10386300, e-mail: sale@duo-cone.com. The controller in charge of the processing of personal data is the natural or legal person who alone or jointly with others determines the purposes and means of the processing of personal data.",
+        body: "We are pleased that you are visiting our website and thank you for your interest. On the following pages, we inform you about the handling of your personal data when using our website. Personal data is all data with which you can be personally identified. The controller in charge of data processing on this website, within the meaning of the General Data Protection Regulation (GDPR), is Kumar Chugh, Benzstraße 21, 51381 Leverkusen, Phone: +49 155 10386300, e-mail: sale@duo-cone.com. The controller in charge of the processing of personal data is the natural or legal person who alone or jointly with others determines the purposes and means of the processing of personal data.",
       },
       {
         heading: "2) Data collection when you visit our website",
