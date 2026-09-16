@@ -2,6 +2,7 @@ import type { MouseEvent } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
 import { IconArrowRight } from "../../components/Icon/Icon";
+import { Logo } from "../../components/Logo/Logo";
 import { Shop } from "./Shop";
 import styles from "./SegmentPage.module.css";
 
@@ -157,14 +158,13 @@ export function SegmentPage({ slug }: { slug: string }) {
           </div>
         </div>
         <div className={styles.heroArt} aria-hidden="true">
-          {seg.slug === "replacement" ? (
-            <img className={styles.heroArtLogo} src="/duocone-logo.png" alt="DUO-CONE" />
-          ) : (
-            <>
-              <span className={styles.artGrid} />
-              <span className={styles.artRing} />
-              <span className={styles.artRing2} />
-            </>
+          <span className={styles.artGrid} />
+          <span className={styles.artRing} />
+          <span className={styles.artRing2} />
+          {seg.slug === "replacement" && (
+            <span className={styles.heroArtLogo}>
+              <Logo height={40} tone="light" />
+            </span>
           )}
           <span className={styles.artTag}>DF · DO · UNIVERSAL</span>
         </div>
