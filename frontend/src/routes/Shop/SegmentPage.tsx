@@ -15,6 +15,7 @@ type Segment = {
   facet: "brand" | "seal_type";
   tilesLabel: string;
   tiles: Tile[];
+  shipHours: number;
 };
 
 const brand = (name: string): Tile => ({
@@ -28,11 +29,12 @@ const SEGMENTS: Record<string, Segment> = {
     title: "Replacement",
     kicker: "Catalog · Replacement",
     intro:
-      "Seal-brand originals, matched to the specifications of the leading seal manufacturers. Fast delivery, shipping within 72 hours.",
+      "Seal-brand originals, matched to the specifications of the leading seal manufacturers. Fast delivery, shipping within 24 hours.",
     metaWord: "seal brands",
     facet: "brand",
     tilesLabel: "Shop by seal brand",
     tiles: ["Goetze", "Trelleborg", "Nuova Sjat", "GNL", "SKF", "Eagle Burgmann"].map(brand),
+    shipHours: 24,
   },
   aftermarket: {
     slug: "aftermarket",
@@ -62,6 +64,7 @@ const SEGMENTS: Record<string, Segment> = {
       "Hydromac",
       "Benati",
     ].map(brand),
+    shipHours: 72,
   },
   "duo-cone": {
     slug: "duo-cone",
@@ -77,6 +80,7 @@ const SEGMENTS: Record<string, Segment> = {
       { label: "DO Type", value: "DO" },
       { label: "Universal", value: "other" },
     ],
+    shipHours: 72,
   },
 };
 
@@ -145,7 +149,7 @@ export function SegmentPage({ slug }: { slug: string }) {
           <p>{seg.intro}</p>
           <div className={styles.heroMeta}>
             <span className={styles.badge}>
-              <span className={styles.dot} /> Ships within 72 hours
+              <span className={styles.dot} /> Ships within {seg.shipHours} hours
             </span>
             <span className={styles.metaLine}>
               {seg.tiles.length} {seg.metaWord}
