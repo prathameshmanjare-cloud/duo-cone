@@ -158,14 +158,7 @@ export function SegmentPage({ slug }: { slug: string }) {
         </div>
         <div className={styles.heroArt} aria-hidden="true">
           {seg.slug === "replacement" ? (
-            <video
-              className={styles.heroArtVideo}
-              src="/logo-anim.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-            />
+            <img className={styles.heroArtLogo} src="/duocone-logo.png" alt="DUO-CONE" />
           ) : (
             <>
               <span className={styles.artGrid} />
