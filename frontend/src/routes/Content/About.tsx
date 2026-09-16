@@ -3,11 +3,9 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
-import { COMPANY, COMPANY_ADDRESS, MAP_EMBED_URL } from "../../lib/company";
+import { COMPANY, COMPANY_ADDRESS } from "../../lib/company";
 import heroImg from "../../assets/industries/tunel.jpg";
 import metrologyImg from "../../assets/industries/pump.jpg";
-import doImg from "../../assets/product/do-cut.png";
-import dfImg from "../../assets/product/df-cut.png";
 import s from "./About.module.css";
 import ds from "./DuoCone.module.css";
 
@@ -305,45 +303,6 @@ export function About() {
         </div>
       </section>
 
-      {/* 4 — logistics hub */}
-      <section className={`${s.section} ${s.dark}`}>
-        <header className={s.head}>
-          <span className={s.miniKicker}>
-            <span className={s.dot} /> Central distribution platform
-          </span>
-          <h2 className={s.onDark}>Engelskirchen, Germany</h2>
-          <p className={s.subDark}>Strategic European logistics location serving the core industrial corridors.</p>
-        </header>
-
-        <div className={s.mapCard}>
-          <iframe src={MAP_EMBED_URL} title={`Map showing ${COMPANY_ADDRESS}`} loading="lazy" />
-          <span className={s.radar} aria-hidden="true">
-            <span /> <span /> <span />
-          </span>
-          <span className={s.mapCaption}>
-            <b>Central logistics headquarters</b>
-            {COMPANY.street} · {COMPANY.postcodeCity}
-          </span>
-        </div>
-
-        <div className={s.logi}>
-          <div className={s.logiRow}>
-            <span className={s.logiKey}>Operating hours (CET)</span>
-            <span className={s.logiVal}>{COMPANY.hours}</span>
-          </div>
-          <div className={s.logiRow}>
-            <span className={s.logiKey}>Daily dispatch partners</span>
-            <span className={s.logiVal}>DHL Express · Dachser Logistics</span>
-          </div>
-          <div className={s.logiRow}>
-            <span className={s.logiKey}>Direct desk</span>
-            <a className={s.logiVal} href={`mailto:${COMPANY.email}`}>
-              {COMPANY.email}
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* 5 — people / metrology */}
       <section className={s.section}>
         <header className={s.head}>
@@ -399,53 +358,6 @@ export function About() {
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* 7 — geometry architecture */}
-      <section className={s.section}>
-        <header className={s.head}>
-          <span className={s.overline}>[ Core portfolio ]</span>
-          <h2>Geometry architecture</h2>
-          <p className={s.sub}>The two foundational mechanical face seal platforms.</p>
-        </header>
-
-        <div className={s.typeGrid}>
-          <article className={s.typeCard}>
-            <div className={s.typeHead}>
-              <span className={s.typeName}>DO type [toric]</span>
-              <span className={`${s.typeBadge} ${s.badgeBlue}`}>Most common</span>
-            </div>
-            <figure className={s.typeImg}>
-              <img src={doImg} alt="DO type mechanical face seal with dual elastomeric O-rings" loading="lazy" />
-              <span className={s.typeDim}>Ø 50 – 1420 mm</span>
-            </figure>
-            <p>
-              Standard heavy-machinery seal using two precision toric O-rings. Ideal for track
-              rollers, final drives and excavators in severe conditions.
-            </p>
-            <Link to="/category/duo-cone" className={s.typeLink}>
-              Explore DO range <IconArrowRight size={16} />
-            </Link>
-          </article>
-
-          <article className={s.typeCard}>
-            <div className={s.typeHead}>
-              <span className={s.typeName}>DF type [flange]</span>
-              <span className={`${s.typeBadge} ${s.badgeAmber}`}>Specialised fit</span>
-            </div>
-            <figure className={s.typeImg}>
-              <img src={dfImg} alt="DF type mechanical face seal with trapezoidal elastomer profile" loading="lazy" />
-              <span className={s.typeDim}>Trapezoidal profile</span>
-            </figure>
-            <p>
-              Trapezoidal elastomer design for older and specific OEM architectures (e.g. John Deere).
-              Simplifies assembly where housing geometry rules out toric rings.
-            </p>
-            <Link to="/category/duo-cone" className={s.typeLink}>
-              Explore DF range <IconArrowRight size={16} />
-            </Link>
-          </article>
         </div>
       </section>
 
