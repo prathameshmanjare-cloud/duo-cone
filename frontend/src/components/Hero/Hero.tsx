@@ -64,10 +64,10 @@ export function Hero() {
         yPercent: 130,
         opacity: 0,
         rotateX: -90,
-        stagger: 0.035,
-        duration: 0.9,
+        stagger: 0.02,
+        duration: 0.55,
         ease: "power4.out",
-        delay: 0.3,
+        delay: 0.15,
       });
 
       const mid = { immediateRender: false };
@@ -190,9 +190,9 @@ export function Hero() {
                   : { opacity: 1, scale: 1, filter: "blur(0px)", y: [0, -16, 0], rotate: [0, 1.2, 0] }
               }
               transition={{
-                opacity: { duration: 1.3, ease: [0.22, 1, 0.36, 1] },
-                scale: { duration: 1.4, ease: [0.22, 1, 0.36, 1] },
-                filter: { duration: 1.2 },
+                opacity: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+                scale: { duration: 0.75, ease: [0.22, 1, 0.36, 1] },
+                filter: { duration: 0.65 },
                 y: { duration: 7.5, repeat: Infinity, ease: "easeInOut", delay: 1.3 },
                 rotate: { duration: 9.5, repeat: Infinity, ease: "easeInOut", delay: 1.3 },
               }}
