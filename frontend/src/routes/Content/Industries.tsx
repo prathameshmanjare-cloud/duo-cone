@@ -148,13 +148,8 @@ const MATRIX: MatrixRow[] = [
   { n: "12", industry: "Tunnel boring", machinery: "TBM cutterhead, screw conveyor", cavity: "Main bearing · disc-cutter hub", pressure: "0.5 MPa (5 bar)", type: "DF · diamond elast" },
 ];
 
-const CONFIG_INDUSTRIES = MATRIX.map((r) => r.industry);
-const DF_INDUSTRIES = new Set(["Recycling", "Military", "Cement milling", "Waste water", "Tunnel boring"]);
-
 export function Industries() {
   const [q, setQ] = useState("");
-  const [cfgIndustry, setCfgIndustry] = useState(CONFIG_INDUSTRIES[0]);
-  const [result, setResult] = useState<null | "DO" | "DF">(null);
   const [highlightRow, setHighlightRow] = useState<string | null>(null);
 
   const rows = useMemo(() => {
@@ -212,7 +207,7 @@ export function Industries() {
               <a className={s.primaryLink} href="#industry-grid">
                 Explore industries <IconArrowRight size={16} />
               </a>
-              <a className={s.ghostLink} href="#configurator">
+              <a className={s.ghostLink} href="#matrix">
                 Find your seal
               </a>
             </div>
@@ -360,57 +355,6 @@ export function Industries() {
             <p>Twin cast-alloy rings lapped within 2 optical light bands form a hydrodynamic film that never fails.</p>
             <em>Contact band: Ra ≤ 0.2 µm</em>
           </div>
-        </div>
-      </section>
-
-      {/* 5 — configurator */}
-      <section className={s.section} id="configurator">
-        <header className={s.head}>
-          <span className={s.overline}>[ Section 03 · selection protocol ]</span>
-          <h2>Find your application</h2>
-          <p className={s.sub}>
-            Pick your industry to see the matching German-engineered mechanical face seal path.
-          </p>
-        </header>
-
-        <div className={s.configurator}>
-          <label className={s.cfgField}>
-            <span>01 · Select industry</span>
-            <select value={cfgIndustry} onChange={(e) => { setCfgIndustry(e.target.value); setResult(null); }}>
-              {CONFIG_INDUSTRIES.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            className={s.cfgBtn}
-            onClick={() => setResult(DF_INDUSTRIES.has(cfgIndustry) ? "DF" : "DO")}
-          >
-            View matching product
-          </button>
-
-          {result && (
-            <div className={s.cfgResult}>
-              <span className={s.cfgChip}>{result}</span>
-              <div>
-                <strong>
-                  {result === "DF"
-                    ? "Matched: DUO-CONE type DF (diamond spring)"
-                    : "Matched: DUO-CONE type DO (toric O-ring)"}
-                </strong>
-                <span>
-                  {result === "DF"
-                    ? "Trapezoidal housing grip · 0.5 MPa (5 bar) rating · sub-surface / slurry ready"
-                    : "15Cr3Mo cast-alloy rings · DIN 3760 compliant · continuous 0.3 MPa rating"}
-                </span>
-              </div>
-              <Link to="/category/duo-cone" className={s.cfgLink}>
-                View range <IconArrowRight size={14} />
-              </Link>
-            </div>
-          )}
         </div>
       </section>
 
