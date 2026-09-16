@@ -54,7 +54,12 @@ async def list_products(db: AsyncSession, filters: ProductFilters) -> tuple[list
         stmt = stmt.where(Product.seal_type == filters.seal_type)
     if filters.q:
         like = f"%{filters.q}%"
-        stmt = stmt.where((Product.name.ilike(like)) | (Product.sku.ilike(like)))
+        cond = Product.name.ilike(like) | Product.sku.ilike(like)
+        norm_q = filters.q.replace("-", "").replace(" ", "")
+        if norm_q:
+            norm_sku = func.replace(func.replace(Product.sku, "-", ""), " ", "")
+            cond = cond | norm_sku.ilike(f"%{norm_q}%")
+        stmt = stmt.where(cond)
     if filters.price_min is not None:
         stmt = stmt.where(Product.price_cents >= filters.price_min)
     if filters.price_max is not None:
