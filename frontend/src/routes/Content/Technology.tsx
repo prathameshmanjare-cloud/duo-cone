@@ -187,7 +187,7 @@ const TESTS = [
       "Endurance rig running at set speed and temperature",
       "Up to 1000 rpm to reach 10 m/s linear speed",
       "Up to 1000 kgf axial load",
-      "Seal sizes 200 to 1000 mm outer diameter",
+      "Seal sizes 45 to 1200 mm outer diameter",
     ],
   },
 ];
