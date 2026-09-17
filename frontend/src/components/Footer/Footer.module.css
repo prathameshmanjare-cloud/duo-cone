@@ -28,9 +28,9 @@
   position: relative;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--space-8) var(--space-4) var(--space-7);
+  padding: var(--space-7) var(--space-4);
   display: grid;
-  grid-template-columns: 1.9fr repeat(4, 1fr);
+  grid-template-columns: 1.5fr repeat(4, 1fr);
   gap: var(--space-6) var(--space-5);
 }
 
@@ -120,13 +120,16 @@
 
 .legalInfo {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding-top: var(--space-4);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.7rem;
-  line-height: 1.6;
-  color: #7f97a9;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+.legalInfo span[aria-hidden] {
+  color: #5c7995;
+  font-weight: 400;
 }
 
 .col h4 {
@@ -190,12 +193,26 @@
   margin: 0 auto;
   padding: var(--space-4);
   display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: 0.78rem;
+  color: #9db6c9;
+}
+.bottomInner > span,
+.bottomInner > nav {
+  display: flex;
+  align-items: center;
+}
+.bottomInner .legalInfo {
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.bottomInner .bottomRow {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
   flex-wrap: wrap;
-  font-size: 0.78rem;
-  color: #9db6c9;
 }
 .bottomInner nav {
   display: flex;

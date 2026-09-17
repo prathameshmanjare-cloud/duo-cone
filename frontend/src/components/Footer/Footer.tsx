@@ -68,12 +68,6 @@ export function Footer() {
               <IconLinkedIn />
             </a>
           </div>
-
-          <div className={styles.legalInfo}>
-            <span>SAP PARTS Europe GmbH</span>
-            <span>Benzstraße 21, 51381 Leverkusen, Germany</span>
-            <span>HRB 82724 Cologne District Court, VAT 300917783</span>
-          </div>
         </RevealItem>
 
         <RevealItem className={styles.col}>
@@ -107,12 +101,21 @@ export function Footer() {
 
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
-          <span>© {year} DuoCone. All rights reserved.</span>
-          <nav>
-            <Link to="/legal-notice">Legal Notice</Link>
-            <Link to="/terms">Terms &amp; Conditions</Link>
-            <Link to="/privacy-policy">Privacy Policy</Link>
-          </nav>
+          <div className={styles.legalInfo}>
+            <span>SAP PARTS Europe GmbH</span>
+            <span aria-hidden="true">·</span>
+            <span>Benzstraße 21, 51381 Leverkusen, Germany</span>
+            <span aria-hidden="true">·</span>
+            <span>HRB 82724 Cologne District Court, VAT 300917783</span>
+          </div>
+          <div className={styles.bottomRow}>
+            <span>© {year} DuoCone. All rights reserved.</span>
+            <nav>
+              <Link to="/legal-notice">Legal Notice</Link>
+              <Link to="/terms">Terms &amp; Conditions</Link>
+              <Link to="/privacy-policy">Privacy Policy</Link>
+            </nav>
+          </div>
         </div>
       </div>
     </footer>
