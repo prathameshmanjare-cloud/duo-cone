@@ -57,7 +57,7 @@ export function OrderSuccess() {
         </div>
       )}
 
-      <p>A confirmation email is on its way. We'll notify you as soon as your seals ship (within 72 hours from Germany).</p>
+      <p>A confirmation email is on its way. We'll notify you as soon as your seals ship (within 24 hours from Germany).</p>
       <div className={styles.actions}>
         <Link to="/shop"><Button variant="ghost">Continue shopping</Button></Link>
         <Link to="/contact"><Button variant="primary">Need help?</Button></Link>

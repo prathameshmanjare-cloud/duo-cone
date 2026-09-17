@@ -8,7 +8,7 @@ export const Shipping = () => (
   <StaticPage
     title="Shipping"
     sections={[
-      { heading: "Delivery timelines", body: "Orders ship within 72 hours from our German warehouse." },
+      { heading: "Delivery timelines", body: "Orders ship within 24 hours from our German warehouse." },
       { heading: "Shipping charges", body: "Calculated at checkout based on destination and weight." },
       { heading: "Serviceable locations", body: "We ship across the EU and worldwide on request." },
       { heading: "Tracking", body: "A tracking link is emailed as soon as your order ships." },

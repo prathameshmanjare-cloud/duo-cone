@@ -12,7 +12,7 @@ const FAQS: { category: string; items: { q: string; a: string }[] }[] = [
   {
     category: "Shipping",
     items: [
-      { q: "How fast do you ship?", a: "Orders ship within 72 hours from our German warehouse." },
+      { q: "How fast do you ship?", a: "Orders ship within 24 hours from our German warehouse." },
     ],
   },
   {

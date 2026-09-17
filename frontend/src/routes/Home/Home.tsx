@@ -25,7 +25,7 @@ export function Home() {
         <title>DuoCone Mechanical Face Seals (DF &amp; DO Type) | German Manufacturer</title>
         <meta
           name="description"
-          content="DuoCone manufactures high-pressure mechanical face seals (Duo Cone DF & DO type) for mining, construction, agriculture and defense equipment. RFQ within 24h, shipping within 72h."
+          content="DuoCone manufactures high-pressure mechanical face seals (Duo Cone DF & DO type) for mining, construction, agriculture and defense equipment. RFQ within 24h, shipping within 24h."
         />
       </Helmet>
 

@@ -109,7 +109,7 @@ export function Product() {
 
           <div className={styles.stock}>
             {product.in_stock ? (
-              <span className={styles.inStock}><IconCheck size={16} /> In stock. Ships within 72h from Germany</span>
+              <span className={styles.inStock}><IconCheck size={16} /> In stock. Ships within 24h from Germany</span>
             ) : (
               <span className={styles.oos}>Currently on backorder</span>
             )}
@@ -132,7 +132,7 @@ export function Product() {
 
           <details open className={styles.accordion}>
             <summary>Shipping &amp; returns</summary>
-            <p>Ships within 72 hours from our German warehouse. 24-month warranty on all seals. See our <Link to="/returns">returns policy</Link>.</p>
+            <p>Ships within 24 hours from our German warehouse. 24-month warranty on all seals. See our <Link to="/returns">returns policy</Link>.</p>
           </details>
         </div>
       </div>

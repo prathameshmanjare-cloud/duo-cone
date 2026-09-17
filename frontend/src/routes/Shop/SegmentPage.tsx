@@ -43,7 +43,7 @@ const SEGMENTS: Record<string, Segment> = {
     title: "Aftermarket",
     kicker: "Catalog · Aftermarket",
     intro:
-      "Mechanical face seals that fit the leading OEM machines. A direct aftermarket alternative for construction, mining, agriculture and earthmoving equipment. Fast delivery, shipping within 72 hours.",
+      "Mechanical face seals that fit the leading OEM machines. A direct aftermarket alternative for construction, mining, agriculture and earthmoving equipment. Fast delivery, shipping within 24 hours.",
     metaWord: "OEM fitments",
     facet: "brand",
     tilesLabel: "Shop by OEM machine",
@@ -66,14 +66,14 @@ const SEGMENTS: Record<string, Segment> = {
       "Hydromac",
       "Benati",
     ].map(brand),
-    shipHours: 72,
+    shipHours: 24,
   },
   "duo-cone": {
     slug: "duo-cone",
     title: "Duo Cone",
     kicker: "Catalog · Duo Cone",
     intro:
-      "Our Duo Cone mechanical face seals by outer-diameter type: DF and DO, plus universal fitments. Made from wear- and corrosion-resistant materials. Fast delivery, shipping within 72 hours.",
+      "Our Duo Cone mechanical face seals by outer-diameter type: DF and DO, plus universal fitments. Made from wear- and corrosion-resistant materials. Fast delivery, shipping within 24 hours.",
     metaWord: "seal types",
     facet: "seal_type",
     tilesLabel: "Shop by seal type",
@@ -82,7 +82,7 @@ const SEGMENTS: Record<string, Segment> = {
       { label: "DO Type", value: "DO" },
       { label: "Universal", value: "other" },
     ],
-    shipHours: 72,
+    shipHours: 24,
   },
 };
 

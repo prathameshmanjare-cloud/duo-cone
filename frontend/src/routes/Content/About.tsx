@@ -163,7 +163,7 @@ export function About() {
         <title>About Us | DuoCone</title>
         <meta
           name="description"
-          content="DUO-CONE is a specialised German manufacturer and distributor of heavy-duty mechanical face seals, shipping from Engelskirchen with 24-hour quotations and 72-hour dispatch."
+          content="DUO-CONE is a specialised German manufacturer and distributor of heavy-duty mechanical face seals, shipping from Engelskirchen with 24-hour quotations and 24-hour dispatch."
         />
       </Helmet>
 

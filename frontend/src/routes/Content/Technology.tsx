@@ -599,7 +599,7 @@ export function Technology() {
             </a>
           </div>
           <div className={s.ctaStrip}>
-            <span>Standard dispatch: 72 hours</span>
+            <span>Standard dispatch: 24 hours</span>
             <span>{COMPANY.certification}</span>
             <span>100% optical test</span>
           </div>
