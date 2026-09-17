@@ -127,7 +127,7 @@ export const ForgotPassword = () => (
       <h1>Forgot password</h1>
       <p>
         Password reset by email isn't available yet. Contact{" "}
-        <a href="mailto:sales@duo-cone.com">sales@duo-cone.com</a> and our team will
+        <a href="mailto:duo-cone@outlook.com">duo-cone@outlook.com</a> and our team will
         help you regain access.
       </p>
       <p className={styles.foot}>
@@ -143,7 +143,7 @@ export const ResetPassword = () => (
       <h1>Reset password</h1>
       <p>
         This link is no longer valid. Contact{" "}
-        <a href="mailto:sales@duo-cone.com">sales@duo-cone.com</a> for assistance.
+        <a href="mailto:duo-cone@outlook.com">duo-cone@outlook.com</a> for assistance.
       </p>
       <p className={styles.foot}>
         <Link to="/login">Back to login</Link>

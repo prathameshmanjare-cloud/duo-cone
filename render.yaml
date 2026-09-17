@@ -53,7 +53,7 @@ services:
       - key: EMAIL_FROM_NAME
         value: DuoCone
       - key: SALES_EMAIL
-        value: sales@duo-cone.com
+        value: duo-cone@outlook.com
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT

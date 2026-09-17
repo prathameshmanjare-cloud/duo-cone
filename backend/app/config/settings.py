@@ -97,7 +97,7 @@ class Settings(BaseSettings):
     smtp_ssl: bool = False  # True for implicit TLS on port 465
     email_from: str = "no-reply@duo-cone.com"
     email_from_name: str = "DuoCone"
-    sales_email: str = "sales@duo-cone.com"
+    sales_email: str = "duo-cone@outlook.com"
 
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""

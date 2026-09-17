@@ -76,7 +76,7 @@ export function Contact() {
       setSent(true);
       reset();
     } catch {
-      setError("We couldn't send your message right now. Please email sales@duo-cone.com.");
+      setError("We couldn't send your message right now. Please email duo-cone@outlook.com.");
     }
   }
 
@@ -220,7 +220,7 @@ export function Contact() {
               <span className={styles.dIcon}><IconMail /></span>
               <div>
                 <b>Email</b>
-                <a href="mailto:sale@duo-cone.com">sale@duo-cone.com</a>
+                <a href="mailto:duo-cone@outlook.com">duo-cone@outlook.com</a>
               </div>
             </li>
             <li>
