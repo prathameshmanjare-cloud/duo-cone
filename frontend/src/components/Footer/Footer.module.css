@@ -1,20 +1,41 @@
 .footer {
+  position: relative;
   background: var(--color-primary-dark, var(--color-primary));
   color: #eaf0f5;
   margin-top: var(--space-8);
+  overflow: hidden;
+}
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-secondary) 0%, #38bdf8 55%, var(--color-secondary) 100%);
+  opacity: 0.9;
+}
+.glow {
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 360px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(56, 189, 248, 0.14), transparent 70%);
+  pointer-events: none;
 }
 
 .grid {
+  position: relative;
   max-width: var(--max-width);
   margin: 0 auto;
   padding: var(--space-8) var(--space-4) var(--space-7);
   display: grid;
-  grid-template-columns: 2.2fr repeat(4, 1fr);
+  grid-template-columns: 1.9fr repeat(4, 1fr);
   gap: var(--space-6) var(--space-5);
 }
 
 .brand {
-  max-width: 34ch;
+  max-width: 36ch;
 }
 .logo {
   display: inline-flex;
@@ -26,14 +47,46 @@
 .brand p {
   color: #b9cad8;
   font-size: 0.875rem;
-  line-height: 1.6;
+  line-height: 1.65;
   margin: 0 0 var(--space-4);
+}
+
+.quickContacts {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: var(--space-4);
+}
+.quickContacts a {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #dbe6ee;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  width: fit-content;
+  transition: color var(--transition-fast);
+}
+.quickContacts a svg {
+  color: var(--color-secondary);
+  flex: none;
+}
+.quickContacts a:hover {
+  color: #fff;
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 .madeIn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -46,14 +99,32 @@
   overflow: hidden;
   background: linear-gradient(180deg, #111 0 33.3%, #d7141a 33.3% 66.6%, #ffce00 66.6% 100%);
 }
+.social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: #9db6c9;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+.social:hover {
+  color: #0b2a45;
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  transform: translateY(-1px);
+}
+
 .legalInfo {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  margin-top: var(--space-4);
   padding-top: var(--space-4);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   line-height: 1.6;
   color: #7f97a9;
 }
@@ -64,22 +135,54 @@
   letter-spacing: 0.12em;
   margin: 0 0 var(--space-4);
   color: #8faabd;
+  position: relative;
+  padding-bottom: 10px;
+}
+.col h4::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-secondary);
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .col a {
-  display: block;
+  position: relative;
+  display: inline-block;
+  width: fit-content;
   color: #dbe6ee;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1;
-  padding: 7px 0;
-  transition: color var(--transition-fast), padding-left var(--transition-fast);
+  padding: 8px 0;
+  transition: color var(--transition-fast);
+}
+.col a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 6px;
+  width: 0;
+  height: 1px;
+  background: var(--color-secondary);
+  transition: width var(--transition-fast);
 }
 .col a:hover {
   color: #fff;
-  padding-left: 4px;
+}
+.col a:hover::after {
+  width: 100%;
 }
 
 .bottom {
+  position: relative;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 .bottomInner {
@@ -102,6 +205,7 @@
 .bottomInner a {
   color: #9db6c9;
   text-decoration: none;
+  transition: color var(--transition-fast);
 }
 .bottomInner a:hover {
   color: #fff;
@@ -113,6 +217,7 @@
   }
   .brand {
     grid-column: 1 / -1;
+    max-width: none;
   }
 }
 @media (max-width: 480px) {
