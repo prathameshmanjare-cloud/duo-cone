@@ -21,13 +21,17 @@ export function Footer() {
             <span className={styles.flag} aria-hidden="true" />
             Made in Germany
           </span>
+          <div className={styles.legalInfo}>
+            <span>SAP PARTS Europe GmbH</span>
+            <span>Benzstraße 21, 51381 Leverkusen, Germany</span>
+            <span>HRB 82724 Cologne District Court, VAT 300917783</span>
+          </div>
         </RevealItem>
 
         <RevealItem className={styles.col}>
           <h4>Shop</h4>
           <Link to="/category/aftermarket">Aftermarket</Link>
           <Link to="/category/replacement">Replacement</Link>
-          <Link to="/category/duo-cone">Duo-Cone Seals</Link>
           <Link to="/cross-reference">Cross-Reference Tool</Link>
         </RevealItem>
         <RevealItem className={styles.col}>

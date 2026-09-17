@@ -385,7 +385,7 @@ export function Industries() {
               <div><dt>Diameter</dt><dd>50 mm to 1,000 mm</dd></div>
               <div><dt>Typical machinery</dt><dd>Track rollers, front idlers, final drives</dd></div>
             </dl>
-            <Link to="/category/duo-cone" className={s.typeLink}>
+            <Link to="/shop" className={s.typeLink}>
               Explore DO specifications <IconArrowRight size={16} />
             </Link>
           </article>
@@ -405,7 +405,7 @@ export function Industries() {
               <div><dt>Diameter</dt><dd>100 mm to 1,200 mm</dd></div>
               <div><dt>Typical machinery</dt><dd>TBM cutters, heavy conveyors, centrifuges</dd></div>
             </dl>
-            <Link to="/category/duo-cone" className={s.typeLink}>
+            <Link to="/shop" className={s.typeLink}>
               Explore DF specifications <IconArrowRight size={16} />
             </Link>
           </article>
