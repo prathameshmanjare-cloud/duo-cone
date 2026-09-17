@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { Logo } from "../../components/Logo/Logo";
 import { Shop } from "./Shop";
+import heroSealImage from "../../assets/industries/seal-df-do.png";
 import styles from "./SegmentPage.module.css";
 
 type Tile = { label: string; value: string };
@@ -158,13 +159,19 @@ export function SegmentPage({ slug }: { slug: string }) {
           </div>
         </div>
         <div className={styles.heroArt} aria-hidden="true">
-          <span className={styles.artGrid} />
-          <span className={styles.artRing} />
-          <span className={styles.artRing2} />
-          {seg.slug === "replacement" && (
-            <span className={styles.heroArtLogo}>
-              <Logo height={40} tone="light" />
-            </span>
+          {seg.slug === "aftermarket" ? (
+            <img className={styles.heroArtImage} src={heroSealImage} alt="" />
+          ) : (
+            <>
+              <span className={styles.artGrid} />
+              <span className={styles.artRing} />
+              <span className={styles.artRing2} />
+              {seg.slug === "replacement" && (
+                <span className={styles.heroArtLogo}>
+                  <Logo height={40} tone="light" />
+                </span>
+              )}
+            </>
           )}
           <span className={styles.artTag}>DF · DO · UNIVERSAL</span>
         </div>
