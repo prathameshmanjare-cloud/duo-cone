@@ -548,18 +548,15 @@ export function Technology() {
           viewport={vp}
           transition={{ duration: 0.6, ease: EASE }}
         >
-          {/*
-            3D seal-pressure model placeholder. Drop the CAD / FEA export
-            (glTF, MP4 loop or high-res still) into src/assets and replace
-            this block with the viewer or <video>.
-          */}
-          <div className={s.pressureViz} aria-hidden="true">
-            <span className={s.pressureCore} />
-            <span className={s.pressureRing} />
-            <span className={s.pressureRing} />
-            <span className={s.pressureRing} />
-            <span className={s.pressureGrid} />
-          </div>
+          <video
+            className={s.pressureViz}
+            src="/tech-video.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden="true"
+          />
           <figcaption>
             <span className={s.pressureKicker}>[ FEA · contact model ]</span>
             <strong>Contact-pressure simulation</strong>
@@ -571,7 +568,6 @@ export function Technology() {
               <span className={s.pressureBar} />
               <span>peak</span>
             </div>
-            <span className={s.pressureSoon}>3D model coming soon</span>
           </figcaption>
         </motion.figure>
       </section>

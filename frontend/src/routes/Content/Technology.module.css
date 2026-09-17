@@ -836,9 +836,10 @@
 .pressureViz {
   position: relative;
   aspect-ratio: 1;
-  display: grid;
-  place-items: center;
+  width: 100%;
+  display: block;
   border-radius: 999px;
+  object-fit: cover;
   background: radial-gradient(circle, rgba(56, 189, 248, 0.08), transparent 68%);
 }
 .pressureGrid {
