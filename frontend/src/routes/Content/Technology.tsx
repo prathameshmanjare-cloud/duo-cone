@@ -13,12 +13,12 @@ import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY } from "../../lib/company";
 import heroImg from "../../assets/industries/heavy.jpg";
-import castImg from "../../assets/technology/centrifugal-casting.png";
-import cncImg from "../../assets/technology/cnc-lapping.png";
-import moldImg from "../../assets/technology/molding.png";
-import grindImg from "../../assets/technology/grinding.png";
-import heatImg from "../../assets/technology/heat-treatment.png";
-import coatImg from "../../assets/technology/coating.png";
+import castImg from "../../assets/technology/centrifugal-casting.webp";
+import cncImg from "../../assets/technology/cnc-lapping.webp";
+import moldImg from "../../assets/technology/molding.webp";
+import grindImg from "../../assets/technology/grinding.webp";
+import heatImg from "../../assets/technology/heat-treatment.webp";
+import coatImg from "../../assets/technology/coating.webp";
 import s from "./Technology.module.css";
 
 type AnatomyKey = "metal" | "toric" | "lapped" | "cavity";
