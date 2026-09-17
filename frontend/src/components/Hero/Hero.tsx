@@ -96,8 +96,8 @@ export function Hero() {
           { autoAlpha: 1, scale: 1, filter: "blur(0px)", clipPath: "inset(0 0% 0 0%)", ...mid },
           0.18,
         )
-        .to(s("copyInner"), { yPercent: -40, autoAlpha: 0, ...mid }, 0.14)
-        .fromTo(s("c2"), { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, ...mid }, 0.24)
+        .to(s("copyInner"), { yPercent: -40, autoAlpha: 0, duration: 0.12, ...mid }, 0.14)
+        .fromTo(s("c2"), { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.12, ...mid }, 0.24)
 
         // --- ch2 hold : parts drift, glow shifts ---
         .to(s("layerExplode"), { scale: 1.08, xPercent: 4, ...mid }, 0.3)
@@ -105,7 +105,7 @@ export function Hero() {
         .to(s("glowB"), { xPercent: -16, yPercent: 10, scale: 1.25, ...mid }, 0.3)
 
         // --- ch2 -> ch3 : macro circle-wipe reveal ---
-        .to(s("c2"), { autoAlpha: 0, y: -40, ...mid }, 0.5)
+        .to(s("c2"), { autoAlpha: 0, y: -40, duration: 0.1, ...mid }, 0.5)
         .to(s("layerExplode"), { autoAlpha: 0, scale: 1.2, ...mid }, 0.52)
         .fromTo(
           s("layerMacro"),
@@ -113,17 +113,17 @@ export function Hero() {
           { autoAlpha: 1, clipPath: "circle(85% at 62% 46%)", scale: 1, ...mid },
           0.52,
         )
-        .fromTo(s("c3"), { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, ...mid }, 0.6)
+        .fromTo(s("c3"), { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.1, ...mid }, 0.6)
         .fromTo(
           s("spec"),
           { autoAlpha: 0, y: 40, filter: "blur(6px)" },
-          { autoAlpha: 1, y: 0, filter: "blur(0px)", stagger: 0.12, ...mid },
+          { autoAlpha: 1, y: 0, filter: "blur(0px)", stagger: 0.06, duration: 0.1, ...mid },
           0.64,
         )
 
         // --- ch3 -> ch4 : macro dims, hero returns for the CTA ---
-        .to(s("c3"), { autoAlpha: 0, y: -40, ...mid }, 0.82)
-        .to(s("spec"), { autoAlpha: 0, y: -24, stagger: 0.08, ...mid }, 0.82)
+        .to(s("c3"), { autoAlpha: 0, y: -40, duration: 0.08, ...mid }, 0.8)
+        .to(s("spec"), { autoAlpha: 0, y: -24, stagger: 0.04, duration: 0.08, ...mid }, 0.8)
         .to(s("layerMacro"), { autoAlpha: 0.14, scale: 1.08, ...mid }, 0.82)
         .fromTo(
           s("layerHero"),
@@ -131,12 +131,12 @@ export function Hero() {
           { autoAlpha: 0.9, rotateY: 0, z: 0, scale: 0.82, ...mid },
           0.84,
         )
-        .fromTo(s("c4"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, ...mid }, 0.88)
+        .fromTo(s("c4"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 0.1, ...mid }, 0.9)
         .fromTo(
           s("cta"),
           { autoAlpha: 0, y: 30 },
-          { autoAlpha: 1, y: 0, stagger: 0.06, ...mid },
-          0.92,
+          { autoAlpha: 1, y: 0, stagger: 0.04, duration: 0.08, ...mid },
+          0.96,
         );
     }, root);
 
