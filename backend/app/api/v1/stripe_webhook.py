@@ -12,13 +12,15 @@ import logging
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.v1.orders import mark_order_paid
-from app.background.tasks import notify_order
+from app.background.tasks import notify_order_paid
 from app.config.settings import get_settings
 from app.db.session import get_db
 from app.integrations.payments import stripe_gateway
 from app.models.commerce import Order, OrderStatus
+from app.services.invoice import build_invoice_pdf
 
 router = APIRouter(prefix="/stripe", tags=["stripe"])
 logger = logging.getLogger("duocon.stripe")
@@ -56,7 +58,9 @@ async def stripe_webhook(
         return {"received": True, "no_order_ref": True}
 
     order = (
-        await db.execute(select(Order).where(Order.number == number))
+        await db.execute(
+            select(Order).where(Order.number == number).options(selectinload(Order.items))
+        )
     ).scalar_one_or_none()
     if order is None:
         logger.error("Stripe webhook: order %s not found", number)
@@ -67,12 +71,12 @@ async def stripe_webhook(
         return {"received": True, "already_paid": number}
 
     background.add_task(
-        notify_order,
+        notify_order_paid,
         order_number=order.number,
         email=order.email,
         total_cents=order.total_cents,
         currency=order.currency,
-        item_lines=None,
+        invoice_pdf=build_invoice_pdf(order),
     )
     logger.info("Order %s marked paid via Stripe webhook", number)
     return {"received": True, "paid": number}

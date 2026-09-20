@@ -5,7 +5,6 @@ import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY, COMPANY_ADDRESS } from "../../lib/company";
 import heroImg from "../../assets/industries/tunel.jpg";
-import metrologyImg from "../../assets/industries/pump.jpg";
 import s from "./About.module.css";
 import ds from "./DuoCone.module.css";
 
@@ -300,43 +299,6 @@ export function About() {
               <p>{p.body}</p>
             </article>
           ))}
-        </div>
-      </section>
-
-      {/* 5 — people / metrology */}
-      <section className={s.section}>
-        <header className={s.head}>
-          <span className={s.overline}>[ Metrology &amp; QA ]</span>
-          <h2>People behind the precision</h2>
-        </header>
-
-        <div className={s.metrology}>
-          <figure className={s.scanFrame}>
-            <img
-              src={metrologyImg}
-              alt="Quality engineer inspecting duo-cone seal mating faces under monochromatic light"
-              loading="lazy"
-            />
-            <span className={s.corner} data-c="tl" />
-            <span className={s.corner} data-c="tr" />
-            <span className={s.corner} data-c="bl" />
-            <span className={s.corner} data-c="br" />
-            <span className={s.scanLine} data-tone="amber" aria-hidden="true" />
-            <span className={s.scanTag}>589 nm sodium-vapour interference · ≤ 2 light bands</span>
-          </figure>
-
-          <div className={s.metrologyBody}>
-            <h3>Optical flatness protocol</h3>
-            <p>
-              Every sealing face is precision-lapped to an optical mirror finish. Flatness is verified
-              with monochromatic helium and sodium light bands (≤ 2 bands) and surface roughness
-              Ra ≤ 0.2 µm, guaranteeing an instant hydrodynamic oil wedge under load.
-            </p>
-            <div className={s.checks}>
-              <span>✓ DIN EN ISO 9001</span>
-              <span>✓ Zero runout tolerance</span>
-            </div>
-          </div>
         </div>
       </section>
 

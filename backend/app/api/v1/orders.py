@@ -21,10 +21,11 @@ from sqlalchemy.orm import selectinload
 
 from app.auth.deps import get_current_user
 from app.auth.security import decode_token
-from app.background.tasks import notify_order
+from app.background.tasks import notify_order, notify_order_paid
 from app.db.session import get_db
 from app.integrations.payments import stripe_gateway
 from app.models.commerce import Order, OrderItem, OrderStatus, User
+from app.services.invoice import build_invoice_pdf
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 logger = logging.getLogger("duocon.orders")
@@ -302,12 +303,12 @@ async def sync_payment(
         changed = await mark_order_paid(db, order, session.get("payment_intent"))
         if changed:
             background.add_task(
-                notify_order,
+                notify_order_paid,
                 order_number=order.number,
                 email=order.email,
                 total_cents=order.total_cents,
                 currency=order.currency,
-                item_lines=[f"{i.qty}× {i.name} ({i.sku})" for i in order.items],
+                invoice_pdf=build_invoice_pdf(order),
             )
         await db.refresh(order, attribute_names=["items"])
     return _serialize(order)

@@ -15,7 +15,7 @@ from sqlalchemy import select
 from app.config.settings import get_settings
 from app.db.bootstrap import get_app_setting
 from app.db.session import SessionLocal
-from app.integrations.email import send_email
+from app.integrations.email import Attachment, send_email
 from app.models.commerce import EmailTemplate
 
 logger = logging.getLogger("duocon.background")
@@ -188,6 +188,42 @@ async def notify_order(
         logger.info("Order %s notifications sent", order_number)
     except Exception:  # noqa: BLE001
         logger.exception("notify_order failed for %s", order_number)
+
+
+# --------------------------------------------------------- order paid --------
+async def notify_order_paid(
+    order_number: str,
+    email: str,
+    *,
+    total_cents: int = 0,
+    currency: str = "EUR",
+    invoice_pdf: bytes | None = None,
+) -> None:
+    """Payment confirmed — email the customer their invoice PDF."""
+    try:
+        total_str = _money(total_cents, currency)
+        body_html = (
+            f"<p>Payment received for order <strong>{order_number}</strong>. "
+            f"Your invoice is attached as a PDF.</p>"
+            f"<p style=\"font-size:14px\">Total paid: <strong>{total_str}</strong></p>"
+        )
+        notify_to = await _notify_address()
+        attachments = (
+            [Attachment(filename=f"Invoice-{order_number}.pdf", content=invoice_pdf, mime_type="application/pdf")]
+            if invoice_pdf
+            else []
+        )
+
+        send_email(
+            to=email,
+            subject=f"Invoice for order {order_number}",
+            html=_wrap("Payment received — invoice attached", body_html),
+            reply_to=notify_to,
+            attachments=attachments,
+        )
+        logger.info("Order %s paid notification sent (invoice attached: %s)", order_number, bool(invoice_pdf))
+    except Exception:  # noqa: BLE001
+        logger.exception("notify_order_paid failed for %s", order_number)
 
 
 # ------------------------------------------------------------ contact form ----

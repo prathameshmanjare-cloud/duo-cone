@@ -16,10 +16,11 @@ failed notification can't break the request that triggered it.
 
 from __future__ import annotations
 
+import base64
 import logging
 import smtplib
 import ssl
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from email.message import EmailMessage as MIMEEmailMessage
 
 import httpx
@@ -33,12 +34,20 @@ _TIMEOUT = 10.0
 
 
 @dataclass(slots=True)
+class Attachment:
+    filename: str
+    content: bytes
+    mime_type: str = "application/octet-stream"
+
+
+@dataclass(slots=True)
 class EmailMessage:
     to: str | list[str]
     subject: str
     html: str
     text: str | None = None
     reply_to: str | None = None
+    attachments: list[Attachment] = field(default_factory=list)
 
     @property
     def recipients(self) -> list[str]:
@@ -78,6 +87,16 @@ def _send_sendgrid(msg: EmailMessage, _err: list[str] | None = None) -> bool:
     }
     if msg.reply_to:
         payload["reply_to"] = {"email": msg.reply_to}
+    if msg.attachments:
+        payload["attachments"] = [
+            {
+                "content": base64.b64encode(a.content).decode("ascii"),
+                "filename": a.filename,
+                "type": a.mime_type,
+                "disposition": "attachment",
+            }
+            for a in msg.attachments
+        ]
     r = httpx.post(
         "https://api.sendgrid.com/v3/mail/send",
         json=payload,
@@ -102,10 +121,14 @@ def _send_mailgun(msg: EmailMessage, _err: list[str] | None = None) -> bool:
     }
     if msg.reply_to:
         data["h:Reply-To"] = msg.reply_to
+    files = [
+        ("attachment", (a.filename, a.content, a.mime_type)) for a in msg.attachments
+    ] or None
     r = httpx.post(
         f"https://api.mailgun.net/v3/{settings.mailgun_domain}/messages",
         auth=("api", settings.mailgun_api_key),
         data=data,
+        files=files,
         timeout=_TIMEOUT,
     )
     ok = r.status_code in (200, 201, 202)
@@ -125,6 +148,12 @@ def _send_smtp(msg: EmailMessage) -> bool:
         mime["Reply-To"] = msg.reply_to
     mime.set_content(msg.text_body)
     mime.add_alternative(msg.html, subtype="html")
+    for a in msg.attachments:
+        maintype, _, subtype = a.mime_type.partition("/")
+        mime.add_attachment(
+            a.content, maintype=maintype or "application", subtype=subtype or "octet-stream",
+            filename=a.filename,
+        )
 
     host, port = settings.smtp_host, settings.smtp_port
     if settings.smtp_ssl:
@@ -148,17 +177,20 @@ def _send_smtp(msg: EmailMessage) -> bool:
 
 
 def _send_console(msg: EmailMessage) -> bool:
+    attachments = ", ".join(a.filename for a in msg.attachments) or "-"
     logger.info(
         "EMAIL (console provider — not delivered)\n"
         "  to:      %s\n"
         "  from:    %s\n"
         "  replyTo: %s\n"
         "  subject: %s\n"
+        "  attach:  %s\n"
         "  ---\n%s",
         ", ".join(msg.recipients),
         settings.email_from,
         msg.reply_to or "-",
         msg.subject,
+        attachments,
         msg.text_body,
     )
     return True
@@ -170,8 +202,12 @@ def send_email(
     html: str,
     text: str | None = None,
     reply_to: str | None = None,
+    attachments: list[Attachment] | None = None,
 ) -> bool:
-    msg = EmailMessage(to=to, subject=subject, html=html, text=text, reply_to=reply_to)
+    msg = EmailMessage(
+        to=to, subject=subject, html=html, text=text, reply_to=reply_to,
+        attachments=attachments or [],
+    )
     provider = _effective_provider()
     try:
         if provider == "sendgrid":

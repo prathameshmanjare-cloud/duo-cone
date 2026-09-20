@@ -99,6 +99,13 @@ class Settings(BaseSettings):
     email_from_name: str = "DuoCone"
     sales_email: str = "duo-cone@outlook.com"
 
+    # invoice PDF — seller details printed on paid-order invoices
+    invoice_seller_name: str = "SAPPARTS EUROPE GMBH"
+    invoice_seller_address: str = "Benzstraße 21, 51381 Leverkusen, Germany"
+    invoice_seller_vat_id: str = "DE300917783"
+    invoice_seller_bank_name: str = ""
+    invoice_seller_bank_iban: str = ""
+
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_whatsapp_from: str = ""

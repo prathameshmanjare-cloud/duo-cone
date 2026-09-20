@@ -9,8 +9,11 @@ from __future__ import annotations
 import re
 import uuid
 
+from datetime import datetime, timezone
+
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Depends,
     File,
     Form,
@@ -27,10 +30,12 @@ from sqlalchemy.orm import selectinload
 
 from app.auth.deps import require_admin
 from app.auth.security import hash_password
+from app.background.tasks import notify_order_paid
 from app.config.settings import get_settings
 from app.db.bootstrap import get_app_setting, set_app_setting
 from app.db.session import get_db
 from app.integrations.email import _effective_provider, send_email_diagnostic
+from app.services.invoice import build_invoice_pdf
 from app.models.catalog import (
     Brand,
     Category,
@@ -475,7 +480,10 @@ async def get_order(order_id: uuid.UUID, db: AsyncSession = Depends(get_db)) -> 
 
 @router.patch("/orders/{order_id}", response_model=OrderAdminOut)
 async def update_order_status(
-    order_id: uuid.UUID, payload: OrderStatusIn, db: AsyncSession = Depends(get_db)
+    order_id: uuid.UUID,
+    payload: OrderStatusIn,
+    background: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
 ) -> OrderAdminOut:
     order = (
         await db.execute(
@@ -484,9 +492,21 @@ async def update_order_status(
     ).scalar_one_or_none()
     if order is None:
         raise HTTPException(status_code=404, detail="Order not found")
+    became_paid = payload.status == OrderStatus.paid and order.status != OrderStatus.paid
     order.status = payload.status
+    if became_paid and not order.paid_at:
+        order.paid_at = datetime.now(timezone.utc)
     await db.commit()
     await db.refresh(order)
+    if became_paid:
+        background.add_task(
+            notify_order_paid,
+            order_number=order.number,
+            email=order.email,
+            total_cents=order.total_cents,
+            currency=order.currency,
+            invoice_pdf=build_invoice_pdf(order),
+        )
     return OrderAdminOut.model_validate(order)
 
 
