@@ -3,6 +3,7 @@ import { Header } from "../Header/Header";
 import { Footer } from "../Footer/Footer";
 import { CartDrawer } from "../CartDrawer/CartDrawer";
 import { ChatWidget } from "../ChatWidget/ChatWidget";
+import { WhatsAppButton } from "../WhatsAppButton/WhatsAppButton";
 import { CtaBanner } from "../CtaBanner/CtaBanner";
 import { ScrollProgress } from "../ScrollProgress/ScrollProgress";
 import { PageTransition } from "../PageTransition/PageTransition";
@@ -33,6 +34,7 @@ export function RootLayout() {
       <Footer />
       {authed && <CartDrawer />}
       <ChatWidget />
+      <WhatsAppButton />
     </>
   );
 }
