@@ -1,4 +1,4 @@
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -44,8 +44,10 @@ async def list_products(db: AsyncSession, filters: ProductFilters) -> tuple[list
         selectinload(Product.brand), selectinload(Product.images), selectinload(Product.inventory)
     )
 
+    brand_joined = False
     if filters.brand_slug:
         stmt = stmt.join(Brand).where(Brand.slug == filters.brand_slug)
+        brand_joined = True
     if filters.category_slug:
         stmt = stmt.join(ProductCategory, ProductCategory.product_id == Product.id).join(
             Category, Category.id == ProductCategory.category_id
@@ -83,7 +85,10 @@ async def list_products(db: AsyncSession, filters: ProductFilters) -> tuple[list
     elif filters.sort == "latest":
         stmt = stmt.order_by(Product.created_at.desc())
     else:
-        stmt = stmt.order_by(Product.name.asc())
+        if not brand_joined:
+            stmt = stmt.outerjoin(Brand, Brand.id == Product.brand_id)
+        # Caterpillar listed first, then alphabetical everywhere else
+        stmt = stmt.order_by(case((Brand.name == "Caterpillar", 0), else_=1), Product.name.asc())
 
     stmt = stmt.offset((filters.page - 1) * filters.page_size).limit(filters.page_size)
     rows = (await db.execute(stmt)).scalars().unique().all()
