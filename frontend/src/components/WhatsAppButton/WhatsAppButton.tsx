@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "./WhatsAppButton.module.css";
 
-const PHONE = "911234567890"; // TODO: replace with real number, country code + number, no +/spaces
+const PHONE = "4915510386300";
 const DEFAULT_MESSAGE = "Hi, I'd like to place an order for DuoCone seals.";
 
 function waHref(text: string) {
