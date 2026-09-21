@@ -18,11 +18,13 @@ type Slide = {
   cta: string;
   to: string;
   secondary?: { label: string; to: string };
+  fitContain?: boolean;
 };
 
 const SLIDES: Slide[] = [
   {
     img: slideWelcome,
+    fitContain: true,
     eyebrow: "DUO-CONE",
     nav: "Welcome",
     title: "Welcome to DUO-CONE",
@@ -126,14 +128,19 @@ export function HeroSlider() {
         {SLIDES.map((s, i) => (
           <div
             key={s.title}
-            className={`${styles.slide} ${i === index ? styles.active : ""}`}
+            className={`${styles.slide} ${i === index ? styles.active : ""} ${s.fitContain ? styles.slideContain : ""}`}
             data-kb={i % 2}
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} of ${count}: ${s.title}`}
             aria-hidden={i !== index}
           >
-            <img className={styles.bg} src={s.img} alt="" loading={i === 0 ? "eager" : "lazy"} />
+            <img
+              className={`${styles.bg} ${s.fitContain ? styles.bgContain : ""}`}
+              src={s.img}
+              alt=""
+              loading={i === 0 ? "eager" : "lazy"}
+            />
           </div>
         ))}
         <div className={styles.scrim} aria-hidden="true" />

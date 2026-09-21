@@ -47,6 +47,20 @@
   will-change: transform;
 }
 
+/* labeled technical diagrams can't tolerate cover-cropping or the Ken
+   Burns zoom — show the whole image instead, letterboxed on the
+   slider's own dark background */
+.slideContain.active {
+  animation: none;
+}
+.bgContain {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #06101f;
+}
+
 .scrim {
   position: absolute;
   inset: 0;
