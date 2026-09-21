@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
+import { api } from "../../lib/api";
 import { useSession } from "../../store/session";
 import styles from "./Auth.module.css";
 
@@ -121,33 +122,146 @@ function AuthScreen({ mode }: { mode: Mode }) {
 export const Login = () => <AuthScreen mode="login" />;
 export const Register = () => <AuthScreen mode="register" />;
 
-export const ForgotPassword = () => (
-  <div className={styles.page}>
-    <div className={styles.card}>
-      <h1>Forgot password</h1>
-      <p>
-        Password reset by email isn't available yet. Contact{" "}
-        <a href="mailto:sale@duo-cone.com">sale@duo-cone.com</a> and our team will
-        help you regain access.
-      </p>
-      <p className={styles.foot}>
-        <Link to="/login">Back to login</Link>
-      </p>
-    </div>
-  </div>
-);
+export const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export const ResetPassword = () => (
-  <div className={styles.page}>
-    <div className={styles.card}>
-      <h1>Reset password</h1>
-      <p>
-        This link is no longer valid. Contact{" "}
-        <a href="mailto:sale@duo-cone.com">sale@duo-cone.com</a> for assistance.
-      </p>
-      <p className={styles.foot}>
-        <Link to="/login">Back to login</Link>
-      </p>
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      await api.forgotPassword(email);
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.card}>
+        <h1>Forgot password</h1>
+        {sent ? (
+          <p>
+            If an account exists for <strong>{email}</strong>, a password reset link has been
+            sent. Check your inbox (and spam folder) — the link expires in 30 minutes.
+          </p>
+        ) : (
+          <form onSubmit={onSubmit}>
+            <label>
+              Email
+              <input
+                type="email"
+                name="email"
+                autoComplete="username"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </label>
+            {error && <p className={styles.error}>{error}</p>}
+            <Button type="submit" style={{ width: "100%" }} disabled={busy}>
+              {busy ? "Sending…" : "Send reset link"}
+            </Button>
+          </form>
+        )}
+        <p className={styles.foot}>
+          <Link to="/login">Back to login</Link>
+        </p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+export const ResetPassword = () => {
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const token = params.get("token") || "";
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!token) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.card}>
+          <h1>Reset password</h1>
+          <p>
+            This link is missing its token. Contact{" "}
+            <a href="mailto:sale@duo-cone.com">sale@duo-cone.com</a> for assistance.
+          </p>
+          <p className={styles.foot}>
+            <Link to="/login">Back to login</Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (password !== confirm) {
+      setError("Passwords don't match");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await api.resetPassword(token, password);
+      navigate("/login", { replace: true });
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "This reset link is invalid or has expired. Request a new one."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.card}>
+        <h1>Reset password</h1>
+        <form onSubmit={onSubmit}>
+          <label>
+            New password
+            <input
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
+          <label>
+            Confirm password
+            <input
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+            />
+          </label>
+          {error && <p className={styles.error}>{error}</p>}
+          <Button type="submit" style={{ width: "100%" }} disabled={busy}>
+            {busy ? "Saving…" : "Set new password"}
+          </Button>
+        </form>
+        <p className={styles.foot}>
+          <Link to="/login">Back to login</Link>
+        </p>
+      </div>
+    </div>
+  );
+};

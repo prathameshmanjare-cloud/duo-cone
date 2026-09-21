@@ -219,6 +219,16 @@ export const api = {
       body: JSON.stringify(payload),
     }),
   me: () => request<SessionUser>(`/auth/me`),
+  forgotPassword: (email: string) =>
+    request<{ ok: boolean }>(`/auth/forgot-password`, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+  resetPassword: (token: string, password: string) =>
+    request<{ ok: boolean }>(`/auth/reset-password`, {
+      method: "POST",
+      body: JSON.stringify({ token, password }),
+    }),
 
   chat: (message: string, history: { role: string; text: string }[]) =>
     request<ChatResponse>(`/chat`, {

@@ -293,3 +293,21 @@ async def send_verification_email(email: str, token: str) -> None:
         logger.info("Verification email sent to %s", email)
     except Exception:  # noqa: BLE001
         logger.exception("send_verification_email failed for %s", email)
+
+
+# ------------------------------------------------------- password reset ------
+async def notify_password_reset(email: str, reset_url: str) -> None:
+    try:
+        send_email(
+            to=email,
+            subject="Reset your DuoCone password",
+            html=_wrap(
+                "Reset your password",
+                f'<p>Click the link below to choose a new password. It expires in 30 minutes.</p>'
+                f'<p><a href="{reset_url}" style="color:#07549a">{reset_url}</a></p>'
+                f'<p style="font-size:12px;color:#6b7280">If you did not request this, ignore this email.</p>',
+            ),
+        )
+        logger.info("Password reset email sent to %s", email)
+    except Exception:  # noqa: BLE001
+        logger.exception("notify_password_reset failed for %s", email)

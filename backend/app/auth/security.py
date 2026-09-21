@@ -55,6 +55,22 @@ def create_refresh_token(user_id: str | uuid.UUID) -> str:
     return _encode(str(user_id), "refresh", timedelta(days=settings.refresh_token_expire_days))
 
 
+def create_password_reset_token(user_id: str | uuid.UUID, password_hash: str) -> str:
+    """Stateless reset token — signature covers the current password hash so
+    it stops working the moment the password actually changes (single use
+    without a DB column)."""
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": str(user_id),
+        "type": "reset",
+        "iat": now,
+        "exp": now + timedelta(minutes=30),
+        "jti": uuid.uuid4().hex,
+        "pwd": password_hash[-24:],
+    }
+    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
 def decode_token(token: str, expected_type: str | None = None) -> dict:
     """Raise jwt.PyJWTError on any problem (expired, bad sig, wrong type)."""
     data = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
