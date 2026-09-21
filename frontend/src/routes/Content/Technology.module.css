@@ -171,7 +171,7 @@
 }
 .lead {
   margin: 0;
-  max-width: 62ch;
+  max-width: 100%;
   color: rgba(255, 255, 255, 0.82);
   font-size: 1rem;
   line-height: 1.7;
