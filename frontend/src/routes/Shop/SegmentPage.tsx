@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { Shop } from "./Shop";
-import heroSealImage from "../../assets/industries/seal-df-do.png";
+import heroSealImage from "../../assets/industries/seal-df-do.webp";
 import replacementAnimation from "../../assets/replacement/replacement-animation.mp4";
 import styles from "./SegmentPage.module.css";
 
