@@ -33,15 +33,15 @@ export const LegalNotice = () => (
     sections={[
       {
         heading: "Provider",
-        body: "Kumar Chugh, Benzstraße 21, 51381 Leverkusen, Germany. Tel.: +49 155 10386300. E-mail: sale@duo-cone.com.",
+        body: "SAPPARTS Europe GmbH, Benzstraße 21, 51381 Leverkusen, Germany. Tel.: +49 2171 362 9923. Fax available on request. Web: www.sapparts-europe.com. E-mail: sale@duo-cone.com.",
       },
       {
         heading: "Registration details",
-        body: "VAT ID: DE62529307843. Tax Number: 212/5035/5426. LUCID Number: DE4303987898555.",
+        body: "USt-IdNr.: DE300917783. HRB 82724 (Cologne District Court). Geschäftsführer (Managing Directors): Johannes Orlowski, Steven Chugh.",
       },
       {
         heading: "Bank details",
-        body: "Bank: C24. Account Holder: Kumar Chugh. IBAN: DE93 5002 4024 2937 8701 01.",
+        body: "Bank: VR Bank eG. BIC: GENODED1PAF. IBAN: DE92 3706 2600 2014 8100 16.",
       },
       {
         heading: "Online dispute resolution",
