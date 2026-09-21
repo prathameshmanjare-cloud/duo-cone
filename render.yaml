@@ -45,27 +45,20 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
-      # Email over SMTP — set the secrets in the Render dashboard
+      # Email via SendGrid HTTP API — Render blocks outbound SMTP ports on
+      # this plan, so SMTP providers can't be used here. Set the API key in
+      # the Render dashboard (Environment tab); sale@duo-cone.com must be
+      # verified in SendGrid (Single Sender or Domain Authentication) first.
       - key: EMAIL_PROVIDER
-        value: smtp
+        value: sendgrid
+      - key: SENDGRID_API_KEY
+        sync: false
       - key: EMAIL_FROM
-        value: no-reply@duo-cone.com
+        value: sale@duo-cone.com
       - key: EMAIL_FROM_NAME
         value: DuoCone
       - key: SALES_EMAIL
-        value: duo-cone@outlook.com
-      - key: SMTP_HOST
-        sync: false
-      - key: SMTP_PORT
-        value: "587"
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASSWORD
-        sync: false
-      - key: SMTP_STARTTLS
-        value: "true"
-      - key: SMTP_SSL
-        value: "false"
+        value: sale@duo-cone.com
 
 databases:
   - name: duocone-db
