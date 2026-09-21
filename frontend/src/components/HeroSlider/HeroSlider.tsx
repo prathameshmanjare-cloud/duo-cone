@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Mous
 import { Link } from "react-router-dom";
 import { Button } from "../Button/Button";
 import { IconArrowRight } from "../Icon/Icon";
-import slideWelcome from "../../assets/industries/seal-df-do.png";
+import slideWelcome from "../../assets/industries/seal-cutaway-hero.jpg";
 import slideTech from "../../assets/industries/tunel.jpg";
 import slideIndustries from "../../assets/industries/mining.jpg";
 import slideSupport from "../../assets/industries/cement.jpg";
