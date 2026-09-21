@@ -235,7 +235,7 @@ export function Contact() {
           <div className={styles.social}>
             <b>Follow DUO-CONE</b>
             <div className={styles.socialRow}>
-              <a className={styles.socialLink} href="https://www.linkedin.com/company/sapparts-europe-gmbh" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+              <a className={styles.socialLink} href="https://www.linkedin.com/in/duo-cone-104798385/" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.64h.05c.53-1 1.83-2.06 3.77-2.06C20.4 8.58 22 10.6 22 14.06V21h-4v-6.2c0-1.48-.03-3.38-2.06-3.38-2.06 0-2.38 1.6-2.38 3.27V21H9V9Z"/></svg>
               </a>
             </div>
