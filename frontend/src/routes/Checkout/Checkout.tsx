@@ -7,6 +7,7 @@ import { useCartStore } from "../../store/cart";
 import { useSession } from "../../store/session";
 import { api, ApiError } from "../../lib/api";
 import { formatPrice } from "../../lib/format";
+import { COUNTRIES } from "../../lib/countries";
 import { Button } from "../../components/Button/Button";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import styles from "./Checkout.module.css";
@@ -165,7 +166,15 @@ export function Checkout() {
               <label>City<input {...register("city")} /></label>
               <label>Postal code<input {...register("postalCode")} /></label>
             </div>
-            <label>Country code (e.g. DE)<input maxLength={2} {...register("countryCode")} /></label>
+            <label>
+              Country
+              <select defaultValue="" {...register("countryCode")}>
+                <option value="" disabled>Select a country</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.name}</option>
+                ))}
+              </select>
+            </label>
           </section>
           <label className={styles.terms}>
             <input type="checkbox" {...register("terms")} /> I accept the <Link to="/terms">terms &amp; conditions</Link>
