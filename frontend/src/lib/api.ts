@@ -194,6 +194,14 @@ export const api = {
 
   createOrder: (payload: CreateOrderPayload) =>
     request<Order>(`/orders`, { method: "POST", body: JSON.stringify(payload) }),
+  estimateShipping: (payload: {
+    country_code: string;
+    items: { sku: string; name: string; qty: number; unit_price_cents: number; product_id?: string }[];
+  }) =>
+    request<{ shipping_cents: number; currency: string }>(`/orders/shipping-estimate`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
   listOrders: () => request<Order[]>(`/orders`),
   getOrder: (number: string, email?: string) =>
     request<Order>(`/orders/${encodeURIComponent(number)}${email ? `?email=${encodeURIComponent(email)}` : ""}`),

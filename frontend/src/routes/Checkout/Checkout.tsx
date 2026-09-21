@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -35,10 +35,51 @@ export function Checkout() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
+  const countryCode = watch("countryCode");
+  const [shippingCents, setShippingCents] = useState<number | null>(null);
+  const [shippingBusy, setShippingBusy] = useState(false);
+
+  useEffect(() => {
+    const cc = (countryCode || "").trim().toUpperCase();
+    if (cc.length !== 2 || lines.length === 0) {
+      setShippingCents(null);
+      return;
+    }
+    let cancelled = false;
+    setShippingBusy(true);
+    const t = setTimeout(() => {
+      api
+        .estimateShipping({
+          country_code: cc,
+          items: lines.map((l) => ({
+            sku: l.product.sku,
+            name: l.product.name,
+            qty: l.qty,
+            unit_price_cents: l.product.sale_price_cents ?? l.product.price_cents,
+            product_id: l.product.id,
+          })),
+        })
+        .then((res) => {
+          if (!cancelled) setShippingCents(res.shipping_cents);
+        })
+        .catch(() => {
+          if (!cancelled) setShippingCents(null);
+        })
+        .finally(() => {
+          if (!cancelled) setShippingBusy(false);
+        });
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countryCode, lines.length]);
 
   if (status === "idle" || status === "loading") {
     return <div className={styles.page}>Loading…</div>;
@@ -132,6 +173,22 @@ export function Checkout() {
             ))}
           </ul>
           <div className={styles.row}><span>Subtotal</span><Price cents={subtotalCents()} /></div>
+          <div className={styles.row}>
+            <span>Shipping</span>
+            {shippingBusy ? (
+              <span>Calculating…</span>
+            ) : shippingCents !== null ? (
+              <Price cents={shippingCents} />
+            ) : (
+              <span>Enter country</span>
+            )}
+          </div>
+          {shippingCents !== null && (
+            <div className={styles.row}>
+              <strong>Total</strong>
+              <strong><Price cents={subtotalCents() + shippingCents} /></strong>
+            </div>
+          )}
 
           <fieldset className={styles.pay}>
             <legend>Payment</legend>

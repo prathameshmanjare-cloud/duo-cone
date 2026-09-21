@@ -24,8 +24,10 @@ from app.auth.security import decode_token
 from app.background.tasks import notify_order, notify_order_paid
 from app.db.session import get_db
 from app.integrations.payments import stripe_gateway
+from app.models.catalog import Product
 from app.models.commerce import Order, OrderItem, OrderStatus, User
 from app.services.invoice import build_invoice_pdf
+from app.services.shipping import calc_shipping_cents, line_weight_grams
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 logger = logging.getLogger("duocon.orders")
@@ -89,6 +91,16 @@ class OrderIn(BaseModel):
         return sum(li.unit_price_cents * li.qty for li in self.items)
 
 
+class ShippingEstimateIn(BaseModel):
+    country_code: str = Field(min_length=2, max_length=2)
+    items: list[OrderLineIn] = Field(min_length=1)
+
+
+class ShippingEstimateOut(BaseModel):
+    shipping_cents: int
+    currency: str = "EUR"
+
+
 class OrderLineOut(BaseModel):
     sku: str
     name: str
@@ -115,6 +127,29 @@ class OrderOut(BaseModel):
     items: list[OrderLineOut] = []
     # only set on the create response when payment_method == "card"
     checkout_url: str | None = None
+
+
+async def _total_weight_kg(db: AsyncSession, items: list[OrderLineIn]) -> float:
+    product_ids = [li.product_id for li in items if li.product_id is not None]
+    weights: dict[uuid.UUID, int | None] = {}
+    if product_ids:
+        rows = (
+            await db.execute(select(Product.id, Product.weight_g).where(Product.id.in_(product_ids)))
+        ).all()
+        weights = {pid: w for pid, w in rows}
+    total_g = sum(
+        line_weight_grams(weights.get(li.product_id) if li.product_id else None, li.qty)
+        for li in items
+    )
+    return total_g / 1000
+
+
+@router.post("/shipping-estimate", response_model=ShippingEstimateOut)
+async def shipping_estimate(
+    payload: ShippingEstimateIn, db: AsyncSession = Depends(get_db)
+) -> ShippingEstimateOut:
+    weight_kg = await _total_weight_kg(db, payload.items)
+    return ShippingEstimateOut(shipping_cents=calc_shipping_cents(payload.country_code, weight_kg))
 
 
 async def mark_order_paid(
@@ -180,6 +215,8 @@ async def create_order(
         and payload.shipping_address.country_code.upper() in _EU
         and payload.shipping_address.country_code.upper() != "DE"
     )
+    weight_kg = await _total_weight_kg(db, payload.items)
+    shipping_cents = calc_shipping_cents(payload.shipping_address.country_code, weight_kg)
     number = f"DC-{uuid.uuid4().hex[:8].upper()}"
     order = Order(
         number=number,
@@ -188,9 +225,9 @@ async def create_order(
         currency=payload.currency.upper(),
         subtotal_cents=subtotal,
         discount_cents=0,
-        shipping_cents=0,
+        shipping_cents=shipping_cents,
         tax_cents=0,  # invoice issued separately; VAT handled on the invoice
-        total_cents=subtotal,
+        total_cents=subtotal + shipping_cents,
         vat_id=payload.vat_id,
         vat_reverse_charge=reverse_charge,
         shipping_address=payload.shipping_address.model_dump(),
@@ -226,7 +263,12 @@ async def create_order(
                 line_items=[
                     {"name": li.name, "sku": li.sku, "unit_price_cents": li.unit_price_cents, "qty": li.qty}
                     for li in payload.items
-                ],
+                ]
+                + (
+                    [{"name": "Shipping", "sku": "SHIPPING", "unit_price_cents": shipping_cents, "qty": 1}]
+                    if shipping_cents
+                    else []
+                ),
             )
             order.stripe_session_id = session.id
             await db.commit()
