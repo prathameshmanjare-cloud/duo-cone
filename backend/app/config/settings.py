@@ -97,7 +97,7 @@ class Settings(BaseSettings):
     smtp_ssl: bool = False  # True for implicit TLS on port 465
     email_from: str = "no-reply@duo-cone.com"
     email_from_name: str = "DuoCone"
-    sales_email: str = "duo-cone@outlook.com"
+    sales_email: str = "sale@duo-cone.com"
 
     # invoice PDF — seller details printed on paid-order invoices
     invoice_seller_name: str = "SAPPARTS EUROPE GMBH"

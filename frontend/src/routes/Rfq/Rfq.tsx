@@ -37,7 +37,7 @@ export function Rfq() {
       });
       setSubmitted(res.number);
     } catch {
-      setError("Could not submit your RFQ right now. Please try again or email duo-cone@outlook.com.");
+      setError("Could not submit your RFQ right now. Please try again or email sale@duo-cone.com.");
     }
   }
 

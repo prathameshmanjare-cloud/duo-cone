@@ -5,7 +5,7 @@ export const COMPANY = {
   legalName: "SAPPARTS EUROPE GMBH",
   phoneDisplay: "+49 155 10386300",
   phoneHref: "tel:+4915510386300",
-  email: "duo-cone@outlook.com",
+  email: "sale@duo-cone.com",
   street: "Benzstraße 21",
   postcodeCity: "51381 Leverkusen",
   country: "Germany",

@@ -91,7 +91,7 @@ export function Checkout() {
       setSubmitError(
         e instanceof ApiError
           ? e.message
-          : "Could not place the order. Please try again or email duo-cone@outlook.com.",
+          : "Could not place the order. Please try again or email sale@duo-cone.com.",
       );
     }
   }

@@ -47,7 +47,7 @@ export function ChatWidget() {
     } catch {
       setMessages((m) => [
         ...m,
-        { role: "bot", text: "Sorry, I couldn't reach the server. Try again or email duo-cone@outlook.com." },
+        { role: "bot", text: "Sorry, I couldn't reach the server. Try again or email sale@duo-cone.com." },
       ]);
     } finally {
       setBusy(false);
