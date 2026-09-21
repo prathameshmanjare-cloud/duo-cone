@@ -60,7 +60,7 @@ export function Footer() {
             </span>
             <a
               className={styles.social}
-              href="#"
+              href="https://www.linkedin.com/company/sapparts-europe-gmbh"
               aria-label="DuoCone on LinkedIn"
               target="_blank"
               rel="noopener noreferrer"
