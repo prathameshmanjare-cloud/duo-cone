@@ -46,10 +46,18 @@ def create_checkout_session(
         for li in line_items
     ]
     base = settings.frontend_url.rstrip("/")
+    # card covers both debit and credit — no separate Stripe type for that.
+    # paypal / sepa_debit only actually render at Checkout once enabled for
+    # this Stripe account (Dashboard -> Settings -> Payment methods) and, for
+    # sepa_debit, only when currency is EUR.
+    payment_method_types = ["card", "paypal"]
+    if currency.upper() == "EUR":
+        payment_method_types.append("sepa_debit")
     return stripe.checkout.Session.create(
         mode="payment",
         customer_email=email,
         line_items=stripe_line_items,
+        payment_method_types=payment_method_types,
         client_reference_id=order_number,
         metadata={"order_number": order_number},
         payment_intent_data={"metadata": {"order_number": order_number}},
