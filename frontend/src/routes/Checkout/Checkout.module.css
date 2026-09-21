@@ -10,7 +10,8 @@
 
 .summary { border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); position: sticky; top: calc(var(--header-height) + 16px); }
 .summary ul { list-style: none; padding: 0; font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: var(--space-3); }
-.row { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: var(--space-2); }
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); font-weight: 700; margin-bottom: var(--space-2); }
+.total { padding-top: var(--space-2); margin-top: var(--space-2); border-top: 1px solid var(--color-border); font-size: 1.05rem; }
 .note { font-size: 0.78rem; color: var(--color-text-muted); margin-bottom: var(--space-4); }
 
 @media (max-width: 760px) {

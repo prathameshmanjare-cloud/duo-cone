@@ -6,7 +6,7 @@ import { useNavigate, Link, Navigate, useSearchParams } from "react-router-dom";
 import { useCartStore } from "../../store/cart";
 import { useSession } from "../../store/session";
 import { api, ApiError } from "../../lib/api";
-import { Price } from "../../components/Price/Price";
+import { formatPrice } from "../../lib/format";
 import { Button } from "../../components/Button/Button";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import styles from "./Checkout.module.css";
@@ -172,23 +172,24 @@ export function Checkout() {
               <li key={l.product.id}>{l.qty}× {l.product.name}</li>
             ))}
           </ul>
-          <div className={styles.row}><span>Subtotal</span><Price cents={subtotalCents()} /></div>
+          <div className={styles.row}><span>Subtotal</span><span>{formatPrice(subtotalCents())}</span></div>
           <div className={styles.row}>
             <span>Shipping</span>
-            {shippingBusy ? (
-              <span>Calculating…</span>
-            ) : shippingCents !== null ? (
-              <Price cents={shippingCents} />
-            ) : (
-              <span>Enter country</span>
-            )}
+            <span>
+              {shippingBusy
+                ? "Calculating…"
+                : shippingCents !== null
+                  ? formatPrice(shippingCents)
+                  : "Enter country"}
+            </span>
           </div>
           {shippingCents !== null && (
-            <div className={styles.row}>
-              <strong>Total</strong>
-              <strong><Price cents={subtotalCents() + shippingCents} /></strong>
+            <div className={`${styles.row} ${styles.total}`}>
+              <span>Total</span>
+              <span>{formatPrice(subtotalCents() + shippingCents)}</span>
             </div>
           )}
+          <p className={styles.note}>excl. VAT · plus shipping</p>
 
           <fieldset className={styles.pay}>
             <legend>Payment</legend>
