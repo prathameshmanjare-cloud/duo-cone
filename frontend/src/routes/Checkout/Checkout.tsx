@@ -20,7 +20,6 @@ const schema = z.object({
   city: z.string().min(1),
   postalCode: z.string().min(1),
   countryCode: z.string().min(2).max(2),
-  paymentMethod: z.enum(["card", "invoice"]),
   terms: z.literal(true, { message: "You must accept the terms" }),
 });
 
@@ -39,7 +38,6 @@ export function Checkout() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { paymentMethod: "card" },
   });
 
   if (status === "idle" || status === "loading") {
@@ -77,7 +75,7 @@ export function Checkout() {
           qty: l.qty,
           unit_price_cents: l.product.sale_price_cents ?? l.product.price_cents,
         })),
-        payment_method: v.paymentMethod,
+        payment_method: "card",
         terms_accepted: v.terms,
       });
       if (order.checkout_url) {
@@ -138,18 +136,13 @@ export function Checkout() {
           <fieldset className={styles.pay}>
             <legend>Payment</legend>
             <label>
-              <input type="radio" value="card" {...register("paymentMethod")} />
+              <input type="radio" value="card" checked readOnly />
               Pay now by card (Stripe)
-            </label>
-            <label>
-              <input type="radio" value="invoice" {...register("paymentMethod")} />
-              Request an invoice (net 30, verified B2B accounts)
             </label>
           </fieldset>
 
           <p className={styles.note}>
-            Card payments are processed securely by Stripe. Invoice orders are
-            confirmed pending a credit check.
+            Card payments are processed securely by Stripe.
           </p>
           {submitError && <p className={styles.err}>{submitError}</p>}
           <Button type="submit" variant="primary" style={{ width: "100%" }} disabled={isSubmitting}>
