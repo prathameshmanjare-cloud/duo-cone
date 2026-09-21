@@ -198,7 +198,7 @@ export const api = {
     country_code: string;
     items: { sku: string; name: string; qty: number; unit_price_cents: number; product_id?: string }[];
   }) =>
-    request<{ shipping_cents: number; currency: string }>(`/orders/shipping-estimate`, {
+    request<{ shipping_cents: number; tax_cents: number; currency: string }>(`/orders/shipping-estimate`, {
       method: "POST",
       body: JSON.stringify(payload),
     }),

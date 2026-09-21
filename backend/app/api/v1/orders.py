@@ -27,7 +27,7 @@ from app.integrations.payments import stripe_gateway
 from app.models.catalog import Product
 from app.models.commerce import Order, OrderItem, OrderStatus, User
 from app.services.invoice import build_invoice_pdf
-from app.services.shipping import calc_shipping_cents, line_weight_grams
+from app.services.shipping import calc_shipping_cents, calc_vat_cents, line_weight_grams
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 logger = logging.getLogger("duocon.orders")
@@ -98,6 +98,7 @@ class ShippingEstimateIn(BaseModel):
 
 class ShippingEstimateOut(BaseModel):
     shipping_cents: int
+    tax_cents: int = 0
     currency: str = "EUR"
 
 
@@ -149,7 +150,10 @@ async def shipping_estimate(
     payload: ShippingEstimateIn, db: AsyncSession = Depends(get_db)
 ) -> ShippingEstimateOut:
     weight_kg = await _total_weight_kg(db, payload.items)
-    return ShippingEstimateOut(shipping_cents=calc_shipping_cents(payload.country_code, weight_kg))
+    shipping_cents = calc_shipping_cents(payload.country_code, weight_kg)
+    subtotal = sum(li.unit_price_cents * li.qty for li in payload.items)
+    tax_cents = calc_vat_cents(payload.country_code, subtotal + shipping_cents)
+    return ShippingEstimateOut(shipping_cents=shipping_cents, tax_cents=tax_cents)
 
 
 async def mark_order_paid(
@@ -217,6 +221,7 @@ async def create_order(
     )
     weight_kg = await _total_weight_kg(db, payload.items)
     shipping_cents = calc_shipping_cents(payload.shipping_address.country_code, weight_kg)
+    tax_cents = calc_vat_cents(payload.shipping_address.country_code, subtotal + shipping_cents)
     number = f"DC-{uuid.uuid4().hex[:8].upper()}"
     order = Order(
         number=number,
@@ -226,8 +231,8 @@ async def create_order(
         subtotal_cents=subtotal,
         discount_cents=0,
         shipping_cents=shipping_cents,
-        tax_cents=0,  # invoice issued separately; VAT handled on the invoice
-        total_cents=subtotal + shipping_cents,
+        tax_cents=tax_cents,
+        total_cents=subtotal + shipping_cents + tax_cents,
         vat_id=payload.vat_id,
         vat_reverse_charge=reverse_charge,
         shipping_address=payload.shipping_address.model_dump(),
@@ -267,6 +272,11 @@ async def create_order(
                 + (
                     [{"name": "Shipping", "sku": "SHIPPING", "unit_price_cents": shipping_cents, "qty": 1}]
                     if shipping_cents
+                    else []
+                )
+                + (
+                    [{"name": "VAT (19%)", "sku": "VAT", "unit_price_cents": tax_cents, "qty": 1}]
+                    if tax_cents
                     else []
                 ),
             )

@@ -42,12 +42,14 @@ export function Checkout() {
   });
   const countryCode = watch("countryCode");
   const [shippingCents, setShippingCents] = useState<number | null>(null);
+  const [taxCents, setTaxCents] = useState(0);
   const [shippingBusy, setShippingBusy] = useState(false);
 
   useEffect(() => {
     const cc = (countryCode || "").trim().toUpperCase();
     if (cc.length !== 2 || lines.length === 0) {
       setShippingCents(null);
+      setTaxCents(0);
       return;
     }
     let cancelled = false;
@@ -65,10 +67,16 @@ export function Checkout() {
           })),
         })
         .then((res) => {
-          if (!cancelled) setShippingCents(res.shipping_cents);
+          if (!cancelled) {
+            setShippingCents(res.shipping_cents);
+            setTaxCents(res.tax_cents ?? 0);
+          }
         })
         .catch(() => {
-          if (!cancelled) setShippingCents(null);
+          if (!cancelled) {
+            setShippingCents(null);
+            setTaxCents(0);
+          }
         })
         .finally(() => {
           if (!cancelled) setShippingBusy(false);
@@ -183,13 +191,18 @@ export function Checkout() {
                   : "Enter country"}
             </span>
           </div>
+          {shippingCents !== null && taxCents > 0 && (
+            <div className={styles.row}><span>VAT (19%)</span><span>{formatPrice(taxCents)}</span></div>
+          )}
           {shippingCents !== null && (
             <div className={`${styles.row} ${styles.total}`}>
               <span>Total</span>
-              <span>{formatPrice(subtotalCents() + shippingCents)}</span>
+              <span>{formatPrice(subtotalCents() + shippingCents + taxCents)}</span>
             </div>
           )}
-          <p className={styles.note}>excl. VAT · plus shipping</p>
+          <p className={styles.note}>
+            {taxCents > 0 ? "incl. 19% German VAT · plus shipping" : "excl. VAT · plus shipping"}
+          </p>
 
           <fieldset className={styles.pay}>
             <legend>Payment</legend>
