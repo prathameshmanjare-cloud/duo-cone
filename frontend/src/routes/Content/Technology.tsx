@@ -12,7 +12,7 @@ import {
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY } from "../../lib/company";
-import heroImg from "../../assets/industries/heavy.jpg";
+import heroImg from "../../assets/industries/seal-3d-cutaway.webp";
 import castImg from "../../assets/technology/centrifugal-casting.webp";
 import cncImg from "../../assets/technology/cnc-lapping.webp";
 import moldImg from "../../assets/technology/molding.webp";
