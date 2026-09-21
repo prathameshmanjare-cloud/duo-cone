@@ -221,7 +221,7 @@ export function Industries() {
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="auto"
               aria-label="DUO-CONE mechanical face seals in operation"
             />
             <span className={s.heroMediaFrame} aria-hidden="true" />
