@@ -9,15 +9,15 @@
   padding: 12px 18px;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  color: #fff;
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+  color: #0b2a45;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 14px 34px -12px rgba(7, 84, 154, 0.6);
+  box-shadow: 0 14px 34px -12px rgba(214, 166, 0, 0.6);
   transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
-.launcher:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -12px rgba(7, 84, 154, 0.7); }
+.launcher:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -12px rgba(214, 166, 0, 0.7); }
 
 .panel {
   position: fixed;
