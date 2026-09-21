@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useLayoutEffect, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
@@ -9,14 +9,14 @@ export function PageTransition({ children }: { children: ReactNode }) {
   const location = useLocation();
   const reduce = useReducedMotion();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
   }, [location.pathname]);
 
   if (reduce) return <div key={location.pathname}>{children}</div>;
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence initial={false} mode="popLayout">
       <motion.div
         key={location.pathname}
         initial={{ opacity: 0, y: 14 }}
