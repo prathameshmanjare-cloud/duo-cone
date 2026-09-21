@@ -2,9 +2,9 @@ import type { MouseEvent } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
 import { IconArrowRight } from "../../components/Icon/Icon";
-import { Logo } from "../../components/Logo/Logo";
 import { Shop } from "./Shop";
 import heroSealImage from "../../assets/industries/seal-df-do.png";
+import replacementAnimation from "../../assets/replacement/replacement-animation.mp4";
 import styles from "./SegmentPage.module.css";
 
 type Tile = { label: string; value: string };
@@ -145,16 +145,20 @@ export function SegmentPage({ slug }: { slug: string }) {
         <div className={styles.heroArt} aria-hidden="true">
           {seg.slug === "aftermarket" ? (
             <img className={styles.heroArtImage} src={heroSealImage} alt="" />
+          ) : seg.slug === "replacement" ? (
+            <video
+              className={styles.heroArtVideo}
+              src={replacementAnimation}
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
           ) : (
             <>
               <span className={styles.artGrid} />
               <span className={styles.artRing} />
               <span className={styles.artRing2} />
-              {seg.slug === "replacement" && (
-                <span className={styles.heroArtLogo}>
-                  <Logo height={40} tone="light" />
-                </span>
-              )}
             </>
           )}
           <span className={styles.artTag}>DF · DO · UNIVERSAL</span>
