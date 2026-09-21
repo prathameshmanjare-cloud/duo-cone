@@ -161,7 +161,9 @@ export function SegmentPage({ slug }: { slug: string }) {
               <span className={styles.artRing2} />
             </>
           )}
-          <span className={styles.artTag}>DF · DO · UNIVERSAL</span>
+          {seg.slug !== "aftermarket" && (
+            <span className={styles.artTag}>DF · DO · UNIVERSAL</span>
+          )}
         </div>
       </header>
 
