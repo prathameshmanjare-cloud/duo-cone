@@ -87,8 +87,11 @@ async def list_products(db: AsyncSession, filters: ProductFilters) -> tuple[list
     else:
         if not brand_joined:
             stmt = stmt.outerjoin(Brand, Brand.id == Product.brand_id)
-        # Caterpillar listed first, then alphabetical everywhere else
-        stmt = stmt.order_by(case((Brand.name == "Caterpillar", 0), else_=1), Product.name.asc())
+        # Goetze first, then Caterpillar, then alphabetical everywhere else
+        stmt = stmt.order_by(
+            case((Brand.name == "Goetze", 0), (Brand.name == "Caterpillar", 1), else_=2),
+            Product.name.asc(),
+        )
 
     stmt = stmt.offset((filters.page - 1) * filters.page_size).limit(filters.page_size)
     rows = (await db.execute(stmt)).scalars().unique().all()
