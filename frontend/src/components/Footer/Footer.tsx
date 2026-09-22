@@ -74,7 +74,6 @@ export function Footer() {
           <h4>Shop</h4>
           <Link to="/category/aftermarket">Aftermarket</Link>
           <Link to="/category/replacement">Replacement</Link>
-          <Link to="/cross-reference">Cross-Reference Tool</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
           <h4>Company</h4>

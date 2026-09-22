@@ -52,10 +52,6 @@ export function Home() {
             <h3>Aftermarket</h3>
             <p>Fits Caterpillar, Komatsu, Liebherr, John Deere and other OEM machines.</p>
           </Link>
-          <Link to="/cross-reference" className={styles.segmentCard}>
-            <h3>Cross-Reference Tool</h3>
-            <p>Enter your OEM part number to find the exact matching seal instantly.</p>
-          </Link>
         </div>
       </Reveal>
 

@@ -23,8 +23,8 @@ export function Search() {
       {data && data.length === 0 && (
         <EmptyState
           title="No products matched"
-          description="Try a different OEM part number, or use our cross-reference tool."
-          action={<Link to="/cross-reference">Open cross-reference tool</Link>}
+          description="Try a different OEM part number, or browse the full catalog."
+          action={<Link to="/shop">Browse catalog</Link>}
         />
       )}
       {data && data.length > 0 && (

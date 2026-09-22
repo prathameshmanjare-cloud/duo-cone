@@ -22,7 +22,7 @@ export function Cart() {
       <div className={styles.page}>
         <EmptyState
           title="Your cart is empty"
-          description="Browse our seal catalog or use the cross-reference tool to find your part."
+          description="Browse our seal catalog to find your part."
           action={<Link to="/shop"><Button>Browse products</Button></Link>}
         />
       </div>

@@ -182,7 +182,6 @@ export const api = {
   getRelated: (slug: string) => request<ProductCard[]>(`/products/${slug}/related`),
   listBrands: () => request<Brand[]>(`/brands`),
   listCategories: () => request<{ id: number; slug: string; name: string; image_url?: string }[]>(`/categories`),
-  crossReference: (ref: string) => request<ProductCard[]>(`/cross-reference?ref=${encodeURIComponent(ref)}`),
   search: (q: string) => request<ProductCard[]>(`/search?q=${encodeURIComponent(q)}`),
   submitRfq: (payload: unknown) =>
     request<{ id: string; number: string }>(`/rfq`, { method: "POST", body: JSON.stringify(payload) }),

@@ -406,7 +406,7 @@ export function Shop({
           {data && data.items.length === 0 && (
             <EmptyState
               title="No products match"
-              description="Try clearing filters, or use our cross-reference tool with your OEM part number."
+              description="Try clearing filters, or search by your OEM part number."
               action={
                 activeChips.length > 0 ? (
                   <Button variant="ghost" onClick={clearAll}>

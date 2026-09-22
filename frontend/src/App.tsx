@@ -5,7 +5,6 @@ import { Shop } from "./routes/Shop/Shop";
 import { Category } from "./routes/Shop/Category";
 import { Product } from "./routes/Product/Product";
 import { Search } from "./routes/Search/Search";
-import { CrossReference } from "./routes/CrossReference/CrossReference";
 import { Rfq } from "./routes/Rfq/Rfq";
 import { Cart } from "./routes/Cart/Cart";
 import { Checkout } from "./routes/Checkout/Checkout";
@@ -46,7 +45,6 @@ export default function App() {
         <Route path="/category/:slug" element={<Category />} />
         <Route path="/product/:slug" element={<Product />} />
         <Route path="/search" element={<Search />} />
-        <Route path="/cross-reference" element={<CrossReference />} />
         <Route path="/rfq" element={<Rfq />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
