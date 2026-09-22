@@ -54,11 +54,6 @@ const PARTS = [
     title: "Two elastomeric toric rings",
     body: "Round-section rubber rings seated on angled housing ramps. They hold the metal faces together with a calibrated axial load and seal statically against the housing and the metal ring.",
   },
-  {
-    n: "03",
-    title: "Housing ramps",
-    body: "Precision-angled seats in the axle or hub. The ramp geometry locates each toric ring, sets the spring force and stops the ring from slipping or twisting under shock.",
-  },
 ];
 
 /* How the seal actually works */

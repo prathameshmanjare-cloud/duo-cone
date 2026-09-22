@@ -79,7 +79,7 @@ export function Header() {
     <>
       <div className={styles.announcement}>
         <span className={styles.spark} aria-hidden="true" />
-        Express Offer. Receive your RFQ within 24 hours.
+        Express Offer. Receive your RFQ within 12 hours.
       </div>
       <header ref={headerRef} className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
         <div className={styles.inner}>
