@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
@@ -149,16 +149,7 @@ const MATRIX: MatrixRow[] = [
 ];
 
 export function Industries() {
-  const [q, setQ] = useState("");
   const [highlightRow, setHighlightRow] = useState<string | null>(null);
-
-  const rows = useMemo(() => {
-    const t = q.trim().toLowerCase();
-    if (!t) return MATRIX;
-    return MATRIX.filter((r) =>
-      `${r.industry} ${r.machinery} ${r.cavity} ${r.type}`.toLowerCase().includes(t)
-    );
-  }, [q]);
 
   return (
     <div className={s.page}>
@@ -278,12 +269,6 @@ export function Industries() {
               product path.
             </p>
           </header>
-          <input
-            className={s.search}
-            placeholder="Filter machinery, cavity or seal type…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
         </div>
 
         <div className={s.tableWrap}>
@@ -299,7 +284,7 @@ export function Industries() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {MATRIX.map((r) => (
                 <tr key={r.n} className={r.n === highlightRow ? s.rowHighlight : undefined}>
                   <td className={s.tNum}>{r.n}</td>
                   <td className={s.tStrong}>{r.industry}</td>
@@ -311,13 +296,6 @@ export function Industries() {
                   </td>
                 </tr>
               ))}
-              {rows.length === 0 && (
-                <tr>
-                  <td colSpan={6} className={s.muted}>
-                    No match for “{q}”.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
@@ -385,7 +363,7 @@ export function Industries() {
               <div><dt>Diameter</dt><dd>50 mm to 1,000 mm</dd></div>
               <div><dt>Typical machinery</dt><dd>Track rollers, front idlers, final drives</dd></div>
             </dl>
-            <Link to="/shop" className={s.typeLink}>
+            <Link to="/shop?seal_type=DO" className={s.typeLink}>
               Explore DO specifications <IconArrowRight size={16} />
             </Link>
           </article>
@@ -405,7 +383,7 @@ export function Industries() {
               <div><dt>Diameter</dt><dd>100 mm to 1,200 mm</dd></div>
               <div><dt>Typical machinery</dt><dd>TBM cutters, heavy conveyors, centrifuges</dd></div>
             </dl>
-            <Link to="/shop" className={s.typeLink}>
+            <Link to="/shop?seal_type=DF" className={s.typeLink}>
               Explore DF specifications <IconArrowRight size={16} />
             </Link>
           </article>
