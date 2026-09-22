@@ -13,6 +13,8 @@ interface RfqFormValues {
   phone: string;
   message: string;
   items: { sku: string; qty: number; note: string }[];
+  /** honeypot — must stay empty */
+  website: string;
 }
 
 export function Rfq() {
@@ -25,6 +27,7 @@ export function Rfq() {
 
   async function onSubmit(values: RfqFormValues) {
     setError(null);
+    if (values.website) return; // bot
     try {
       const res = await api.submitRfq({
         email: values.email,
@@ -55,6 +58,14 @@ export function Rfq() {
       <h1>Request a Quote</h1>
       <p className={styles.lead}>Add one or more part numbers below. We'll reply with pricing and lead time within 24 hours.</p>
       <form onSubmit={handleSubmit(onSubmit)}>
+        <input
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          className={styles.hp}
+          aria-hidden="true"
+          {...register("website")}
+        />
         <div className={styles.contact}>
           <label>Email<input type="email" required {...register("email", { required: true })} /></label>
           <label>Company<input {...register("company")} /></label>

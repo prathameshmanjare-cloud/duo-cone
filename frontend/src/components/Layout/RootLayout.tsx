@@ -5,6 +5,7 @@ import { CartDrawer } from "../CartDrawer/CartDrawer";
 import { ChatWidget } from "../ChatWidget/ChatWidget";
 import { WhatsAppButton } from "../WhatsAppButton/WhatsAppButton";
 import { CtaBanner } from "../CtaBanner/CtaBanner";
+import { CookieConsent } from "../CookieConsent/CookieConsent";
 import { ScrollProgress } from "../ScrollProgress/ScrollProgress";
 import { PageTransition } from "../PageTransition/PageTransition";
 import { useSession } from "../../store/session";
@@ -35,6 +36,7 @@ export function RootLayout() {
       {authed && <CartDrawer />}
       <ChatWidget />
       <WhatsAppButton />
+      <CookieConsent />
     </>
   );
 }
