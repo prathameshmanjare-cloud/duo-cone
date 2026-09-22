@@ -10,10 +10,10 @@ interface Stat {
 }
 
 const STATS: Stat[] = [
-  { value: 24, suffix: "h", label: "Express RFQ turnaround" },
-  { value: 72, suffix: "h", label: "Shipping from Germany" },
+  { value: 12, suffix: "h", label: "Express RFQ turnaround" },
+  { value: 24, suffix: "h", label: "Shipping from Germany" },
   { value: 2100, suffix: "+", label: "Seals in stock", format: (n) => n.toLocaleString("en-US") },
-  { value: 24, suffix: "mo", label: "Warranty on every seal" },
+  { value: 5000, suffix: " h+", label: "Assurance on every seal", format: (n) => n.toLocaleString("en-US") },
 ];
 
 const DURATION = 900;
