@@ -14,7 +14,7 @@ const POINTS = [
 
 const STATS = [
   { k: "20+", v: "Years of experience" },
-  { k: "EU-wide", v: "Delivery network" },
+  { k: "Worldwide", v: "Delivery network" },
   { k: "2,100+", v: "Seal references" },
 ];
 
