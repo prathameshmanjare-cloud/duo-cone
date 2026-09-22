@@ -227,7 +227,7 @@ export function Hero() {
 
           <h2 className={`${styles.chapter} ${styles.c3}`}>
             Lapped faces,<br />
-            <span>oil-film tight under 60+ bar.</span>
+            <span>oil-film tight under 5+ bar.</span>
           </h2>
 
           <div className={`${styles.chapter} ${styles.c4}`}>
@@ -253,7 +253,7 @@ export function Hero() {
 
         <div className={styles.specs} aria-hidden="true">
           <div className={styles.spec}>
-            <b>60+ bar</b>
+            <b>5+ bar</b>
             <span>working pressure</span>
           </div>
           <div className={styles.spec}>
