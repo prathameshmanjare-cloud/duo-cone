@@ -2,7 +2,6 @@
   position: relative;
   background: var(--color-primary-dark, var(--color-primary));
   color: #eaf0f5;
-  margin-top: var(--space-8);
   overflow: hidden;
 }
 .footer::before {
