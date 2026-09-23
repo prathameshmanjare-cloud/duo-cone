@@ -29,9 +29,9 @@ export function Home() {
         />
       </Helmet>
 
-      <HeroSlider />
-
       <Hero />
+
+      <HeroSlider />
 
       <StatBadges />
 
