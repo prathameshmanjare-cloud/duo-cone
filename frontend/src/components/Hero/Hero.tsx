@@ -152,7 +152,7 @@ export function Hero() {
   }, [reduce]);
 
   return (
-    <section className={styles.hero} ref={rootRef}>
+    <section className={styles.hero} ref={rootRef} data-hero-scroll>
       <div className={styles.sticky}>
         <div className={styles.bg} aria-hidden="true" />
         <div className={`${styles.glow} ${styles.glowA}`} aria-hidden="true" />
