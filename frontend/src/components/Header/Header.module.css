@@ -31,14 +31,12 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
-  backdrop-filter: saturate(1.4) blur(12px);
-  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  background: var(--color-surface);
   border-bottom: 1px solid transparent;
   transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 .scrolled {
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  background: var(--color-surface);
   border-bottom-color: var(--color-border);
   box-shadow: 0 10px 30px -18px rgba(0, 28, 58, 0.35);
 }
