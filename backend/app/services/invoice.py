@@ -21,7 +21,7 @@ settings = get_settings()
 
 _LOGO_PATH = Path(__file__).resolve().parent.parent / "assets" / "invoice_logo.png"
 _LOGO_W_MM = 55
-_LOGO_H_MM = 19  # matches the source logo's aspect ratio (368x128)
+_LOGO_H_MM = 19.1  # matches the source logo's aspect ratio (1024x356)
 
 
 def _latin1(text: str) -> str:
@@ -159,15 +159,16 @@ def _draw_footer(pdf: FPDF) -> None:
     pdf.multi_cell(90, 4, _latin1("\n".join(left_lines)))
 
     if settings.invoice_seller_bank_name:
-        pdf.set_xy(115, y2)
+        # columns end at the 15mm right margin (105 + 25 + 25 + 40 = 195)
+        pdf.set_xy(105, y2)
         pdf.set_font("Helvetica", "B", 7)
         pdf.cell(25, 4, "Bank")
-        pdf.cell(30, 4, "BIC")
-        pdf.cell(35, 4, "IBAN", new_x="LMARGIN", new_y="NEXT")
-        pdf.set_xy(115, y2 + 4)
+        pdf.cell(25, 4, "BIC")
+        pdf.cell(40, 4, "IBAN", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_xy(105, y2 + 4)
         pdf.set_font("Helvetica", "", 7)
         pdf.cell(25, 4, _latin1(settings.invoice_seller_bank_name))
-        pdf.cell(30, 4, _latin1(settings.invoice_seller_bank_bic))
-        pdf.cell(35, 4, _latin1(settings.invoice_seller_bank_iban))
+        pdf.cell(25, 4, _latin1(settings.invoice_seller_bank_bic))
+        pdf.cell(40, 4, _latin1(settings.invoice_seller_bank_iban))
 
     pdf.set_text_color(0, 0, 0)
