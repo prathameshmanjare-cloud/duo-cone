@@ -21,7 +21,7 @@
     linear-gradient(180deg, #ffffff, #f6f9fc);
 }
 .heroCopy {
-  max-width: 680px;
+  max-width: 100%;
 }
 .kicker {
   display: inline-block;
@@ -38,6 +38,9 @@
   font-weight: 800;
   margin: 0 0 var(--space-3);
   color: var(--color-tertiary);
+}
+@media (min-width: 640px) {
+  .heroCopy h1 { white-space: nowrap; }
 }
 .heroCopy p {
   margin: 0 auto;
