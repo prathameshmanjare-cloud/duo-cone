@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "../../store/session";
@@ -123,6 +123,71 @@ export const AccountRfqs = () => {
 export const AccountAddresses = () => <div><h1>Addresses</h1><p>No saved addresses yet.</p></div>;
 export const AccountWishlist = () => <div><h1>Wishlist</h1><p>Your wishlist is empty.</p></div>;
 
+const PhoneField = () => {
+  const user = useSession((s) => s.user);
+  const setUser = useSession((s) => s.setUser);
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const start = () => {
+    setValue(user?.phone || "");
+    setError(null);
+    setEditing(true);
+  };
+
+  const save = async (e: FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    try {
+      setUser(await api.updateMe({ phone: value.trim() || null }));
+      setEditing(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't save phone number.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!editing) {
+    return (
+      <dd className={styles.editRow}>
+        {user?.phone || "—"}
+        <button type="button" className={styles.linkBtn} onClick={start}>
+          {user?.phone ? "Edit" : "Add"}
+        </button>
+      </dd>
+    );
+  }
+
+  return (
+    <dd>
+      <form className={styles.editForm} onSubmit={save}>
+        <input
+          type="tel"
+          autoComplete="tel"
+          aria-label="Phone"
+          className={styles.input}
+          value={value}
+          maxLength={40}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="+49 …"
+          autoFocus
+        />
+        <button type="submit" className={styles.saveBtn} disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </button>
+        <button type="button" className={styles.linkBtn} onClick={() => setEditing(false)} disabled={saving}>
+          Cancel
+        </button>
+      </form>
+      {error && <p className={styles.error}>{error}</p>}
+    </dd>
+  );
+};
+
 export const AccountProfile = () => {
   const user = useSession((s) => s.user);
   return (
@@ -132,7 +197,7 @@ export const AccountProfile = () => {
         <div><dt>Email</dt><dd>{user?.email}</dd></div>
         <div><dt>Name</dt><dd>{user?.full_name || "—"}</dd></div>
         <div><dt>Company</dt><dd>{user?.company_name || "—"}</dd></div>
-        <div><dt>Phone</dt><dd>{user?.phone || "—"}</dd></div>
+        <div><dt>Phone</dt><PhoneField /></div>
         <div><dt>Verified</dt><dd>{user?.is_verified ? "Yes" : "No"}</dd></div>
       </dl>
     </div>

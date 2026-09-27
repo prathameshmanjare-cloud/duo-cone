@@ -22,6 +22,7 @@ from app.models.commerce import User
 from app.schemas.auth import (
     ForgotPasswordIn,
     LoginIn,
+    ProfileUpdateIn,
     RefreshIn,
     RegisterIn,
     ResetPasswordIn,
@@ -87,6 +88,20 @@ async def refresh(payload: RefreshIn, db: AsyncSession = Depends(get_db)) -> Tok
 
 @router.get("/me", response_model=UserOut)
 async def me(user: User = Depends(get_current_user)) -> UserOut:
+    return UserOut.model_validate(user)
+
+
+@router.patch("/me", response_model=UserOut)
+async def update_me(
+    payload: ProfileUpdateIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UserOut:
+    if "phone" in payload.model_fields_set:
+        user.phone = (payload.phone or "").strip() or None
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
     return UserOut.model_validate(user)
 
 

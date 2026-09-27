@@ -13,6 +13,7 @@ interface SessionState {
     phone?: string;
   }) => Promise<void>;
   logout: () => void;
+  setUser: (user: SessionUser) => void;
   hydrate: () => Promise<void>;
 }
 
@@ -38,6 +39,8 @@ export const useSession = create<SessionState>((set) => ({
     session.clear();
     set({ user: null, status: "anon" });
   },
+
+  setUser: (user) => set({ user }),
 
   hydrate: async () => {
     if (!session.token) {

@@ -225,6 +225,8 @@ export const api = {
       body: JSON.stringify(payload),
     }),
   me: () => request<SessionUser>(`/auth/me`),
+  updateMe: (payload: { phone?: string | null }) =>
+    request<SessionUser>(`/auth/me`, { method: "PATCH", body: JSON.stringify(payload) }),
   forgotPassword: (email: string) =>
     request<{ ok: boolean }>(`/auth/forgot-password`, {
       method: "POST",
