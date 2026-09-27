@@ -17,6 +17,7 @@ declare global {
 export const tidioEnabled = Boolean(TIDIO_KEY);
 
 let ready: Promise<TidioChatApi> | null = null;
+let onClose: (() => void) | null = null;
 
 // Loads the Tidio script only when the visitor first clicks "Chat with us",
 // so no third-party chat cookies are set for visitors who never open chat.
@@ -28,7 +29,10 @@ function load(): Promise<TidioChatApi> {
       "tidioChat-ready",
       () => {
         const api = window.tidioChatApi!;
-        api.on("close", () => api.hide());
+        api.on("close", () => {
+          api.hide();
+          onClose?.();
+        });
         resolve(api);
       },
       { once: true },
@@ -45,8 +49,12 @@ function load(): Promise<TidioChatApi> {
   return ready;
 }
 
-export async function openTidio(visitor?: { email?: string; name?: string; phone?: string }) {
+export async function openTidio(
+  visitor?: { email?: string; name?: string; phone?: string },
+  closed?: () => void,
+) {
   const api = await load();
+  onClose = closed ?? null;
   if (visitor?.email) api.setVisitorData(visitor);
   api.show();
   api.open();

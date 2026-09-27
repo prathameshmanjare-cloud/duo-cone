@@ -26,6 +26,7 @@ export function ChatWidget() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [handoff, setHandoff] = useState(false);
+  const [tidioOpen, setTidioOpen] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const user = useSession((s) => s.user);
 
@@ -33,11 +34,17 @@ export function ChatWidget() {
   // assistant stays as a fallback if the Tidio script can't load.
   function launch() {
     if (!tidioEnabled) return setOpen(true);
+    // hide our launcher while Tidio's window is up so it doesn't cover Tidio's close button
+    setTidioOpen(true);
     openTidio(
       user
         ? { email: user.email, name: user.full_name ?? undefined, phone: user.phone ?? undefined }
         : undefined,
-    ).catch(() => setOpen(true));
+      () => setTidioOpen(false),
+    ).catch(() => {
+      setTidioOpen(false);
+      setOpen(true);
+    });
   }
 
   useEffect(() => {
@@ -70,7 +77,7 @@ export function ChatWidget() {
 
   return (
     <>
-      {!open && (
+      {!open && !tidioOpen && (
         <button className={styles.launcher} onClick={launch} aria-label="Open chat">
           <ChatIcon /> Chat with us
         </button>
