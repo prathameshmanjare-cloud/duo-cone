@@ -4,6 +4,7 @@ interface TidioChatApi {
   open: () => void;
   show: () => void;
   hide: () => void;
+  setColorPalette: (color: string) => void;
   on: (event: string, cb: () => void) => void;
   setVisitorData: (data: { email?: string; name?: string; phone?: string }) => void;
 }
@@ -29,6 +30,8 @@ function load(): Promise<TidioChatApi> {
       "tidioChat-ready",
       () => {
         const api = window.tidioChatApi!;
+        // match site brand (--color-primary) regardless of dashboard theme
+        api.setColorPalette("#07549a");
         api.on("close", () => {
           api.hide();
           onClose?.();
