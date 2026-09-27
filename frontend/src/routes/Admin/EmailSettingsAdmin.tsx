@@ -279,15 +279,19 @@ function TemplateEditor({ templateKey }: { templateKey: string }) {
       </div>
       <div className={s.field} style={{ marginTop: "var(--space-3)" }}>
         <label>Live preview</label>
-        <div
+        {/* sandboxed with no permissions: template HTML renders, but any
+            script in it can't run or reach the admin session */}
+        <iframe
+          title="Email template preview"
+          sandbox=""
+          srcDoc={htmlBody}
           style={{
+            width: "100%",
+            height: 240,
             border: "1px solid var(--color-border)",
             borderRadius: "var(--radius-sm)",
-            padding: "var(--space-3)",
-            maxHeight: 240,
-            overflow: "auto",
+            background: "#fff",
           }}
-          dangerouslySetInnerHTML={{ __html: htmlBody }}
         />
       </div>
       <div className={s.toolbar} style={{ marginTop: "var(--space-3)" }}>

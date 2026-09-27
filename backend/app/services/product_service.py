@@ -1,3 +1,5 @@
+import bleach
+
 from app.config.settings import get_settings
 from app.models.catalog import Product
 from app.schemas.product import (
@@ -17,6 +19,34 @@ _DEFAULT_IMAGE = {
     "DO": "/product-images/do.png",
     "other": "/product-images/df.png",
 }
+
+
+# product copy comes from the CMS and WooCommerce imports and is rendered as
+# raw HTML on the storefront — strip anything that could run script
+_ALLOWED_TAGS = {
+    "a", "abbr", "b", "blockquote", "br", "code", "div", "em", "h2", "h3", "h4",
+    "h5", "h6", "hr", "i", "img", "li", "ol", "p", "pre", "small", "span",
+    "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead",
+    "tr", "u", "ul",
+}
+_ALLOWED_ATTRS = {
+    "a": ["href", "title", "target", "rel"],
+    "img": ["src", "alt", "title", "width", "height"],
+    "td": ["colspan", "rowspan"],
+    "th": ["colspan", "rowspan", "scope"],
+}
+
+
+def sanitize_html(raw: str | None) -> str | None:
+    if not raw:
+        return raw
+    return bleach.clean(
+        raw,
+        tags=_ALLOWED_TAGS,
+        attributes=_ALLOWED_ATTRS,
+        protocols={"http", "https", "mailto"},
+        strip=True,
+    )
 
 
 def _image_url(path: str) -> str:
@@ -53,7 +83,7 @@ def to_detail(product: Product) -> ProductDetailOut:
     return ProductDetailOut(
         **card.model_dump(),
         short_description=product.short_description,
-        description_html=product.description_html,
+        description_html=sanitize_html(product.description_html),
         inner_diameter_mm=product.inner_diameter_mm,
         outer_diameter_mm=product.outer_diameter_mm,
         height_mm=product.height_mm,

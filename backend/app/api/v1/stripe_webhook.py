@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.v1.orders import mark_order_paid
+from app.api.v1.orders import mark_order_paid, session_matches_order
 from app.background.tasks import notify_order_paid
 from app.config.settings import get_settings
 from app.db.session import get_db
@@ -65,6 +65,10 @@ async def stripe_webhook(
     if order is None:
         logger.error("Stripe webhook: order %s not found", number)
         return {"received": True, "order_not_found": number}
+
+    if not session_matches_order(session, order):
+        logger.error("Stripe webhook: amount/currency mismatch for order %s — not marking paid", number)
+        return {"received": True, "amount_mismatch": number}
 
     changed = await mark_order_paid(db, order, session.get("payment_intent"))
     if not changed:

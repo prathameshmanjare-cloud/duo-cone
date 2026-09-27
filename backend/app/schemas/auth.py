@@ -6,14 +6,15 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 class RegisterIn(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
-    full_name: str | None = None
-    company_name: str | None = None
-    phone: str | None = None
+    full_name: str | None = Field(default=None, max_length=200)
+    company_name: str | None = Field(default=None, max_length=200)
+    phone: str | None = Field(default=None, max_length=40)
 
 
 class LoginIn(BaseModel):
     email: EmailStr
-    password: str
+    # bounded so a multi-megabyte "password" can't tie up the argon2 hasher
+    password: str = Field(min_length=1, max_length=1024)
 
 
 class TokenOut(BaseModel):
@@ -23,7 +24,7 @@ class TokenOut(BaseModel):
 
 
 class RefreshIn(BaseModel):
-    refresh_token: str
+    refresh_token: str = Field(max_length=2048)
 
 
 class ForgotPasswordIn(BaseModel):
@@ -31,7 +32,7 @@ class ForgotPasswordIn(BaseModel):
 
 
 class ResetPasswordIn(BaseModel):
-    token: str
+    token: str = Field(max_length=2048)
     password: str = Field(min_length=8, max_length=128)
 
 

@@ -6,7 +6,8 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: duocone
     ports:
-      - "5432:5432"
+      # localhost only — don't expose the dev database to the local network
+      - "127.0.0.1:5432:5432"
     volumes:
       - duocone_db:/var/lib/postgresql/data
 

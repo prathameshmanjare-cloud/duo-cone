@@ -37,7 +37,8 @@ class Settings(BaseSettings):
 
     app_name: str = "DuoCon API"
     environment: str = "development"
-    debug: bool = True
+    # off unless explicitly enabled — debug mode leaks tracebacks and logs SQL
+    debug: bool = False
 
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/duocone"
 
@@ -128,6 +129,24 @@ class Settings(BaseSettings):
     @classmethod
     def _strip_invisible_unicode(cls, v: object) -> object:
         return _clean_secret(v) if isinstance(v, str) else v
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment.strip().lower() in ("production", "prod")
+
+    def assert_safe_for_production(self) -> None:
+        """Refuse to boot a production process with dev-grade settings — the
+        repo is public, so a default JWT secret means anyone can mint an
+        admin token."""
+        if not self.is_production:
+            return
+        problems = []
+        if len(self.jwt_secret) < 32 or "change-me" in self.jwt_secret:
+            problems.append("JWT_SECRET must be a random value of at least 32 characters")
+        if self.debug:
+            problems.append("DEBUG must be false")
+        if problems:
+            raise RuntimeError("Unsafe production configuration: " + "; ".join(problems))
 
 
 @lru_cache

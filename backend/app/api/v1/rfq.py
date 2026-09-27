@@ -1,53 +1,34 @@
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth.deps import get_current_user
-from app.auth.security import decode_token
+from app.auth.deps import get_current_user, get_optional_user
 from app.db.session import get_db
+from app.middleware.rate_limit import limiter
 from app.models.commerce import Rfq, RfqItem, User
 from app.background.tasks import notify_rfq
 
 router = APIRouter(prefix="/rfq", tags=["rfq"])
 
-_bearer = HTTPBearer(auto_error=False)
-
-
-async def _optional_user(
-    creds: HTTPAuthorizationCredentials | None = Depends(_bearer),
-    db: AsyncSession = Depends(get_db),
-) -> User | None:
-    """Resolve the caller if a valid bearer token is present, else None."""
-    if creds is None or not creds.credentials:
-        return None
-    try:
-        payload = decode_token(creds.credentials, expected_type="access")
-        user_id = uuid.UUID(payload["sub"])
-    except Exception:  # noqa: BLE001
-        return None
-    return (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
-
-
 class RfqLineIn(BaseModel):
-    sku: str | None = None
-    name: str | None = None
+    sku: str | None = Field(default=None, max_length=120)
+    name: str | None = Field(default=None, max_length=300)
     qty: int = Field(1, ge=1, le=100000)
-    note: str | None = None
+    note: str | None = Field(default=None, max_length=300)
 
 
 class RfqIn(BaseModel):
     email: EmailStr
-    company: str | None = None
-    vat_id: str | None = None
-    country_code: str | None = None
-    phone: str | None = None
-    message: str | None = None
-    items: list[RfqLineIn] = Field(min_length=1)
+    company: str | None = Field(default=None, max_length=200)
+    vat_id: str | None = Field(default=None, max_length=40)
+    country_code: str | None = Field(default=None, max_length=2)
+    phone: str | None = Field(default=None, max_length=40)
+    message: str | None = Field(default=None, max_length=5000)
+    items: list[RfqLineIn] = Field(min_length=1, max_length=100)
 
 
 class RfqLineOut(BaseModel):
@@ -73,11 +54,13 @@ class RfqOut(BaseModel):
 
 
 @router.post("")
+@limiter.limit("5/minute;30/hour")
 async def create_rfq(
+    request: Request,
     payload: RfqIn,
     background: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
-    user: User | None = Depends(_optional_user),
+    user: User | None = Depends(get_optional_user),
 ):
     number = f"RFQ-{uuid.uuid4().hex[:8].upper()}"
     rfq = Rfq(

@@ -27,6 +27,17 @@ cp .env.example .env
 npm run dev   # http://localhost:5173
 ```
 
+## Security tests
+
+```bash
+docker run -d --rm --name duocone-test -e POSTGRES_PASSWORD=pw -e POSTGRES_DB=t -p 127.0.0.1:55432:5432 postgres:16-alpine
+cd backend && .venv/bin/pip install -r requirements-dev.txt
+TEST_DATABASE_URL=postgresql+asyncpg://postgres:pw@127.0.0.1:55432/t .venv/bin/pytest
+```
+
+With `ENVIRONMENT=production` the API refuses to start unless `JWT_SECRET` is
+random and ≥32 chars and `DEBUG=false`; `/docs` and `/openapi.json` are off.
+
 ## Status
 
 Phase 1–6 of the [roadmap](docs/ARCHITECTURE.md#20-implementation-roadmap) scaffolded:

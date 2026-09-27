@@ -1,11 +1,12 @@
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.background.tasks import notify_contact
 from app.db.session import get_db
+from app.middleware.rate_limit import limiter
 from app.models.commerce import ContactMessage
 
 router = APIRouter(prefix="/contact", tags=["contact"])
@@ -21,8 +22,12 @@ class ContactIn(BaseModel):
 
 
 @router.post("", status_code=201)
+@limiter.limit("5/minute;30/hour")
 async def create_contact(
-    payload: ContactIn, background: BackgroundTasks, db: AsyncSession = Depends(get_db)
+    request: Request,
+    payload: ContactIn,
+    background: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
 ):
     number = f"MSG-{uuid.uuid4().hex[:8].upper()}"
     row = ContactMessage(

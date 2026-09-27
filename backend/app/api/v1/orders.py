@@ -12,18 +12,17 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth.deps import get_current_user
-from app.auth.security import decode_token
+from app.auth.deps import get_current_user, get_optional_user
 from app.background.tasks import notify_order, notify_order_paid
 from app.db.session import get_db
 from app.integrations.payments import stripe_gateway
+from app.middleware.rate_limit import limiter
 from app.models.catalog import Product
 from app.models.commerce import Order, OrderItem, OrderStatus, User
 from app.services.invoice import build_invoice_pdf
@@ -32,27 +31,11 @@ from app.services.shipping import calc_shipping_cents, calc_vat_cents, line_weig
 router = APIRouter(prefix="/orders", tags=["orders"])
 logger = logging.getLogger("duocon.orders")
 
-_bearer = HTTPBearer(auto_error=False)
-
 # EU member states for VAT reverse-charge (destination not DE, VAT id present)
 _EU = {
     "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU",
     "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
 }
-
-
-async def _optional_user(
-    creds: HTTPAuthorizationCredentials | None = Depends(_bearer),
-    db: AsyncSession = Depends(get_db),
-) -> User | None:
-    if creds is None or not creds.credentials:
-        return None
-    try:
-        payload = decode_token(creds.credentials, expected_type="access")
-        uid = uuid.UUID(payload["sub"])
-    except Exception:  # noqa: BLE001
-        return None
-    return (await db.execute(select(User).where(User.id == uid))).scalar_one_or_none()
 
 
 class AddressIn(BaseModel):
@@ -68,11 +51,13 @@ class AddressIn(BaseModel):
 
 
 class OrderLineIn(BaseModel):
-    product_id: uuid.UUID | None = None
-    sku: str = Field(min_length=1, max_length=120)
-    name: str = Field(min_length=1, max_length=300)
+    product_id: uuid.UUID
+    # sku / name / unit_price_cents are accepted for backwards compatibility
+    # but never trusted: the server re-reads all three from the catalog.
+    sku: str | None = Field(default=None, max_length=120)
+    name: str | None = Field(default=None, max_length=300)
     qty: int = Field(ge=1, le=100000)
-    unit_price_cents: int = Field(ge=0)
+    unit_price_cents: int | None = Field(default=None, ge=0)
 
 
 class OrderIn(BaseModel):
@@ -84,16 +69,13 @@ class OrderIn(BaseModel):
     shipping_method: str | None = Field(default=None, max_length=120)
     customer_note: str | None = Field(default=None, max_length=2000)
     payment_method: str = Field(default="invoice", pattern="^(invoice|card)$")
-    items: list[OrderLineIn] = Field(min_length=1)
+    items: list[OrderLineIn] = Field(min_length=1, max_length=200)
     terms_accepted: bool
-
-    def total(self) -> int:
-        return sum(li.unit_price_cents * li.qty for li in self.items)
 
 
 class ShippingEstimateIn(BaseModel):
     country_code: str = Field(min_length=2, max_length=2)
-    items: list[OrderLineIn] = Field(min_length=1)
+    items: list[OrderLineIn] = Field(min_length=1, max_length=200)
 
 
 class ShippingEstimateOut(BaseModel):
@@ -130,30 +112,72 @@ class OrderOut(BaseModel):
     checkout_url: str | None = None
 
 
-async def _total_weight_kg(db: AsyncSession, items: list[OrderLineIn]) -> float:
-    product_ids = [li.product_id for li in items if li.product_id is not None]
-    weights: dict[uuid.UUID, int | None] = {}
-    if product_ids:
-        rows = (
-            await db.execute(select(Product.id, Product.weight_g).where(Product.id.in_(product_ids)))
-        ).all()
-        weights = {pid: w for pid, w in rows}
-    total_g = sum(
-        line_weight_grams(weights.get(li.product_id) if li.product_id else None, li.qty)
-        for li in items
-    )
-    return total_g / 1000
+class _PricedLine:
+    """An order line priced from the catalog, never from the client."""
+
+    def __init__(self, product: Product, qty: int) -> None:
+        self.product_id = product.id
+        self.sku = product.sku
+        self.name = product.name
+        self.qty = qty
+        self.unit_price_cents = (
+            product.sale_price_cents if product.sale_price_cents is not None else product.price_cents
+        )
+        self.weight_g = product.weight_g
+
+    @property
+    def total_cents(self) -> int:
+        return self.unit_price_cents * self.qty
+
+
+async def _price_lines(
+    db: AsyncSession, items: list[OrderLineIn], currency: str | None = None
+) -> list[_PricedLine]:
+    ids = {li.product_id for li in items}
+    products = {
+        p.id: p
+        for p in (await db.execute(select(Product).where(Product.id.in_(ids)))).scalars().all()
+    }
+    lines: list[_PricedLine] = []
+    for li in items:
+        product = products.get(li.product_id)
+        if product is None or not product.is_active:
+            raise HTTPException(
+                status_code=422, detail="A product in your cart is no longer available."
+            )
+        if product.is_rfq_only:
+            raise HTTPException(
+                status_code=422,
+                detail=f"{product.name} is quote-only — please request a quote for it.",
+            )
+        if currency and product.currency.upper() != currency.upper():
+            raise HTTPException(status_code=422, detail="Cart currency mismatch.")
+        lines.append(_PricedLine(product, li.qty))
+    return lines
+
+
+def _total_weight_kg(lines: list[_PricedLine]) -> float:
+    return sum(line_weight_grams(li.weight_g, li.qty) for li in lines) / 1000
 
 
 @router.post("/shipping-estimate", response_model=ShippingEstimateOut)
+@limiter.limit("60/minute")
 async def shipping_estimate(
-    payload: ShippingEstimateIn, db: AsyncSession = Depends(get_db)
+    request: Request, payload: ShippingEstimateIn, db: AsyncSession = Depends(get_db)
 ) -> ShippingEstimateOut:
-    weight_kg = await _total_weight_kg(db, payload.items)
-    shipping_cents = calc_shipping_cents(payload.country_code, weight_kg)
-    subtotal = sum(li.unit_price_cents * li.qty for li in payload.items)
+    lines = await _price_lines(db, payload.items)
+    shipping_cents = calc_shipping_cents(payload.country_code, _total_weight_kg(lines))
+    subtotal = sum(li.total_cents for li in lines)
     tax_cents = calc_vat_cents(payload.country_code, subtotal + shipping_cents)
     return ShippingEstimateOut(shipping_cents=shipping_cents, tax_cents=tax_cents)
+
+
+def session_matches_order(session, order: Order) -> bool:
+    """Stripe charged exactly what the order says, in the order's currency."""
+    return (
+        session.get("amount_total") == order.total_cents
+        and str(session.get("currency") or "").lower() == order.currency.lower()
+    )
 
 
 async def mark_order_paid(
@@ -199,11 +223,13 @@ def _serialize(o: Order) -> OrderOut:
 
 
 @router.post("", response_model=OrderOut, status_code=201)
+@limiter.limit("10/minute;60/hour")
 async def create_order(
+    request: Request,
     payload: OrderIn,
     background: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
-    user: User | None = Depends(_optional_user),
+    user: User | None = Depends(get_optional_user),
 ) -> OrderOut:
     if not payload.terms_accepted:
         raise HTTPException(status_code=422, detail="Terms must be accepted")
@@ -213,14 +239,16 @@ async def create_order(
             detail="Card payment is not available right now — please choose invoice.",
         )
 
-    subtotal = payload.total()
+    lines = await _price_lines(db, payload.items, currency=payload.currency)
+    subtotal = sum(li.total_cents for li in lines)
     reverse_charge = bool(
         payload.vat_id
         and payload.shipping_address.country_code.upper() in _EU
         and payload.shipping_address.country_code.upper() != "DE"
     )
-    weight_kg = await _total_weight_kg(db, payload.items)
-    shipping_cents = calc_shipping_cents(payload.shipping_address.country_code, weight_kg)
+    shipping_cents = calc_shipping_cents(
+        payload.shipping_address.country_code, _total_weight_kg(lines)
+    )
     tax_cents = calc_vat_cents(payload.shipping_address.country_code, subtotal + shipping_cents)
     number = f"DC-{uuid.uuid4().hex[:8].upper()}"
     order = Order(
@@ -243,7 +271,7 @@ async def create_order(
     )
     db.add(order)
     await db.flush()
-    for li in payload.items:
+    for li in lines:
         db.add(
             OrderItem(
                 order_id=order.id,
@@ -252,7 +280,7 @@ async def create_order(
                 name=li.name,
                 qty=li.qty,
                 unit_price_cents=li.unit_price_cents,
-                total_cents=li.unit_price_cents * li.qty,
+                total_cents=li.total_cents,
             )
         )
     await db.commit()
@@ -267,7 +295,7 @@ async def create_order(
                 currency=order.currency,
                 line_items=[
                     {"name": li.name, "sku": li.sku, "unit_price_cents": li.unit_price_cents, "qty": li.qty}
-                    for li in payload.items
+                    for li in lines
                 ]
                 + (
                     [{"name": "Shipping", "sku": "SHIPPING", "unit_price_cents": shipping_cents, "qty": 1}]
@@ -288,10 +316,10 @@ async def create_order(
             logger.error(
                 "Stripe checkout session creation failed for order %s: %s", number, exc
             )
-            # Stripe error strings don't carry the secret key — safe to surface
-            # so a misconfigured deploy is diagnosable from the browser network tab.
+            # details stay in the server log; the client gets a generic message
             raise HTTPException(
-                status_code=502, detail=f"Could not start the card payment: {exc}"
+                status_code=502,
+                detail="Could not start the card payment. Please try again or choose invoice.",
             ) from exc
     else:
         # invoice orders confirm immediately; card orders confirm on webhook
@@ -301,7 +329,7 @@ async def create_order(
             email=payload.email,
             total_cents=subtotal,
             currency=order.currency,
-            item_lines=[f"{li.qty}× {li.name} ({li.sku})" for li in payload.items],
+            item_lines=[f"{li.qty}× {li.name} ({li.sku})" for li in lines],
         )
 
     out = _serialize(order)
@@ -325,7 +353,9 @@ async def my_orders(
 
 
 @router.post("/{number}/sync-payment", response_model=OrderOut)
+@limiter.limit("20/minute")
 async def sync_payment(
+    request: Request,
     number: str,
     background: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -352,6 +382,9 @@ async def sync_payment(
         raise HTTPException(status_code=502, detail="Could not reach Stripe") from exc
 
     if session.get("payment_status") == "paid":
+        if not session_matches_order(session, order):
+            logger.error("Stripe amount mismatch for order %s — not marking paid", order.number)
+            raise HTTPException(status_code=409, detail="Payment does not match this order")
         changed = await mark_order_paid(db, order, session.get("payment_intent"))
         if changed:
             background.add_task(
@@ -367,11 +400,13 @@ async def sync_payment(
 
 
 @router.get("/{number}", response_model=OrderOut)
+@limiter.limit("30/minute")
 async def get_order(
+    request: Request,
     number: str,
     email: str | None = None,
     db: AsyncSession = Depends(get_db),
-    user: User | None = Depends(_optional_user),
+    user: User | None = Depends(get_optional_user),
 ) -> OrderOut:
     order = (
         await db.execute(
