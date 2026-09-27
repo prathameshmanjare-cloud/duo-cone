@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { HeroSlider } from "../../components/HeroSlider/HeroSlider";
-import { Hero } from "../../components/Hero/Hero";
 import { StatBadges } from "../../components/StatBadges/StatBadges";
 import { SealTypes } from "../../components/SealTypes/SealTypes";
 import { Industries } from "../../components/Industries/Industries";
@@ -29,15 +28,13 @@ export function Home() {
         />
       </Helmet>
 
-      <Hero />
+      <SealTypes />
 
       <HeroSlider />
 
       <StatBadges />
 
       <AboutBlock />
-
-      <SealTypes />
 
       <Reveal as="section" className={styles.section}>
         <div className={styles.sectionHead}>

@@ -77,7 +77,7 @@ export function SealTypes() {
       <header className={styles.hero}>
         <div className={styles.heroCopy}>
           <span className={styles.kicker}>Two proven designs</span>
-          <h2 id="seal-types-heading">DF &amp; DO mechanical face seals</h2>
+          <h1 id="seal-types-heading">DF &amp; DO mechanical face seals</h1>
           <p>
             Both built from the same premium, wear-resistant materials. The loading element is what
             sets them apart.
