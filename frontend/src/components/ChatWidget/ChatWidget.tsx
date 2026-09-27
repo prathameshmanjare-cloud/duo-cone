@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type ChatBotProduct } from "../../lib/api";
 import { formatPrice } from "../../lib/format";
+import { openTidio, tidioEnabled } from "../../lib/tidio";
+import { useSession } from "../../store/session";
 import styles from "./ChatWidget.module.css";
 
 interface Msg {
@@ -25,6 +27,18 @@ export function ChatWidget() {
   const [busy, setBusy] = useState(false);
   const [handoff, setHandoff] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const user = useSession((s) => s.user);
+
+  // With Tidio configured, the launcher opens Tidio live chat; the built-in
+  // assistant stays as a fallback if the Tidio script can't load.
+  function launch() {
+    if (!tidioEnabled) return setOpen(true);
+    openTidio(
+      user
+        ? { email: user.email, name: user.full_name ?? undefined, phone: user.phone ?? undefined }
+        : undefined,
+    ).catch(() => setOpen(true));
+  }
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
@@ -57,7 +71,7 @@ export function ChatWidget() {
   return (
     <>
       {!open && (
-        <button className={styles.launcher} onClick={() => setOpen(true)} aria-label="Open chat">
+        <button className={styles.launcher} onClick={launch} aria-label="Open chat">
           <ChatIcon /> Chat with us
         </button>
       )}
