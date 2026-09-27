@@ -25,7 +25,6 @@ export interface ProductCard {
 export interface ProductDetail extends ProductCard {
   short_description?: string | null;
   description_html?: string | null;
-  internal_code?: string | null;
   inner_diameter_mm?: number | null;
   outer_diameter_mm?: number | null;
   height_mm?: number | null;

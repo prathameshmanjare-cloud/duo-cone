@@ -103,7 +103,6 @@ export function Product() {
           {product.brand && <span className={styles.brand}>{product.brand.name}</span>}
           <h1>{product.name}</h1>
           <span className={styles.sku}>SKU / OEM ref: {product.sku}</span>
-          {product.internal_code && <span className={styles.code}>Internal code: {product.internal_code}</span>}
 
           <Price cents={product.price_cents} salePriceCents={product.sale_price_cents} currency={product.currency} />
 
@@ -146,11 +145,6 @@ export function Product() {
         <h2>Specifications</h2>
         <SpecTable
           rows={[
-            ["Inner diameter", product.inner_diameter_mm ? `${product.inner_diameter_mm} mm` : null],
-            ["Outer diameter", product.outer_diameter_mm ? `${product.outer_diameter_mm} mm` : null],
-            ["Height", product.height_mm ? `${product.height_mm} mm` : null],
-            ["Seal material", product.material],
-            ["O-ring material", product.oring_material],
             ["Hardness", product.hardness_hrc],
             ["Lifetime", product.lifetime_hours],
             ["Warranty", product.warranty_months ? `${product.warranty_months} months` : null],

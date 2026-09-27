@@ -49,7 +49,6 @@ class ProductCardOut(BaseModel):
 class ProductDetailOut(ProductCardOut):
     short_description: str | None = None
     description_html: str | None = None
-    internal_code: str | None = None
     inner_diameter_mm: float | None = None
     outer_diameter_mm: float | None = None
     height_mm: float | None = None

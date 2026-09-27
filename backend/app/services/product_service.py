@@ -54,7 +54,6 @@ def to_detail(product: Product) -> ProductDetailOut:
         **card.model_dump(),
         short_description=product.short_description,
         description_html=product.description_html,
-        internal_code=product.internal_code,
         inner_diameter_mm=product.inner_diameter_mm,
         outer_diameter_mm=product.outer_diameter_mm,
         height_mm=product.height_mm,
