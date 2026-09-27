@@ -1,9 +1,12 @@
 import logging
+import re
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.api.v1 import (
     admin,
@@ -21,6 +24,7 @@ from app.config.settings import get_settings
 from app.db.seed_data import ensure_seed_data
 from app.db.bootstrap import ensure_admin_user, ensure_email_templates, ensure_schema_upgrades
 from app.db.session import Base, SessionLocal, engine
+from app.middleware.rate_limit import limiter
 
 # import models so metadata is populated before create_all
 from app.models import catalog as _catalog_models  # noqa: F401
@@ -28,6 +32,7 @@ from app.models import commerce as _commerce_models  # noqa: F401
 
 logging.basicConfig(level=logging.INFO)
 settings = get_settings()
+settings.assert_safe_for_production()
 
 
 @asynccontextmanager
@@ -64,15 +69,50 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title=settings.app_name, debug=settings.debug, lifespan=lifespan)
+# interactive API docs are a map of every endpoint — dev only
+_docs_enabled = not settings.is_production
+app = FastAPI(
+    title=settings.app_name,
+    debug=settings.debug,
+    lifespan=lifespan,
+    docs_url="/docs" if _docs_enabled else None,
+    redoc_url="/redoc" if _docs_enabled else None,
+    openapi_url="/openapi.json" if _docs_enabled else None,
+)
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# auth is a bearer token in the Authorization header, never a cookie, so
+# credentialed CORS isn't needed
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
+
+_SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    # the API only ever returns JSON, files and images — nothing to execute
+    "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
+}
+if settings.is_production:
+    _SECURITY_HEADERS["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):  # noqa: ANN001
+    response = await call_next(request)
+    if _docs_enabled and request.url.path in ("/docs", "/redoc"):
+        return response  # Swagger UI needs to load its own scripts
+    for name, value in _SECURITY_HEADERS.items():
+        response.headers.setdefault(name, value)
+    return response
 
 
 @app.exception_handler(Exception)
@@ -81,15 +121,17 @@ async def unhandled_exception_handler(request, exc):  # noqa: ANN001
     return JSONResponse(status_code=500, content={"type": "internal_error", "title": "Internal server error"})
 
 
+_KEY_PREFIX = re.compile(r"^[a-z]+_(?:live_|test_)?")
+
+
 def _fingerprint(secret: str) -> dict:
-    """Masked shape of a configured secret — safe to expose publicly, but
-    enough to catch a truncated/mangled env var (e.g. Stripe key pasted as
-    just "sk_test_") without ever revealing the value itself."""
+    """Shape of a configured secret — enough to catch a truncated/mangled env
+    var (e.g. a Stripe key pasted as just "sk_test_") via its length and type
+    prefix, without exposing a single character of the key material."""
     if not secret:
         return {"configured": False}
-    head = secret[:8]
-    tail = secret[-4:] if len(secret) > 12 else ""
-    return {"configured": True, "length": len(secret), "starts": head, "ends": tail}
+    m = _KEY_PREFIX.match(secret)
+    return {"configured": True, "length": len(secret), "prefix": m.group(0) if m else ""}
 
 
 @app.get("/healthz")

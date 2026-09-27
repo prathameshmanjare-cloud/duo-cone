@@ -8,6 +8,7 @@ must never roll back the request that queued it.
 
 from __future__ import annotations
 
+import html
 import logging
 
 from sqlalchemy import select
@@ -22,6 +23,16 @@ logger = logging.getLogger("duocon.background")
 settings = get_settings()
 
 _BRAND = "DuoCone"
+
+
+def _esc(value: str | None) -> str:
+    """Escape visitor-supplied text before it goes into an HTML email, so a
+    form submission can't inject links/markup into mail sent from our domain."""
+    return html.escape(value or "", quote=True)
+
+
+def _esc_multiline(value: str | None) -> str:
+    return _esc(value).replace("\n", "<br>")
 
 
 def _render(template_str: str, vars: dict[str, str]) -> str:
@@ -68,7 +79,7 @@ def _wrap(title: str, body_html: str) -> str:
 def _rows(pairs: list[tuple[str, str]]) -> str:
     return "".join(
         f'<tr><td style="padding:4px 12px 4px 0;color:#6b7280">{k}</td>'
-        f'<td style="padding:4px 0"><strong>{v}</strong></td></tr>'
+        f'<td style="padding:4px 0"><strong>{_esc(v)}</strong></td></tr>'
         for k, v in pairs
     )
 
@@ -98,7 +109,7 @@ async def notify_rfq(
         if message:
             detail += (
                 f'<tr><td style="padding:4px 12px 4px 0;color:#6b7280;vertical-align:top">'
-                f'Message</td><td style="padding:4px 0">{message}</td></tr>'
+                f'Message</td><td style="padding:4px 0">{_esc_multiline(message)}</td></tr>'
             )
         table = f'<table style="border-collapse:collapse;font-size:14px">{detail}</table>'
         notify_to = await _notify_address()
@@ -112,9 +123,9 @@ async def notify_rfq(
 
         tpl = await _get_template("rfq_received")
         vars = {
-            "customer_name": company or email,
+            "customer_name": _esc(company or email),
             "order_id": rfq_number,
-            "email": email,
+            "email": _esc(email),
             "items": table,
         }
         if tpl:
@@ -147,7 +158,7 @@ async def notify_order(
     item_lines: list[str] | None = None,
 ) -> None:
     try:
-        lines = "".join(f"<li>{ln}</li>" for ln in (item_lines or [])) or "<li>—</li>"
+        lines = "".join(f"<li>{_esc(ln)}</li>" for ln in (item_lines or [])) or "<li>—</li>"
         items_html = f'<ul style="font-size:14px">{lines}</ul>'
         total_str = _money(total_cents, currency)
         fallback_body = (
@@ -161,7 +172,7 @@ async def notify_order(
 
         tpl = await _get_template("order_confirmation")
         vars = {
-            "customer_name": email,
+            "customer_name": _esc(email),
             "order_id": order_number,
             "total": total_str,
             "items": items_html,
@@ -247,7 +258,7 @@ async def notify_contact(
             ]
         )
         table = f'<table style="border-collapse:collapse;font-size:14px">{inner}</table>'
-        body = f'{table}<p style="margin-top:16px">{message}</p>'
+        body = f'{table}<p style="margin-top:16px">{_esc_multiline(message)}</p>'
         notify_to = await _notify_address()
 
         send_email(
@@ -258,7 +269,11 @@ async def notify_contact(
         )
 
         tpl = await _get_template("inquiry_received")
-        vars = {"customer_name": name, "message": message, "email": email}
+        vars = {
+            "customer_name": _esc(name),
+            "message": _esc_multiline(message),
+            "email": _esc(email),
+        }
         if tpl:
             subject = _render(tpl.subject, vars)
             body_html = _render(tpl.html_body, vars)

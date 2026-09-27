@@ -1,0 +1,9 @@
+# never bake local secrets or dev artifacts into the image
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+scripts/reports/
