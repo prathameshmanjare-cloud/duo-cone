@@ -34,7 +34,7 @@ services:
       # public URL of this service — used to build absolute URLs for uploaded
       # product photos. Set to the Render service URL.
       - key: API_PUBLIC_URL
-        value: https://duocone-api.onrender.com
+        value: https://duo-cone.onrender.com
       # storefront URL — Stripe success/cancel redirects
       - key: FRONTEND_URL
         value: https://duo-cone.vercel.app
