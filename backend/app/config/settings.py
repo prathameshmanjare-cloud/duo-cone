@@ -103,8 +103,16 @@ class Settings(BaseSettings):
     invoice_seller_name: str = "SAPPARTS EUROPE GMBH"
     invoice_seller_address: str = "Benzstraße 21, 51381 Leverkusen, Germany"
     invoice_seller_vat_id: str = "DE300917783"
+    # bank details come from env (INVOICE_SELLER_BANK_*), never committed
     invoice_seller_bank_name: str = ""
     invoice_seller_bank_iban: str = ""
+    invoice_seller_bank_bic: str = ""
+    invoice_seller_hrb: str = "82724"
+    invoice_seller_managers: str = "Johannes Orlowski, Steven Chugh"
+    invoice_seller_footer_contact: str = (
+        "SAPPARTS Europe GmbH  |  Benzstr. 21  |  51381 Leverkusen  |  "
+        "Tel. +49 2171 362 9923  |  Fax  |  www.sapparts-europe.com"
+    )
 
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""

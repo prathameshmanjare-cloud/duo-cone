@@ -59,6 +59,13 @@ services:
         value: DuoCone
       - key: SALES_EMAIL
         value: sale@duo-cone.com
+      # invoice footer bank details: set values in the Render dashboard
+      - key: INVOICE_SELLER_BANK_NAME
+        sync: false
+      - key: INVOICE_SELLER_BANK_IBAN
+        sync: false
+      - key: INVOICE_SELLER_BANK_BIC
+        sync: false
 
 databases:
   - name: duocone-db

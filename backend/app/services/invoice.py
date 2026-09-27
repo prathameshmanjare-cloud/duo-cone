@@ -77,10 +77,6 @@ def build_invoice_pdf(order: Order) -> bytes:
 
     seller_lines = [settings.invoice_seller_name, settings.invoice_seller_address,
                      f"VAT Number: {settings.invoice_seller_vat_id}"]
-    if settings.invoice_seller_bank_name:
-        seller_lines.append(f"Bank: {settings.invoice_seller_bank_name}")
-    if settings.invoice_seller_bank_iban:
-        seller_lines.append(f"Account number: {settings.invoice_seller_bank_iban}")
 
     buyer_lines = _address_lines(order.billing_address or order.shipping_address)
 
@@ -134,5 +130,44 @@ def build_invoice_pdf(order: Order) -> bytes:
     pdf.set_font("Helvetica", "", 9)
     pdf.cell(0, 6, f"Order number: {order.number}", new_x="LMARGIN", new_y="NEXT")
 
+    _draw_footer(pdf)
+
     out = pdf.output()
     return bytes(out)
+
+
+def _draw_footer(pdf: FPDF) -> None:
+    pdf.set_auto_page_break(auto=False)
+    y = pdf.h - 24
+    pdf.set_draw_color(200, 200, 200)
+    pdf.line(15, y, pdf.w - 15, y)
+
+    pdf.set_xy(15, y + 2)
+    pdf.set_font("Helvetica", "", 7)
+    pdf.set_text_color(90, 90, 90)
+    pdf.cell(0, 4, _latin1(settings.invoice_seller_footer_contact), align="C", new_x="LMARGIN", new_y="NEXT")
+
+    y2 = y + 8
+    left_lines = [
+        f"USt-IdNr. {settings.invoice_seller_vat_id}",
+        f"HRB {settings.invoice_seller_hrb}" if settings.invoice_seller_hrb else "",
+        f"Geschäftsführer: {settings.invoice_seller_managers}" if settings.invoice_seller_managers else "",
+    ]
+    left_lines = [l for l in left_lines if l]
+    pdf.set_xy(15, y2)
+    pdf.set_font("Helvetica", "", 7)
+    pdf.multi_cell(90, 4, _latin1("\n".join(left_lines)))
+
+    if settings.invoice_seller_bank_name:
+        pdf.set_xy(115, y2)
+        pdf.set_font("Helvetica", "B", 7)
+        pdf.cell(25, 4, "Bank")
+        pdf.cell(30, 4, "BIC")
+        pdf.cell(35, 4, "IBAN", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_xy(115, y2 + 4)
+        pdf.set_font("Helvetica", "", 7)
+        pdf.cell(25, 4, _latin1(settings.invoice_seller_bank_name))
+        pdf.cell(30, 4, _latin1(settings.invoice_seller_bank_bic))
+        pdf.cell(35, 4, _latin1(settings.invoice_seller_bank_iban))
+
+    pdf.set_text_color(0, 0, 0)
