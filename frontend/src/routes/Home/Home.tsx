@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
+import { Hero } from "../../components/Hero/Hero";
 import { HeroSlider } from "../../components/HeroSlider/HeroSlider";
 import { StatBadges } from "../../components/StatBadges/StatBadges";
 import { SealTypes } from "../../components/SealTypes/SealTypes";
@@ -29,6 +30,8 @@ export function Home() {
       </Helmet>
 
       <SealTypes />
+
+      <Hero />
 
       <HeroSlider />
 

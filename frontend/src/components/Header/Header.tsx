@@ -6,7 +6,6 @@ import { useSession } from "../../store/session";
 import { Logo } from "../Logo/Logo";
 import {
   IconMenu,
-  IconSearch,
   IconUser,
   IconCart,
   IconClose,
@@ -29,7 +28,6 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
-  const [query, setQuery] = useState("");
   const count = useCartStore((s) => s.count());
   const openCart = useCartStore((s) => s.open);
   const navigate = useNavigate();
@@ -57,7 +55,10 @@ export function Header() {
       setScrolled(y > 4);
 
       const heroEl = document.querySelector<HTMLElement>("[data-hero-scroll]");
-      const inHero = !!heroEl && y < heroEl.offsetTop + heroEl.offsetHeight;
+      const inHero =
+        !!heroEl &&
+        y + window.innerHeight > heroEl.offsetTop &&
+        y < heroEl.offsetTop + heroEl.offsetHeight;
 
       if (el && !reduce && !menuOpen && inHero) {
         const goingDown = y > last && y > 160;
@@ -80,11 +81,6 @@ export function Header() {
       if (el) gsap.set(el, { yPercent: 0 });
     };
   }, [menuOpen]);
-
-  function onSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (query.trim()) navigate(`/search?q=${encodeURIComponent(query.trim())}`);
-  }
 
   return (
     <>
@@ -116,16 +112,6 @@ export function Header() {
               </NavLink>
             ))}
           </nav>
-          <form className={styles.search} onSubmit={onSearch} role="search">
-            <IconSearch size={16} aria-hidden="true" />
-            <input
-              type="search"
-              placeholder="Search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              aria-label="Search products"
-            />
-          </form>
           <div className={styles.actions}>
             <Link to="/rfq" className={styles.rfqBtn}>
               <span className={styles.rfqLabel}>Start RFQ</span> <IconArrowRight size={15} />
@@ -163,23 +149,6 @@ export function Header() {
         </div>
         {menuOpen && (
           <nav className={styles.mobileNav} aria-label="Mobile">
-            <form
-              className={styles.mobileSearch}
-              onSubmit={(e) => {
-                onSearch(e);
-                setMenuOpen(false);
-              }}
-              role="search"
-            >
-              <IconSearch size={16} aria-hidden="true" />
-              <input
-                type="search"
-                placeholder="Search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                aria-label="Search products"
-              />
-            </form>
             {NAV.map((item) => (
               <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}>
                 {item.label}

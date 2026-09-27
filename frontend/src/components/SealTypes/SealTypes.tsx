@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { IconCheck, IconArrowRight } from "../Icon/Icon";
@@ -48,6 +48,14 @@ const TYPES: SealType[] = [
   },
 ];
 
+const HEADLINE = ["DF", "&", "DO", "mechanical", "face", "seals"];
+
+function onHeroMove(e: MouseEvent<HTMLElement>) {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+  e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+}
+
 export function SealTypes() {
   const reduce = useReducedMotion();
   const gridRef = useRef<HTMLDivElement>(null);
@@ -74,17 +82,39 @@ export function SealTypes() {
 
   return (
     <section className={styles.section} aria-labelledby="seal-types-heading">
-      <header className={styles.hero}>
+      <header className={styles.hero} onMouseMove={onHeroMove}>
+        <div className={styles.decor} aria-hidden="true">
+          <span className={styles.gridBg} />
+          <span className={`${styles.orb} ${styles.orbBlue}`} />
+          <span className={`${styles.orb} ${styles.orbGold}`} />
+          <span className={styles.spotlight} />
+        </div>
+
         <div className={styles.heroCopy}>
-          <span className={styles.kicker}>Two proven designs</span>
-          <h1 id="seal-types-heading">DF &amp; DO mechanical face seals</h1>
-          <p>
-            Both built from the same premium, wear-resistant materials. The loading element is what
-            sets them apart.
+          <span className={styles.kicker} style={{ "--d": "0ms" } as CSSProperties}>
+            Two proven designs
+          </span>
+          <h1 id="seal-types-heading" aria-label="DF & DO mechanical face seals">
+            {HEADLINE.map((w, i) => (
+              <span key={i} className={styles.word} aria-hidden="true">
+                <span
+                  className={`${styles.wordInner} ${w === "DF" || w === "DO" ? styles.accent : ""}`}
+                  style={{ "--d": `${120 + i * 70}ms` } as CSSProperties}
+                >
+                  {w}
+                </span>
+              </span>
+            ))}
+          </h1>
+          <p className={styles.rise} style={{ "--d": "560ms" } as CSSProperties}>
+            <span>Both built from the same premium, wear-resistant materials.</span>{" "}
+            <span className={styles.line}>The loading element is what sets them apart.</span>
           </p>
         </div>
-        <ProductSearch className={styles.search} placeholder="Search by part no., SKU or OEM ref…" />
-        <div className={styles.heroMeta}>
+        <div className={`${styles.searchWrap} ${styles.rise}`} style={{ "--d": "700ms" } as CSSProperties}>
+          <ProductSearch className={styles.search} placeholder="Search by part no., SKU or OEM ref…" />
+        </div>
+        <div className={`${styles.heroMeta} ${styles.rise}`} style={{ "--d": "840ms" } as CSSProperties}>
           <span className={styles.shipBadge}>
             <span className={styles.dot} /> Ships within 24 hours
           </span>

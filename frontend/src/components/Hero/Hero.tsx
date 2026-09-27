@@ -59,7 +59,7 @@ export function Hero() {
     const ctx = gsap.context(() => {
       const s = (n: string) => `.${styles[n as keyof typeof styles]}`;
 
-      // headline split-char reveal (runs once on mount)
+      // headline split-char reveal (runs once when the hero scrolls into view)
       gsap.from(s("char"), {
         yPercent: 130,
         opacity: 0,
@@ -68,6 +68,7 @@ export function Hero() {
         duration: 0.55,
         ease: "power4.out",
         delay: 0.15,
+        scrollTrigger: { trigger: root, start: "top 70%", once: true },
       });
 
       const mid = { immediateRender: false };

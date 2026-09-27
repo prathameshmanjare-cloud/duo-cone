@@ -75,6 +75,12 @@
 .logo:hover {
   opacity: 0.8;
 }
+.logo:focus {
+  outline: none;
+}
+.logo:focus-visible {
+  opacity: 0.7;
+}
 
 /* ---------- primary nav ---------- */
 .nav {
@@ -121,41 +127,9 @@
   transform: scaleX(1);
 }
 
-/* ---------- search ---------- */
-.search {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: var(--color-bg-subtle);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  padding: 0 var(--space-4);
-  margin-left: auto;
-  flex: 0 1 210px;
-  min-width: 90px;
-  color: var(--color-text-muted);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-}
-.search:focus-within {
-  background: var(--color-surface);
-  border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 14%, transparent);
-  color: var(--color-primary);
-}
-.search input {
-  border: none;
-  background: none;
-  padding: 9px 0;
-  flex: 1;
-  font-size: 0.85rem;
-  color: var(--color-text);
-}
-.search input:focus {
-  outline: none;
-}
-
 /* ---------- actions ---------- */
 .actions {
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -276,10 +250,6 @@
 .mobileNav {
   display: none;
 }
-.mobileSearch {
-  display: none;
-}
-
 /* narrower windows (below the header's own max-width): tighten outer
    spacing further before the burger breakpoint kicks in */
 @media (max-width: 1360px) {
@@ -290,8 +260,7 @@
 }
 
 @media (max-width: 1300px) {
-  .nav,
-  .search {
+  .nav {
     display: none;
   }
   .burger {
@@ -317,28 +286,6 @@
   }
   .mobileNav a:hover {
     background: var(--color-bg-subtle);
-  }
-  .mobileSearch {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin: var(--space-2) 0 var(--space-1);
-    padding: 0 var(--space-3);
-    background: var(--color-bg-subtle);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    color: var(--color-text-muted);
-  }
-  .mobileSearch input {
-    border: none;
-    background: none;
-    padding: 10px 0;
-    flex: 1;
-    font-size: 0.9rem;
-    color: var(--color-text);
-  }
-  .mobileSearch input:focus {
-    outline: none;
   }
 }
 
