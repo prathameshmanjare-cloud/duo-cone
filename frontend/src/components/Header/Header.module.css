@@ -75,7 +75,8 @@
 .logo:hover {
   opacity: 0.8;
 }
-.logo:focus {
+.logo:focus,
+.nav a:focus {
   outline: none;
 }
 .logo:focus-visible {
@@ -122,8 +123,12 @@
 .nav a.active {
   color: var(--color-primary);
 }
+.nav a:focus-visible {
+  background: var(--color-bg-subtle);
+}
 .nav a.active span::after,
-.nav a:hover span::after {
+.nav a:hover span::after,
+.nav a:focus-visible span::after {
   transform: scaleX(1);
 }
 
