@@ -31,7 +31,18 @@
 .segmentCard h3 { margin: 0 0 var(--space-2); color: var(--color-primary); }
 .segmentCard p { margin: 0; color: var(--color-text-muted); font-size: 0.9rem; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(220px, 70%);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-2);
+  }
+  .grid > * { scroll-snap-align: start; }
+}
 
 .brandRow { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .brandChip { border: 1px solid var(--color-border); border-radius: 999px; padding: var(--space-2) var(--space-4); font-size: 0.85rem; font-weight: 600; color: var(--color-text-muted); }

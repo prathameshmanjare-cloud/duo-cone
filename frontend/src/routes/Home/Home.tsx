@@ -16,7 +16,7 @@ import styles from "./Home.module.css";
 export function Home() {
   const { data } = useQuery({
     queryKey: ["products", "featured"],
-    queryFn: () => api.listProducts({ page: 1, page_size: 8, sort: "latest" }),
+    queryFn: () => api.listProducts({ page: 1, page_size: 4, sort: "latest" }),
   });
 
   return (

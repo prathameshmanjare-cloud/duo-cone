@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { IconCheck, IconArrowRight } from "../Icon/Icon";
+import { ProductSearch } from "../ProductSearch/ProductSearch";
 import dfImg from "../../assets/product/df-cut.png";
 import doImg from "../../assets/product/do-cut.png";
 import styles from "./SealTypes.module.css";
@@ -73,14 +74,23 @@ export function SealTypes() {
 
   return (
     <section className={styles.section} aria-labelledby="seal-types-heading">
-      <div className={styles.head}>
-        <span className={styles.kicker}>Two proven designs</span>
-        <h2 id="seal-types-heading">DF &amp; DO mechanical face seals</h2>
-        <p>
-          Both built from the same premium, wear-resistant materials. The loading element is what sets
-          them apart.
-        </p>
-      </div>
+      <header className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <span className={styles.kicker}>Two proven designs</span>
+          <h2 id="seal-types-heading">DF &amp; DO mechanical face seals</h2>
+          <p>
+            Both built from the same premium, wear-resistant materials. The loading element is what
+            sets them apart.
+          </p>
+        </div>
+        <ProductSearch className={styles.search} placeholder="Search by part no., SKU or OEM ref…" />
+        <div className={styles.heroMeta}>
+          <span className={styles.shipBadge}>
+            <span className={styles.dot} /> Ships within 24 hours
+          </span>
+          <span className={styles.metaLine}>DF · DO · Universal</span>
+        </div>
+      </header>
 
       <div ref={gridRef} className={`${styles.grid} ${shown ? styles.in : ""}`}>
         {TYPES.map((t, i) => (

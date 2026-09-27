@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { api } from "../../lib/api";
@@ -13,8 +13,8 @@ import {
   IconChevronUp,
   IconClose,
   IconArrowRight,
-  IconSearch,
 } from "../../components/Icon/Icon";
+import { ProductSearch } from "../../components/ProductSearch/ProductSearch";
 import styles from "./Shop.module.css";
 
 const SEAL_TYPES: { value: string; label: string }[] = [
@@ -62,42 +62,8 @@ export function Shop({
   embedded = false,
 }: { categorySlug?: string; embedded?: boolean } = {}) {
   const reduce = useReducedMotion();
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
-
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [suggestOpen, setSuggestOpen] = useState(false);
-  const searchBoxRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedQuery(query.trim()), 220);
-    return () => clearTimeout(t);
-  }, [query]);
-
-  const { data: suggestions, isFetching: suggestLoading } = useQuery({
-    queryKey: ["search-suggest", debouncedQuery],
-    queryFn: () => api.search(debouncedQuery),
-    enabled: debouncedQuery.length > 1,
-  });
-
-  useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target as Node)) {
-        setSuggestOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, []);
-
-  function runSearch(q: string) {
-    const term = q.trim();
-    if (!term) return;
-    setSuggestOpen(false);
-    navigate(`/search?q=${encodeURIComponent(term)}`);
-  }
 
   const page = Number(params.get("page") ?? 1);
   const sort = params.get("sort") ?? "relevance";
@@ -286,79 +252,7 @@ export function Shop({
         </aside>
 
         <div className={styles.results}>
-          <div className={styles.searchBox} ref={searchBoxRef}>
-            <IconSearch size={16} />
-            <input
-              type="text"
-              placeholder="Search products, SKU, OEM ref…"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setSuggestOpen(true);
-              }}
-              onFocus={() => query.length > 1 && setSuggestOpen(true)}
-              onKeyDown={(e) => e.key === "Enter" && runSearch(query)}
-              aria-label="Search products"
-            />
-            {query && (
-              <button
-                type="button"
-                className={styles.searchClear}
-                aria-label="Clear search"
-                onClick={() => {
-                  setQuery("");
-                  setSuggestOpen(false);
-                }}
-              >
-                <IconClose size={14} />
-              </button>
-            )}
-
-            <AnimatePresence>
-              {suggestOpen && debouncedQuery.length > 1 && (
-                <motion.div
-                  className={styles.suggestDropdown}
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  {suggestLoading && <div className={styles.suggestEmpty}>Searching…</div>}
-                  {!suggestLoading && suggestions && suggestions.length === 0 && (
-                    <div className={styles.suggestEmpty}>No matches for "{debouncedQuery}"</div>
-                  )}
-                  {!suggestLoading &&
-                    suggestions &&
-                    suggestions.slice(0, 6).map((p) => (
-                      <Link
-                        key={p.id}
-                        to={`/product/${p.slug}`}
-                        className={styles.suggestItem}
-                        onClick={() => setSuggestOpen(false)}
-                      >
-                        {p.image_url && <img src={p.image_url} alt="" />}
-                        <div className={styles.suggestInfo}>
-                          <span className={styles.suggestName}>{p.name}</span>
-                          <span className={styles.suggestMeta}>
-                            {p.brand?.name ? `${p.brand.name} · ` : ""}
-                            {p.sku}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  {!suggestLoading && suggestions && suggestions.length > 0 && (
-                    <button
-                      type="button"
-                      className={styles.suggestSeeAll}
-                      onClick={() => runSearch(debouncedQuery)}
-                    >
-                      See all results for "{debouncedQuery}"
-                    </button>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <ProductSearch className={styles.search} />
 
           <div className={styles.toolbar}>
             <div className={styles.toolbarLeft}>
