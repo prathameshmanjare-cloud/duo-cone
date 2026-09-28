@@ -5,6 +5,7 @@ import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { ProductGridSkeleton } from "../../components/Skeleton/Skeleton";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import styles from "./Search.module.css";
+import { PageTitle } from "../../components/PageTitle/PageTitle";
 
 export function Search() {
   const [params] = useSearchParams();
@@ -18,6 +19,7 @@ export function Search() {
 
   return (
     <div className={styles.page}>
+      <PageTitle title={`Search results for "${q}"`} />
       <h1>Search results for "{q}"</h1>
       {isLoading && <ProductGridSkeleton count={4} />}
       {data && data.length === 0 && (

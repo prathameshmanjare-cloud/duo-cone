@@ -4,6 +4,7 @@ import { api } from "../../lib/api";
 import { Button } from "../../components/Button/Button";
 import { IconClose } from "../../components/Icon/Icon";
 import styles from "./Rfq.module.css";
+import { PageTitle } from "../../components/PageTitle/PageTitle";
 
 interface RfqFormValues {
   email: string;
@@ -47,6 +48,7 @@ export function Rfq() {
   if (submitted) {
     return (
       <div className={styles.page}>
+        <PageTitle title="RFQ received" />
         <h1>RFQ received</h1>
         <p>Your reference number is <strong>{submitted}</strong>. Our team replies within 24 hours.</p>
       </div>
@@ -55,6 +57,7 @@ export function Rfq() {
 
   return (
     <div className={styles.page}>
+      <PageTitle title="Request a Quote" />
       <h1>Request a Quote</h1>
       <p className={styles.lead}>Add one or more part numbers below. We'll reply with pricing and lead time within 24 hours.</p>
       <form onSubmit={handleSubmit(onSubmit)}>

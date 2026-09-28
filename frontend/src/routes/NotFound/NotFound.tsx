@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
 import styles from "./NotFound.module.css";
+import { PageTitle } from "../../components/PageTitle/PageTitle";
 
 export function NotFound() {
   return (
     <div className={styles.page}>
+      <PageTitle title="Page not found" />
       <span className={styles.code}>404</span>
       <h1>This seal doesn't fit here.</h1>
       <p>The page you're looking for doesn't exist or has moved.</p>

@@ -46,7 +46,7 @@ export function Product() {
   return (
     <div className={styles.page}>
       <Helmet>
-        <title>{product.name} | DuoCone</title>
+        <title>{`${product.name} | DuoCone`}</title>
         <meta name="description" content={product.short_description ?? product.name} />
         <script type="application/ld+json">
           {JSON.stringify({

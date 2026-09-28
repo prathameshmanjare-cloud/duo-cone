@@ -79,7 +79,7 @@ export function ChatWidget() {
     <>
       {!open && !tidioOpen && (
         <button className={styles.launcher} onClick={launch} aria-label="Open chat">
-          <ChatIcon /> Chat with us
+          <ChatIcon /> <span className={styles.launcherLabel}>Chat with us</span>
         </button>
       )}
 

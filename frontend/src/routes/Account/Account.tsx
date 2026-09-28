@@ -5,6 +5,7 @@ import { useSession } from "../../store/session";
 import { api } from "../../lib/api";
 import { Price } from "../../components/Price/Price";
 import styles from "./Account.module.css";
+import { PageTitle } from "../../components/PageTitle/PageTitle";
 
 const LINKS = [
   { to: "/account", label: "Overview", end: true },
@@ -34,6 +35,7 @@ export function AccountLayout() {
 
   return (
     <div className={styles.page}>
+      <PageTitle title="My account" />
       <nav className={styles.side} aria-label="Account">
         {LINKS.map((l) => (
           <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => (isActive ? styles.active : undefined)}>

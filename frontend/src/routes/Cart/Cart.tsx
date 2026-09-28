@@ -5,6 +5,7 @@ import { Price } from "../../components/Price/Price";
 import { Button } from "../../components/Button/Button";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import styles from "./Cart.module.css";
+import { PageTitle } from "../../components/PageTitle/PageTitle";
 
 export function Cart() {
   const { lines, remove, setQty, subtotalCents } = useCartStore();
@@ -20,6 +21,7 @@ export function Cart() {
   if (lines.length === 0) {
     return (
       <div className={styles.page}>
+        <PageTitle title="Your cart" />
         <EmptyState
           title="Your cart is empty"
           description="Browse our seal catalog to find your part."
@@ -31,6 +33,7 @@ export function Cart() {
 
   return (
     <div className={styles.page}>
+      <PageTitle title="Your cart" />
       <h1>Your cart</h1>
       <div className={styles.layout}>
         <ul className={styles.lines}>
