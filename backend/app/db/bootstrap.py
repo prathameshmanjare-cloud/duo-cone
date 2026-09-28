@@ -87,6 +87,9 @@ _COLUMN_UPGRADES: list[str] = [
     "ALTER TABLE orders ADD COLUMN IF NOT EXISTS stripe_payment_intent VARCHAR(120)",
     "ALTER TABLE orders ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ",
     "CREATE INDEX IF NOT EXISTS ix_orders_stripe_session_id ON orders (stripe_session_id)",
+    "CREATE SEQUENCE IF NOT EXISTS invoice_number_seq",
+    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS invoice_number VARCHAR(40)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS uq_orders_invoice_number ON orders (invoice_number)",
 ]
 
 

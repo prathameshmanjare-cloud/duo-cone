@@ -9,8 +9,8 @@ export const Shipping = () => (
     title="Shipping"
     sections={[
       { heading: "Delivery timelines", body: "Orders ship within 24 hours from our German warehouse." },
-      { heading: "Shipping charges", body: "Calculated at checkout based on destination and weight." },
-      { heading: "Serviceable locations", body: "We ship across the EU and worldwide on request." },
+      { heading: "Shipping charges", body: "Germany: €12 flat, plus 19% VAT. Rest of Europe: €25 flat." },
+      { heading: "Serviceable locations", body: "Direct orders ship to Germany and the rest of Europe. Outside Europe, please send an enquiry and we will quote shipping for you." },
       { heading: "Tracking", body: "A tracking link is emailed as soon as your order ships." },
     ]}
   />

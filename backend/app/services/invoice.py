@@ -9,15 +9,19 @@ it ever changes.
 
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 from pathlib import Path
 
 from fpdf import FPDF
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import get_settings
-from app.models.commerce import Order
+from app.models.commerce import Order, invoice_number_seq
+from app.services.shipping import DE_VAT_RATE, EU_COUNTRIES
 
 settings = get_settings()
+logger = logging.getLogger("duocon.invoice")
 
 _LOGO_PATH = Path(__file__).resolve().parent.parent / "assets" / "invoice_logo.png"
 _LOGO_W_MM = 55
@@ -44,9 +48,37 @@ def _address_lines(addr: dict) -> list[str]:
     return [_latin1(l) for l in lines if l]
 
 
+async def assign_invoice_number(db: AsyncSession, order: Order) -> None:
+    """Give the order its invoice number if it has none. Caller commits."""
+    if order.invoice_number:
+        return
+    seq = await db.scalar(invoice_number_seq.next_value())
+    year = (order.paid_at or order.created_at).year
+    order.invoice_number = f"INV-{year}-{seq:05d}"
+
+
+def _vat_rate_label(order: Order) -> str:
+    return f"{round(DE_VAT_RATE * 100)}%" if order.tax_cents else "0%"
+
+
+def _vat_note(order: Order) -> str:
+    """Legal basis for a 0% VAT invoice (§ 14 (4) no. 8 UStG)."""
+    if order.tax_cents:
+        return ""
+    country = (order.shipping_address or {}).get("country_code", "").upper()
+    if order.vat_reverse_charge:
+        return (
+            "Tax-exempt intra-Community supply (§ 4 no. 1b, § 6a UStG; Art. 138 Directive 2006/112/EC). "
+            f"Buyer VAT ID: {order.vat_id}. Seller VAT ID: {settings.invoice_seller_vat_id}."
+        )
+    if country and country not in EU_COUNTRIES:
+        return "Tax-exempt export delivery to a non-EU country (§ 4 no. 1a, § 6 UStG)."
+    return ""
+
+
 def build_invoice_pdf(order: Order) -> bytes:
     pdf = FPDF(orientation="P", unit="mm", format="A4")
-    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_auto_page_break(auto=True, margin=30)
     pdf.add_page()
 
     y_top = pdf.get_y()
@@ -64,6 +96,7 @@ def build_invoice_pdf(order: Order) -> bytes:
     pdf.multi_cell(
         0, 5,
         _latin1(
+            f"Invoice number: {order.invoice_number or ''}\n"
             f"Date of sale: {created_str}\n"
             f"Issue date: {paid_str}\n"
             f"Due date: {due_str}\n"
@@ -71,7 +104,7 @@ def build_invoice_pdf(order: Order) -> bytes:
         ),
         align="R",
     )
-    pdf.set_y(y_top + max(_LOGO_H_MM, 22) + 6)
+    pdf.set_y(y_top + max(_LOGO_H_MM, 27) + 6)
 
     col_w = 95
 
@@ -79,6 +112,8 @@ def build_invoice_pdf(order: Order) -> bytes:
                      f"VAT Number: {settings.invoice_seller_vat_id}"]
 
     buyer_lines = _address_lines(order.billing_address or order.shipping_address)
+    if order.vat_id:
+        buyer_lines.append(_latin1(f"VAT Number: {order.vat_id}"))
 
     pdf.set_font("Helvetica", "B", 10)
     pdf.cell(col_w, 6, "Seller:")
@@ -92,39 +127,72 @@ def build_invoice_pdf(order: Order) -> bytes:
 
     pdf.ln(6)
     pdf.set_font("Helvetica", "", 20)
-    pdf.cell(0, 10, "Invoice", align="C", new_x="LMARGIN", new_y="NEXT")
+    title = f"Invoice {order.invoice_number}" if order.invoice_number else "Invoice"
+    pdf.cell(0, 10, _latin1(title), align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
 
-    headers = ["#", "Name", "Qty", "Unit price", "Net", "Gross"]
-    widths = [8, 82, 14, 26, 26, 26]
+    cur = order.currency
+    vat_rate = _vat_rate_label(order)
+    headers = ["#", "Description", "Qty", "Unit price (net)", "VAT", "Amount (net)"]
+    widths = [8, 84, 14, 30, 14, 30]  # 180mm = A4 minus 15mm margins
+    aligns = ["C", "L", "C", "R", "C", "R"]
     pdf.set_font("Helvetica", "B", 9)
     pdf.set_fill_color(235, 235, 235)
     for h, w in zip(headers, widths):
         pdf.cell(w, 7, h, border=1, fill=True, align="C")
     pdf.ln(7)
 
+    rows = [
+        (_latin1(f"{item.name} ({item.sku})")[:60], item.qty, item.unit_price_cents, item.total_cents)
+        for item in order.items
+    ]
+    if order.shipping_cents:
+        rows.append((_latin1(f"Shipping{f' - {order.shipping_method}' if order.shipping_method else ''}")[:60],
+                     1, order.shipping_cents, order.shipping_cents))
+    if order.discount_cents:
+        rows.append(("Discount", 1, -order.discount_cents, -order.discount_cents))
+
     pdf.set_font("Helvetica", "", 9)
-    for idx, item in enumerate(order.items, start=1):
-        unit = _money(item.unit_price_cents, order.currency)
-        net = _money(item.total_cents, order.currency)
-        row = [str(idx), _latin1(item.name)[:55], str(item.qty), unit, net, net]
-        for val, w, align in zip(row, widths, ["C", "L", "C", "R", "R", "R"]):
+    for idx, (name, qty, unit_cents, line_cents) in enumerate(rows, start=1):
+        row = [str(idx), name, str(qty), _money(unit_cents, cur), vat_rate, _money(line_cents, cur)]
+        for val, w, align in zip(row, widths, aligns):
             pdf.cell(w, 6, val, border=1, align=align)
         pdf.ln(6)
+    pdf.ln(4)
 
-    pdf.set_font("Helvetica", "B", 9)
-    total = _money(order.total_cents, order.currency)
-    pdf.cell(sum(widths[:4]), 7, "TOTAL", border=1, align="R")
-    pdf.cell(widths[4], 7, total, border=1, align="R")
-    pdf.cell(widths[5], 7, total, border=1, align="R")
-    pdf.ln(10)
+    net_cents = order.subtotal_cents + order.shipping_cents - order.discount_cents
+    gross_cents = net_cents + order.tax_cents
+    if gross_cents != order.total_cents:
+        logger.warning("Invoice %s: net+VAT %s != order total %s", order.number, gross_cents, order.total_cents)
+    paid_cents = order.total_cents if order.paid_at else 0
 
-    pdf.set_font("Helvetica", "B", 10)
-    paid = total if order.status.value == "paid" else _money(0, order.currency)
-    pdf.cell(0, 6, _latin1(f"Total: {total}     Paid: {paid}     Due: {_money(0, order.currency)}"), new_x="LMARGIN", new_y="NEXT")
-    if order.vat_reverse_charge:
+    label_w, value_w = 60, 30
+    x_label = pdf.l_margin + sum(widths) - label_w - value_w
+
+    def total_line(label: str, cents: int, bold: bool = False, rule: bool = False) -> None:
+        if rule:
+            pdf.line(x_label, pdf.get_y(), x_label + label_w + value_w, pdf.get_y())
+        pdf.set_x(x_label)
+        pdf.set_font("Helvetica", "B" if bold else "", 10 if bold else 9)
+        pdf.cell(label_w, 6, _latin1(label), align="R")
+        pdf.cell(value_w, 6, _money(cents, cur), align="R", new_x="LMARGIN", new_y="NEXT")
+
+    total_line("Subtotal goods (net)", order.subtotal_cents)
+    if order.shipping_cents:
+        total_line("Shipping (net)", order.shipping_cents)
+    if order.discount_cents:
+        total_line("Discount", -order.discount_cents)
+    total_line("Total net", net_cents, rule=True)
+    total_line(f"VAT {vat_rate} on {_money(net_cents, cur)}", order.tax_cents)
+    total_line("Total gross", order.total_cents, bold=True, rule=True)
+    total_line("Paid", paid_cents)
+    total_line("Amount due", order.total_cents - paid_cents, bold=True)
+
+    note = _vat_note(order)
+    if note:
+        pdf.ln(3)
         pdf.set_font("Helvetica", "", 8)
-        pdf.cell(0, 6, "VAT reverse-charged to the buyer (intra-EU B2B).", new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(0, 4, _latin1(note), new_x="LMARGIN", new_y="NEXT")
 
     pdf.ln(4)
     pdf.set_font("Helvetica", "", 9)

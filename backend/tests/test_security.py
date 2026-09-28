@@ -82,6 +82,30 @@ async def test_shipping_estimate_uses_catalog_price(client):
     assert r.status_code == 200 and r.json()["tax_cents"] > 1_900
 
 
+async def test_shipping_zones(client):
+    p = await _product(price_cents=10_000)
+    items = [{"product_id": str(p.id), "qty": 1}]
+
+    async def estimate(cc):
+        return await client.post(
+            "/api/v1/orders/shipping-estimate", json={"country_code": cc, "items": items}
+        )
+
+    de = (await estimate("DE")).json()
+    assert de["shipping_cents"] == 1_200 and de["tax_cents"] == round((10_000 + 1_200) * 0.19)
+    fr = (await estimate("FR")).json()
+    assert fr["shipping_cents"] == 2_500 and fr["tax_cents"] == 0
+    assert (await estimate("US")).status_code == 422
+
+
+async def test_order_outside_europe_requires_enquiry(client):
+    p = await _product()
+    body = _order_body(p.id)
+    body["shipping_address"] = {**ADDRESS, "country_code": "US"}
+    r = await client.post("/api/v1/orders", json=body)
+    assert r.status_code == 422 and "enquiry" in r.text
+
+
 def test_stripe_amount_must_match_order():
     order = Order(total_cents=12_345, currency="EUR")
     assert session_matches_order({"amount_total": 12_345, "currency": "eur"}, order)

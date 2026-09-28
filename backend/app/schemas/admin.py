@@ -220,6 +220,7 @@ class OrderAdminOut(BaseModel):
     total_cents: int
     payment_method: str = "invoice"
     paid_at: datetime | None = None
+    invoice_number: str | None = None
     shipping_address: dict | None = None
     billing_address: dict | None = None
     shipping_method: str | None = None

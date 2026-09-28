@@ -7,7 +7,7 @@ import { useCartStore } from "../../store/cart";
 import { useSession } from "../../store/session";
 import { api, ApiError } from "../../lib/api";
 import { formatPrice } from "../../lib/format";
-import { COUNTRIES } from "../../lib/countries";
+import { COUNTRIES, DIRECT_PURCHASE_COUNTRIES } from "../../lib/countries";
 import { Button } from "../../components/Button/Button";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import styles from "./Checkout.module.css";
@@ -43,13 +43,15 @@ export function Checkout() {
     resolver: zodResolver(schema),
   });
   const countryCode = watch("countryCode");
+  const cc = (countryCode || "").trim().toUpperCase();
+  // outside Europe: no direct purchase, the customer sends an enquiry instead
+  const enquiryOnly = cc.length === 2 && !DIRECT_PURCHASE_COUNTRIES.has(cc);
   const [shippingCents, setShippingCents] = useState<number | null>(null);
   const [taxCents, setTaxCents] = useState(0);
   const [shippingBusy, setShippingBusy] = useState(false);
 
   useEffect(() => {
-    const cc = (countryCode || "").trim().toUpperCase();
-    if (cc.length !== 2 || lines.length === 0) {
+    if (cc.length !== 2 || enquiryOnly || lines.length === 0) {
       setShippingCents(null);
       setTaxCents(0);
       return;
@@ -89,7 +91,7 @@ export function Checkout() {
       clearTimeout(t);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countryCode, lines.length]);
+  }, [cc, enquiryOnly, lines.length]);
 
   if (status === "idle" || status === "loading") {
     return <div className={styles.page}>Loading…</div>;
@@ -106,8 +108,21 @@ export function Checkout() {
     );
   }
 
+  function sendEnquiry() {
+    navigate("/rfq", {
+      state: {
+        email: watch("email"),
+        company: watch("company"),
+        vatId: watch("vatId"),
+        countryCode: cc,
+        items: lines.map((l) => ({ sku: l.product.sku, qty: l.qty, note: l.product.name })),
+      },
+    });
+  }
+
   async function onSubmit(v: FormValues) {
     setSubmitError(null);
+    if (enquiryOnly) return;
     try {
       const order = await api.createOrder({
         email: v.email,
@@ -193,44 +208,58 @@ export function Checkout() {
             ))}
           </ul>
           <div className={styles.row}><span>Subtotal</span><span>{formatPrice(subtotalCents())}</span></div>
-          <div className={styles.row}>
-            <span>Shipping</span>
-            <span>
-              {shippingBusy
-                ? "Calculating…"
-                : shippingCents !== null
-                  ? formatPrice(shippingCents)
-                  : "Enter country"}
-            </span>
-          </div>
-          {shippingCents !== null && taxCents > 0 && (
-            <div className={styles.row}><span>VAT (19%)</span><span>{formatPrice(taxCents)}</span></div>
-          )}
-          {shippingCents !== null && (
-            <div className={`${styles.row} ${styles.total}`}>
-              <span>Total</span>
-              <span>{formatPrice(subtotalCents() + shippingCents + taxCents)}</span>
-            </div>
-          )}
-          <p className={styles.note}>
-            {taxCents > 0 ? "incl. 19% German VAT · plus shipping" : "excl. VAT · plus shipping"}
-          </p>
+          {enquiryOnly ? (
+            <>
+              <p className={styles.note}>
+                We don't take direct orders outside Europe. Send us an enquiry with your cart and
+                our team will quote shipping and delivery for your country within 24 hours.
+              </p>
+              <Button type="button" variant="primary" style={{ width: "100%" }} onClick={sendEnquiry}>
+                Send enquiry
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className={styles.row}>
+                <span>Shipping</span>
+                <span>
+                  {shippingBusy
+                    ? "Calculating…"
+                    : shippingCents !== null
+                      ? formatPrice(shippingCents)
+                      : "Enter country"}
+                </span>
+              </div>
+              {shippingCents !== null && taxCents > 0 && (
+                <div className={styles.row}><span>VAT (19%)</span><span>{formatPrice(taxCents)}</span></div>
+              )}
+              {shippingCents !== null && (
+                <div className={`${styles.row} ${styles.total}`}>
+                  <span>Total</span>
+                  <span>{formatPrice(subtotalCents() + shippingCents + taxCents)}</span>
+                </div>
+              )}
+              <p className={styles.note}>
+                {taxCents > 0 ? "incl. 19% German VAT · plus shipping" : "excl. VAT · plus shipping"}
+              </p>
 
-          <fieldset className={styles.pay}>
-            <legend>Payment</legend>
-            <label>
-              <input type="radio" value="card" checked readOnly />
-              Pay now by card (Stripe)
-            </label>
-          </fieldset>
+              <fieldset className={styles.pay}>
+                <legend>Payment</legend>
+                <label>
+                  <input type="radio" value="card" checked readOnly />
+                  Pay now by card (Stripe)
+                </label>
+              </fieldset>
 
-          <p className={styles.note}>
-            Card payments are processed securely by Stripe.
-          </p>
-          {submitError && <p className={styles.err}>{submitError}</p>}
-          <Button type="submit" variant="primary" style={{ width: "100%" }} disabled={isSubmitting}>
-            {isSubmitting ? "Processing…" : "Place order"}
-          </Button>
+              <p className={styles.note}>
+                Card payments are processed securely by Stripe.
+              </p>
+              {submitError && <p className={styles.err}>{submitError}</p>}
+              <Button type="submit" variant="primary" style={{ width: "100%" }} disabled={isSubmitting}>
+                {isSubmitting ? "Processing…" : "Place order"}
+              </Button>
+            </>
+          )}
         </aside>
       </form>
     </div>

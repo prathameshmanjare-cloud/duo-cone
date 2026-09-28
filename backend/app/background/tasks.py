@@ -209,6 +209,7 @@ async def notify_order_paid(
     total_cents: int = 0,
     currency: str = "EUR",
     invoice_pdf: bytes | None = None,
+    invoice_number: str | None = None,
 ) -> None:
     """Payment confirmed — email the customer their invoice PDF."""
     try:
@@ -220,14 +221,18 @@ async def notify_order_paid(
         )
         notify_to = await _notify_address()
         attachments = (
-            [Attachment(filename=f"Invoice-{order_number}.pdf", content=invoice_pdf, mime_type="application/pdf")]
+            [Attachment(filename=f"Invoice-{invoice_number or order_number}.pdf", content=invoice_pdf, mime_type="application/pdf")]
             if invoice_pdf
             else []
         )
 
         send_email(
             to=email,
-            subject=f"Invoice for order {order_number}",
+            subject=(
+                f"Invoice {invoice_number} for order {order_number}"
+                if invoice_number
+                else f"Invoice for order {order_number}"
+            ),
             html=_wrap("Payment received — invoice attached", body_html),
             reply_to=notify_to,
             attachments=attachments,

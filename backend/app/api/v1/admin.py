@@ -35,7 +35,7 @@ from app.config.settings import get_settings
 from app.db.bootstrap import get_app_setting, set_app_setting
 from app.db.session import get_db
 from app.integrations.email import _effective_provider, send_email_diagnostic
-from app.services.invoice import build_invoice_pdf
+from app.services.invoice import assign_invoice_number, build_invoice_pdf
 from app.models.catalog import (
     Brand,
     Category,
@@ -496,6 +496,8 @@ async def update_order_status(
     order.status = payload.status
     if became_paid and not order.paid_at:
         order.paid_at = datetime.now(timezone.utc)
+    if became_paid:
+        await assign_invoice_number(db, order)
     await db.commit()
     await db.refresh(order)
     if became_paid:
@@ -506,6 +508,7 @@ async def update_order_status(
             total_cents=order.total_cents,
             currency=order.currency,
             invoice_pdf=build_invoice_pdf(order),
+            invoice_number=order.invoice_number,
         )
     return OrderAdminOut.model_validate(order)
 

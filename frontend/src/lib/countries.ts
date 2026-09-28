@@ -1,3 +1,12 @@
+/** Countries that can order directly (Germany + rest of Europe). Must match
+ * ``_EUROPE`` in backend/app/services/shipping.py. Everyone else sends an enquiry. */
+export const DIRECT_PURCHASE_COUNTRIES = new Set([
+  "DE",
+  "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "GR", "HU",
+  "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+  "IS", "LI", "NO", "CH", "GB",
+]);
+
 export const COUNTRIES: { code: string; name: string }[] = [
   { code: "DE", name: "Germany" },
   { code: "AT", name: "Austria" },
@@ -26,10 +35,12 @@ export const COUNTRIES: { code: string; name: string }[] = [
   { code: "SI", name: "Slovenia" },
   { code: "ES", name: "Spain" },
   { code: "SE", name: "Sweden" },
-  // rest of world (weight-based shipping estimate)
   { code: "GB", name: "United Kingdom" },
   { code: "CH", name: "Switzerland" },
   { code: "NO", name: "Norway" },
+  { code: "IS", name: "Iceland" },
+  { code: "LI", name: "Liechtenstein" },
+  // rest of world — enquiry only, no direct purchase
   { code: "US", name: "United States" },
   { code: "CA", name: "Canada" },
   { code: "MX", name: "Mexico" },
