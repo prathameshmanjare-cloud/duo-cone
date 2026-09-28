@@ -37,7 +37,7 @@ services:
         value: https://duo-cone.onrender.com
       # storefront URL — Stripe success/cancel redirects
       - key: FRONTEND_URL
-        value: https://duo-cone.vercel.app
+        value: https://www.duo-cone.com
       # Stripe — set in the Render dashboard (Environment tab), kept out of git
       - key: STRIPE_SECRET_KEY
         sync: false

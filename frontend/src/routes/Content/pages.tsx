@@ -102,7 +102,7 @@ export const Privacy = () => (
 export const Terms = () => (
   <StaticPage
     title="Terms & Conditions"
-    intro="Version: 09/2025 – DUO-CONE"
+    intro="Version: 09/2026 – DUO-CONE"
     sections={[
       {
         heading: "I. Scope",
