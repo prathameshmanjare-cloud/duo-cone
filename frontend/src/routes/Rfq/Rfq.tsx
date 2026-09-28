@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { useLocation } from "react-router-dom";
 import { api } from "../../lib/api";
 import { Button } from "../../components/Button/Button";
 import { IconClose } from "../../components/Icon/Icon";
@@ -18,11 +19,21 @@ interface RfqFormValues {
   website: string;
 }
 
+/** Pre-fill handed over by checkout when the destination is outside Europe. */
+type RfqPrefill = Partial<Pick<RfqFormValues, "email" | "company" | "vatId" | "countryCode" | "items">>;
+
 export function Rfq() {
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const prefill = (useLocation().state ?? null) as RfqPrefill | null;
   const { register, handleSubmit, control, formState: { isSubmitting } } = useForm<RfqFormValues>({
-    defaultValues: { items: [{ sku: "", qty: 1, note: "" }] },
+    defaultValues: {
+      email: prefill?.email ?? "",
+      company: prefill?.company ?? "",
+      vatId: prefill?.vatId ?? "",
+      countryCode: prefill?.countryCode ?? "",
+      items: prefill?.items?.length ? prefill.items : [{ sku: "", qty: 1, note: "" }],
+    },
   });
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
@@ -59,7 +70,11 @@ export function Rfq() {
     <div className={styles.page}>
       <PageTitle title="Request a Quote" />
       <h1>Request a Quote</h1>
-      <p className={styles.lead}>Add one or more part numbers below. We'll reply with pricing and lead time within 24 hours.</p>
+      <p className={styles.lead}>
+        {prefill?.items?.length
+          ? "We don't take direct orders outside Europe. Your cart is below — send it and we'll reply with pricing, shipping and lead time within 24 hours."
+          : "Add one or more part numbers below. We'll reply with pricing and lead time within 24 hours."}
+      </p>
       <form onSubmit={handleSubmit(onSubmit)}>
         <input
           type="text"

@@ -26,7 +26,12 @@ from app.middleware.rate_limit import limiter
 from app.models.catalog import Product
 from app.models.commerce import Order, OrderItem, OrderStatus, User
 from app.services.invoice import build_invoice_pdf
-from app.services.shipping import calc_shipping_cents, calc_vat_cents, line_weight_grams
+from app.services.shipping import (
+    ENQUIRY_ONLY_DETAIL,
+    calc_shipping_cents,
+    calc_vat_cents,
+    is_direct_purchase_allowed,
+)
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 logger = logging.getLogger("duocon.orders")
@@ -123,7 +128,6 @@ class _PricedLine:
         self.unit_price_cents = (
             product.sale_price_cents if product.sale_price_cents is not None else product.price_cents
         )
-        self.weight_g = product.weight_g
 
     @property
     def total_cents(self) -> int:
@@ -156,8 +160,10 @@ async def _price_lines(
     return lines
 
 
-def _total_weight_kg(lines: list[_PricedLine]) -> float:
-    return sum(line_weight_grams(li.weight_g, li.qty) for li in lines) / 1000
+def _require_direct_purchase(country_code: str) -> None:
+    """Outside Europe the customer must send an enquiry (RFQ) instead."""
+    if not is_direct_purchase_allowed(country_code):
+        raise HTTPException(status_code=422, detail=ENQUIRY_ONLY_DETAIL)
 
 
 @router.post("/shipping-estimate", response_model=ShippingEstimateOut)
@@ -165,8 +171,9 @@ def _total_weight_kg(lines: list[_PricedLine]) -> float:
 async def shipping_estimate(
     request: Request, payload: ShippingEstimateIn, db: AsyncSession = Depends(get_db)
 ) -> ShippingEstimateOut:
+    _require_direct_purchase(payload.country_code)
     lines = await _price_lines(db, payload.items)
-    shipping_cents = calc_shipping_cents(payload.country_code, _total_weight_kg(lines))
+    shipping_cents = calc_shipping_cents(payload.country_code)
     subtotal = sum(li.total_cents for li in lines)
     tax_cents = calc_vat_cents(payload.country_code, subtotal + shipping_cents)
     return ShippingEstimateOut(shipping_cents=shipping_cents, tax_cents=tax_cents)
@@ -239,6 +246,7 @@ async def create_order(
             detail="Card payment is not available right now — please choose invoice.",
         )
 
+    _require_direct_purchase(payload.shipping_address.country_code)
     lines = await _price_lines(db, payload.items, currency=payload.currency)
     subtotal = sum(li.total_cents for li in lines)
     reverse_charge = bool(
@@ -246,9 +254,7 @@ async def create_order(
         and payload.shipping_address.country_code.upper() in _EU
         and payload.shipping_address.country_code.upper() != "DE"
     )
-    shipping_cents = calc_shipping_cents(
-        payload.shipping_address.country_code, _total_weight_kg(lines)
-    )
+    shipping_cents = calc_shipping_cents(payload.shipping_address.country_code)
     tax_cents = calc_vat_cents(payload.shipping_address.country_code, subtotal + shipping_cents)
     number = f"DC-{uuid.uuid4().hex[:8].upper()}"
     order = Order(
