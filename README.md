@@ -42,7 +42,7 @@ random and ≥32 chars and `DEBUG=false`; `/docs` and `/openapi.json` are off.
 
 Live in production:
 
-- Storefront (Vercel): https://duo-cone.com, https://duo-cone.vercel.app
+- Storefront (Vercel): https://www.duo-cone.com (apex redirects to www), https://duo-cone.vercel.app
 - API (Render, auto-deploys from `main`): https://duo-cone.onrender.com — health check at `/healthz`
 - Postgres (Render)
 
