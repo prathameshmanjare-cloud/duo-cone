@@ -11,6 +11,7 @@ import { COUNTRIES } from "../../lib/countries";
 import { Button } from "../../components/Button/Button";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import styles from "./Checkout.module.css";
+import { PageTitle } from "../../components/PageTitle/PageTitle";
 
 const schema = z.object({
   email: z.string().email(),
@@ -99,6 +100,7 @@ export function Checkout() {
   if (lines.length === 0) {
     return (
       <div className={styles.page}>
+        <PageTitle title="Checkout" />
         <EmptyState title="Nothing to check out" description="Your cart is empty." action={<Link to="/shop">Browse products</Link>} />
       </div>
     );
@@ -146,6 +148,7 @@ export function Checkout() {
 
   return (
     <div className={styles.page}>
+      <PageTitle title="Checkout" />
       <h1>Checkout</h1>
       {cancelled && (
         <p className={styles.err}>Payment was cancelled — your cart is still here. Try again when ready.</p>

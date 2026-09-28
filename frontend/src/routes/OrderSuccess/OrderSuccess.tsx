@@ -5,6 +5,7 @@ import { Button } from "../../components/Button/Button";
 import { Price } from "../../components/Price/Price";
 import { IconCheck } from "../../components/Icon/Icon";
 import styles from "./OrderSuccess.module.css";
+import { PageTitle } from "../../components/PageTitle/PageTitle";
 
 export function OrderSuccess() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,7 @@ export function OrderSuccess() {
 
   return (
     <div className={styles.page}>
+      <PageTitle title="Order received" />
       <div className={styles.check} aria-hidden="true"><IconCheck size={32} /></div>
       <h1>{paid ? "Payment received" : "Order placed"}</h1>
       <p>

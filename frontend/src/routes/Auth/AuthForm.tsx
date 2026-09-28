@@ -4,6 +4,7 @@ import { Button } from "../../components/Button/Button";
 import { api } from "../../lib/api";
 import { useSession } from "../../store/session";
 import styles from "./Auth.module.css";
+import { PageTitle } from "../../components/PageTitle/PageTitle";
 
 type Mode = "login" | "register";
 
@@ -49,6 +50,7 @@ function AuthScreen({ mode }: { mode: Mode }) {
 
   return (
     <div className={styles.page}>
+      <PageTitle title={mode === "login" ? "Log in" : "Create account"} />
       <div className={styles.card}>
         <h1>{mode === "login" ? "Log in" : "Create account"}</h1>
         <form onSubmit={onSubmit}>
@@ -144,6 +146,7 @@ export const ForgotPassword = () => {
 
   return (
     <div className={styles.page}>
+      <PageTitle title="Forgot password" />
       <div className={styles.card}>
         <h1>Forgot password</h1>
         {sent ? (
@@ -190,6 +193,7 @@ export const ResetPassword = () => {
   if (!token) {
     return (
       <div className={styles.page}>
+        <PageTitle title="Reset password" />
         <div className={styles.card}>
           <h1>Reset password</h1>
           <p>
@@ -228,6 +232,7 @@ export const ResetPassword = () => {
 
   return (
     <div className={styles.page}>
+      <PageTitle title="Reset password" />
       <div className={styles.card}>
         <h1>Reset password</h1>
         <form onSubmit={onSubmit}>

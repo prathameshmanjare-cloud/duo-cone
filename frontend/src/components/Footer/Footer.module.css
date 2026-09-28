@@ -246,3 +246,10 @@
     text-align: center;
   }
 }
+
+/* phones: room under the last line so the floating chat buttons never cover it */
+@media (max-width: 640px) {
+  .footer {
+    padding-bottom: 72px;
+  }
+}
