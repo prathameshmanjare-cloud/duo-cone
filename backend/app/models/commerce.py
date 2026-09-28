@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     JSON,
+    Sequence,
     String,
     Text,
     func,
@@ -97,6 +98,10 @@ class OrderStatus(str, enum.Enum):
     refunded = "refunded"
 
 
+# Gap-tolerant counter behind Order.invoice_number (INV-<year>-<seq>).
+invoice_number_seq = Sequence("invoice_number_seq", metadata=Base.metadata)
+
+
 class Order(Base):
     __tablename__ = "orders"
 
@@ -121,6 +126,8 @@ class Order(Base):
     stripe_session_id: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
     stripe_payment_intent: Mapped[str | None] = mapped_column(String(120), nullable=True)
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # assigned once, when the order first becomes paid; never reused
+    invoice_number: Mapped[str | None] = mapped_column(String(40), unique=True, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

@@ -19,6 +19,12 @@ _EUROPE = {
     "IS", "LI", "NO", "CH", "GB",
 }
 
+# EU member states (incl. DE) — intra-Community VAT rules apply
+EU_COUNTRIES = frozenset({
+    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU",
+    "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+})
+
 _DE_SHIPPING_CENTS = 1200
 _EUROPE_SHIPPING_CENTS = 2500
 

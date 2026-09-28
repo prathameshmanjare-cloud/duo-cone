@@ -25,9 +25,10 @@ from app.integrations.payments import stripe_gateway
 from app.middleware.rate_limit import limiter
 from app.models.catalog import Product
 from app.models.commerce import Order, OrderItem, OrderStatus, User
-from app.services.invoice import build_invoice_pdf
+from app.services.invoice import assign_invoice_number, build_invoice_pdf
 from app.services.shipping import (
     ENQUIRY_ONLY_DETAIL,
+    EU_COUNTRIES,
     calc_shipping_cents,
     calc_vat_cents,
     is_direct_purchase_allowed,
@@ -37,10 +38,7 @@ router = APIRouter(prefix="/orders", tags=["orders"])
 logger = logging.getLogger("duocon.orders")
 
 # EU member states for VAT reverse-charge (destination not DE, VAT id present)
-_EU = {
-    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU",
-    "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
-}
+_EU = EU_COUNTRIES
 
 
 class AddressIn(BaseModel):
@@ -197,6 +195,7 @@ async def mark_order_paid(
     order.paid_at = datetime.now(timezone.utc)
     if payment_intent:
         order.stripe_payment_intent = payment_intent
+    await assign_invoice_number(db, order)
     await db.commit()
     return True
 
@@ -400,6 +399,7 @@ async def sync_payment(
                 total_cents=order.total_cents,
                 currency=order.currency,
                 invoice_pdf=build_invoice_pdf(order),
+                invoice_number=order.invoice_number,
             )
         await db.refresh(order, attribute_names=["items"])
     return _serialize(order)

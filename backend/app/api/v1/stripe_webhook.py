@@ -81,6 +81,7 @@ async def stripe_webhook(
         total_cents=order.total_cents,
         currency=order.currency,
         invoice_pdf=build_invoice_pdf(order),
+        invoice_number=order.invoice_number,
     )
     logger.info("Order %s marked paid via Stripe webhook", number)
     return {"received": True, "paid": number}
