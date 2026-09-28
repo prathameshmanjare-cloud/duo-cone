@@ -40,10 +40,18 @@ random and ≥32 chars and `DEBUG=false`; `/docs` and `/openapi.json` are off.
 
 ## Status
 
-Phase 1–6 of the [roadmap](docs/ARCHITECTURE.md#20-implementation-roadmap) scaffolded:
-catalog models/API/repositories, cart (client-side, Zustand+persist), RFQ API + form,
-all 27 routes wired with loading/empty/error states, design tokens, responsive layout,
-accessibility basics (skip link, semantic landmarks, focus states).
+Live in production:
+
+- Storefront (Vercel): https://duo-cone.com, https://duo-cone.vercel.app
+- API (Render, auto-deploys from `main`): https://duo-cone.onrender.com — health check at `/healthz`
+- Postgres (Render)
+
+Built and working: catalog (1,000+ products), search and cross-reference lookup,
+cart, checkout creating real orders (invoice or Stripe card/PayPal/SEPA),
+server-side pricing, customer register/login/password reset/account page, RFQ
+and contact forms, rule-based support chatbot with hand-off (Tidio live chat
+when `VITE_TIDIO_PUBLIC_KEY` is set), transactional email (SendGrid, Mailgun
+or SMTP), invoice PDFs on paid orders, admin CMS (below).
 
 ## Admin CMS
 
@@ -54,21 +62,21 @@ accessibility basics (skip link, semantic landmarks, focus states).
   Also: users admin (`/admin/users` — verify, grant/revoke admin, reset password,
   delete), per-product cross-references and images editors, and CSV + PDF export
   on every list (`GET /api/v1/admin/export/{products,orders,rfqs,users,brands,categories}?fmt=csv|pdf`,
-  honours the same filters).
+  honours the same filters), email settings (test send, alert address) and
+  editable customer email templates.
 - Frontend: `/admin` (login-gated section in the same app) —
   `src/routes/Admin/*`, `src/lib/adminApi.ts`, `src/store/auth.ts`.
 - Create the first admin:
   `cd backend && .venv/bin/python -m scripts.create_admin --email you@duo-cone.com --password '...'`
   (or set `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` for shell-less hosts).
 
-**Not yet wired (stubbed/TODO in code):**
-- Customer-facing auth (register/login forms exist; endpoints now live, UI not wired).
-- Checkout → real `/api/v1/checkout` order creation (currently client-only mock).
-- Email (SendGrid/Mailgun), WhatsApp webhook, chatbot — architecture defined, providers not implemented.
-- Alembic migrations (schema currently created via `Base.metadata.create_all` in `seed.py` for dev).
-- WooCommerce migration script is implemented but untested against a live Woo API (needs `WOO_*` env vars).
-- Product images repo (`product-images`) not yet created — `IMAGE_BASE_URL` points at a placeholder.
-
-Next: run `docker compose up -d db` + backend seed to see the catalog live, then tackle
-auth + checkout completion per the roadmap.
-# duo-cone
+**Known gaps:**
+- Stripe is in test mode and no webhook secret is set; payments are confirmed
+  when the customer returns to the success page (`/orders/{number}/sync-payment`).
+- Contact-form messages are stored and emailed but have no admin page.
+- WhatsApp integration is not implemented (`app/integrations/whatsapp` is empty).
+- No migration tool: tables are created with `create_all` and new columns are
+  added by `ensure_schema_upgrades` (`app/db/bootstrap.py`) on startup.
+- WooCommerce migration script is untested against a live Woo API (needs `WOO_*` env vars).
+- Render free plan: the API sleeps when idle, and a free Postgres expires with
+  no backups — move both to paid plans before relying on the data.
