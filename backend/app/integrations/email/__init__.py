@@ -78,7 +78,7 @@ def _effective_provider() -> str:
 def _send_sendgrid(msg: EmailMessage, _err: list[str] | None = None) -> bool:
     payload = {
         "personalizations": [{"to": [{"email": r} for r in msg.recipients]}],
-        "from": {"email": settings.email_from},
+        "from": {"email": settings.email_from, "name": settings.email_from_name},
         "subject": msg.subject,
         "content": [
             {"type": "text/plain", "value": msg.text_body},
