@@ -40,7 +40,6 @@ const OTHER_BRANDS = [
   "Busak Luyken",
   "Massey Ferguson",
   "Laltesi",
-  "Lamborghini",
   "International",
   "Hanomag",
   "Hydromac",

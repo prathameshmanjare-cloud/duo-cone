@@ -59,7 +59,6 @@ const SEGMENTS: Record<string, Segment> = {
       "Busak Luyken",
       "Massey Ferguson",
       "Laltesi",
-      "Lamborghini",
       "International",
       "Hanomag",
       "Hydromac",
