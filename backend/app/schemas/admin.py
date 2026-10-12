@@ -247,6 +247,14 @@ class OrderStatusIn(BaseModel):
     status: OrderStatus
 
 
+class OrdersDeleteIn(BaseModel):
+    ids: list[uuid.UUID] = Field(min_length=1, max_length=200)
+
+
+class OrdersDeleteOut(BaseModel):
+    deleted: int
+
+
 class DeliveryNoteIn(BaseModel):
     packages: str | None = Field(None, max_length=40)
     size: str | None = Field(None, max_length=80)

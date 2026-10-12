@@ -253,6 +253,7 @@ export interface AdminOrder {
   shipping_method: string | null;
   customer_note: string | null;
   created_at: string | null;
+  invoice_number: string | null;
   delivery_note_number: string | null;
   delivery_note: DeliveryNoteDetails | null;
   delivery_note_sent_at: string | null;
@@ -429,6 +430,8 @@ export const adminApi = {
   getOrder: (id: string) => req<AdminOrder>(`/admin/orders/${id}`),
   setOrderStatus: (id: string, status: OrderStatus) =>
     req<AdminOrder>(`/admin/orders/${id}`, { method: "PATCH", body: body({ status }) }),
+  deleteOrders: (ids: string[]) =>
+    req<{ deleted: number }>("/admin/orders/delete", { method: "POST", body: body({ ids }) }),
 
   saveDeliveryNote: (id: string, details: DeliveryNoteDetails) =>
     req<AdminOrder>(`/admin/orders/${id}/delivery-note`, { method: "PUT", body: body(details) }),

@@ -53,7 +53,7 @@ from app.models.catalog import (
     ProductCategory,
     ProductImage,
 )
-from app.models.commerce import EmailTemplate, Order, OrderStatus, Rfq, User
+from app.models.commerce import EmailTemplate, Order, OrderItem, OrderStatus, Rfq, User
 from app.schemas.admin import (
     BrandIn,
     BrandOut,
@@ -69,6 +69,8 @@ from app.schemas.admin import (
     OrderAdminOut,
     DeliveryNoteIn,
     OrderStatusIn,
+    OrdersDeleteIn,
+    OrdersDeleteOut,
     PagedOrders,
     PagedProductsAdmin,
     PagedRfqs,
@@ -519,6 +521,28 @@ async def update_order_status(
             invoice_number=order.invoice_number,
         )
     return OrderAdminOut.model_validate(order)
+
+
+@router.post("/orders/delete", response_model=OrdersDeleteOut)
+async def delete_orders(payload: OrdersDeleteIn, db: AsyncSession = Depends(get_db)) -> OrdersDeleteOut:
+    """Permanently delete orders. All-or-nothing: an invoiced order blocks the whole batch."""
+    ids = set(payload.ids)
+    rows = (
+        await db.execute(select(Order.id, Order.number, Order.invoice_number).where(Order.id.in_(ids)))
+    ).all()
+    if len(rows) != len(ids):
+        raise HTTPException(status_code=404, detail="Order not found")
+    # an issued invoice is a tax record and its number is never reused
+    invoiced = sorted(r.number for r in rows if r.invoice_number)
+    if invoiced:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Invoiced orders cannot be deleted: {', '.join(invoiced)}",
+        )
+    await db.execute(OrderItem.__table__.delete().where(OrderItem.order_id.in_(ids)))
+    await db.execute(Order.__table__.delete().where(Order.id.in_(ids)))
+    await db.commit()
+    return OrdersDeleteOut(deleted=len(rows))
 
 
 # a delivery note only makes sense once the goods are paid for

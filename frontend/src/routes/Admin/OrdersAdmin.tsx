@@ -8,6 +8,7 @@ import {
   type OrderStatus,
 } from "../../lib/adminApi";
 import { formatPrice } from "../../lib/format";
+import { ConfirmModal } from "./ConfirmModal";
 import { ExportButtons } from "./ExportButtons";
 import {
   Drawer,
@@ -46,6 +47,8 @@ export function OrdersAdmin() {
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState<{ id: string; toNote?: boolean } | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirming, setConfirming] = useState(false);
 
   const params = { q: search || undefined, status: status || undefined, page, page_size: PAGE_SIZE };
   const { data, isLoading, error } = useQuery({
@@ -61,6 +64,29 @@ export function OrdersAdmin() {
     },
   });
 
+  const deleteMut = useMutation({
+    mutationFn: () => adminApi.deleteOrders([...selected]),
+    onSuccess: () => {
+      setSelected(new Set());
+      setConfirming(false);
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      qc.invalidateQueries({ queryKey: ["admin", "stats"] });
+    },
+  });
+
+  // an invoiced order is a tax record; the API refuses to delete it
+  const deletable = (data?.items ?? []).filter((o) => !o.invoice_number);
+  const allSelected = deletable.length > 0 && deletable.every((o) => selected.has(o.id));
+  const toggle = (id: string) => {
+    const next = new Set(selected);
+    if (!next.delete(id)) next.add(id);
+    setSelected(next);
+  };
+  const goToPage = (p: number) => {
+    setSelected(new Set());
+    setPage(p);
+  };
+
   return (
     <>
       <PageHeader
@@ -72,7 +98,7 @@ export function OrdersAdmin() {
         className={s.toolbar}
         onSubmit={(e) => {
           e.preventDefault();
-          setPage(1);
+          goToPage(1);
           setSearch(q);
         }}
       >
@@ -81,12 +107,17 @@ export function OrdersAdmin() {
           className={s.select}
           aria-label="Filter by status"
           value={status}
-          onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+          onChange={(e) => { setStatus(e.target.value); goToPage(1); }}
         >
           <option value="">All statuses</option>
           {STATUSES.map((x) => <option key={x} value={x}>{x[0].toUpperCase() + x.slice(1)}</option>)}
         </select>
         <button className={`${s.btn} ${s.btnGhost}`} type="submit">Search</button>
+        {selected.size > 0 && (
+          <button className={`${s.btn} ${s.btnDanger}`} type="button" onClick={() => setConfirming(true)}>
+            <Icon name="trash" size={15} /> Delete selected ({selected.size})
+          </button>
+        )}
       </form>
 
       {isLoading && <TableSkeleton cols={6} />}
@@ -99,13 +130,37 @@ export function OrdersAdmin() {
             <table className={`${s.table} ${s.tableStack}`}>
               <thead>
                 <tr>
-                  <th>Order</th><th>Date</th><th>Customer</th><th className={s.right}>Total</th><th>Status</th><th></th>
+                  <th>
+                    <input
+                      type="checkbox"
+                      className={s.check}
+                      style={{ marginRight: 10, verticalAlign: "middle" }}
+                      aria-label="Select all deletable orders on this page"
+                      checked={allSelected}
+                      disabled={deletable.length === 0}
+                      onChange={() => setSelected(new Set(allSelected ? [] : deletable.map((o) => o.id)))}
+                    />
+                    Order
+                  </th>
+                  <th>Date</th><th>Customer</th><th className={s.right}>Total</th><th>Status</th><th></th>
                 </tr>
               </thead>
               <tbody>
                 {data.items.map((o) => (
                   <tr key={o.id}>
-                    <td data-primary><span className={s.code}>{o.number}</span></td>
+                    <td data-primary>
+                      <input
+                        type="checkbox"
+                        className={s.check}
+                        style={{ marginRight: 10, verticalAlign: "middle" }}
+                        aria-label={`Select ${o.number}`}
+                        checked={selected.has(o.id)}
+                        disabled={Boolean(o.invoice_number)}
+                        title={o.invoice_number ? "Invoiced orders cannot be deleted" : ""}
+                        onChange={() => toggle(o.id)}
+                      />
+                      <span className={s.code}>{o.number}</span>
+                    </td>
                     <td data-label="Date" className={s.muted}>{fmtDate(o.created_at)}</td>
                     <td data-label="Customer">{o.email}</td>
                     <td data-label="Total" className={`${s.right} ${s.num} ${s.strong}`}>
@@ -141,11 +196,22 @@ export function OrdersAdmin() {
               </tbody>
             </table>
           </div>
-          <Pager page={page} pageSize={PAGE_SIZE} total={data.total} onPage={setPage} />
+          <Pager page={page} pageSize={PAGE_SIZE} total={data.total} onPage={goToPage} />
         </>
       )}
 
       {open && <OrderDrawer id={open.id} toNote={open.toNote} onClose={() => setOpen(null)} />}
+      {confirming && (
+        <ConfirmModal
+          title="Delete orders"
+          message={`Permanently delete ${selected.size} order${selected.size === 1 ? "" : "s"}? This cannot be undone.`}
+          confirmLabel="Delete"
+          busy={deleteMut.isPending}
+          error={(deleteMut.error as Error | null)?.message}
+          onConfirm={() => deleteMut.mutate()}
+          onClose={() => { deleteMut.reset(); setConfirming(false); }}
+        />
+      )}
     </>
   );
 }

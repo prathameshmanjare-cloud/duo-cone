@@ -241,3 +241,40 @@ def test_production_refuses_weak_config():
     with pytest.raises(RuntimeError):
         Settings(environment="production", jwt_secret="y" * 44, debug=True).assert_safe_for_production()
     Settings(environment="production", jwt_secret="y" * 44, debug=False).assert_safe_for_production()
+
+
+# ------------------------------------------------------- admin orders ----
+async def test_admin_deletes_orders_but_not_invoiced_ones(client):
+    from sqlalchemy import select
+
+    email, tokens = await _register(client)
+    async with SessionLocal() as db:
+        u = (await db.execute(select(User).where(User.email == email))).scalar_one()
+        u.is_admin = True
+        await db.commit()
+    auth = {"Authorization": f"Bearer {tokens['access_token']}"}
+
+    product = await _product()
+    numbers = []
+    for _ in range(2):
+        r = await client.post("/api/v1/orders", json=_order_body(product.id))
+        assert r.status_code == 201, r.text
+        numbers.append(r.json()["number"])
+    async with SessionLocal() as db:
+        orders = (await db.execute(select(Order).where(Order.number.in_(numbers)))).scalars().all()
+        plain, invoiced = orders
+        invoiced.invoice_number = f"INV-TEST-{uuid.uuid4().hex[:8]}"
+        await db.commit()
+        plain_id, invoiced_id = str(plain.id), str(invoiced.id)
+
+    # one invoiced order blocks the whole batch
+    r = await client.post(
+        "/api/v1/admin/orders/delete", json={"ids": [plain_id, invoiced_id]}, headers=auth
+    )
+    assert r.status_code == 409, r.text
+    assert (await client.get(f"/api/v1/admin/orders/{plain_id}", headers=auth)).status_code == 200
+
+    r = await client.post("/api/v1/admin/orders/delete", json={"ids": [plain_id]}, headers=auth)
+    assert r.status_code == 200 and r.json() == {"deleted": 1}
+    assert (await client.get(f"/api/v1/admin/orders/{plain_id}", headers=auth)).status_code == 404
+    assert (await client.get(f"/api/v1/admin/orders/{invoiced_id}", headers=auth)).status_code == 200
