@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   adminApi,
@@ -45,7 +45,7 @@ export function OrdersAdmin() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<{ id: string; toNote?: boolean } | null>(null);
 
   const params = { q: search || undefined, status: status || undefined, page, page_size: PAGE_SIZE };
   const { data, isLoading, error } = useQuery({
@@ -121,7 +121,15 @@ export function OrdersAdmin() {
                       />
                     </td>
                     <td className={s.cellActions}>
-                      <button className={`${s.btn} ${s.btnGhost} ${s.btnSm}`} onClick={() => setOpen(o.id)}>
+                      {DELIVERABLE.includes(o.status) && (
+                        <button
+                          className={`${s.btn} ${s.btnGhost} ${s.btnSm}`}
+                          onClick={() => setOpen({ id: o.id, toNote: true })}
+                        >
+                          <Icon name="truck" size={15} /> Delivery note
+                        </button>
+                      )}
+                      <button className={`${s.btn} ${s.btnGhost} ${s.btnSm}`} onClick={() => setOpen({ id: o.id })}>
                         <Icon name="eye" size={15} /> View
                       </button>
                     </td>
@@ -137,12 +145,12 @@ export function OrdersAdmin() {
         </>
       )}
 
-      {open && <OrderDrawer id={open} onClose={() => setOpen(null)} />}
+      {open && <OrderDrawer id={open.id} toNote={open.toNote} onClose={() => setOpen(null)} />}
     </>
   );
 }
 
-function OrderDrawer({ id, onClose }: { id: string; onClose: () => void }) {
+function OrderDrawer({ id, toNote, onClose }: { id: string; toNote?: boolean; onClose: () => void }) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin", "order", id],
     queryFn: () => adminApi.getOrder(id),
@@ -198,7 +206,7 @@ function OrderDrawer({ id, onClose }: { id: string; onClose: () => void }) {
             <Totals order={data} />
           </DrawerSection>
 
-          {DELIVERABLE.includes(data.status) && <DeliveryNote key={data.delivery_note_number} order={data} />}
+          {DELIVERABLE.includes(data.status) && <DeliveryNote key={data.delivery_note_number} order={data} scrollTo={toNote} />}
 
           <DrawerSection title="Shipping">
             <Address value={data.shipping_address} />
@@ -233,8 +241,16 @@ const NOTE_FIELDS: { key: keyof DeliveryNoteDetails; label: string; placeholder:
 ];
 
 /** Create / download the delivery note PDF and mail it to dispatch. */
-function DeliveryNote({ order }: { order: AdminOrder }) {
+function DeliveryNote({ order, scrollTo }: { order: AdminOrder; scrollTo?: boolean }) {
   const qc = useQueryClient();
+  const anchor = useRef<HTMLDivElement>(null);
+  // opened from the row's "Delivery note" button: jump straight to this section.
+  // Scroll the drawer body itself — scrollIntoView would also drag the page along.
+  useEffect(() => {
+    const el = anchor.current;
+    const body = el?.closest<HTMLElement>(`.${s.drawerBody}`);
+    if (scrollTo && el && body) body.scrollTop = el.offsetTop - body.offsetTop - 44;
+  }, [scrollTo]);
   const [details, setDetails] = useState<DeliveryNoteDetails>(order.delivery_note ?? {});
   const created = order.delivery_note_number != null;
 
@@ -263,6 +279,7 @@ function DeliveryNote({ order }: { order: AdminOrder }) {
 
   return (
     <DrawerSection title="Delivery note">
+      <div ref={anchor} />
       {created && (
         <p className={s.row} style={{ marginBottom: 12 }}>
           <span className={s.code}>{order.delivery_note_number}</span>

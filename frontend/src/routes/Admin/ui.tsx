@@ -26,7 +26,8 @@ export type IconName =
   | "arrowUp"
   | "arrowDown"
   | "lock"
-  | "mail";
+  | "mail"
+  | "truck";
 
 const ICONS: Record<IconName, ReactNode> = {
   search: (
@@ -59,6 +60,13 @@ const ICONS: Record<IconName, ReactNode> = {
     <>
       <rect x="5" y="11" width="14" height="9" rx="2" />
       <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </>
+  ),
+  truck: (
+    <>
+      <path d="M3 6h11v10H3zM14 10h4l3 3v3h-7" />
+      <circle cx="7" cy="17.5" r="1.8" />
+      <circle cx="17.5" cy="17.5" r="1.8" />
     </>
   ),
   mail: (
