@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { adminApi, type DashboardStats } from "../../lib/adminApi";
 import { formatPrice } from "../../lib/format";
 import { useAuthStore } from "../../store/auth";
+import { Icon } from "./ui";
 import s from "./Admin.module.css";
 
 export function Dashboard() {
@@ -29,26 +30,38 @@ export function Dashboard() {
           <p className={s.dashSub}>{today} · DuoCone storefront overview</p>
         </div>
         <div className={s.quickRow}>
-          <Link className={s.btn} to="/admin/products/new">+ New product</Link>
-          <Link className={`${s.btn} ${s.btnGhost}`} to="/admin/products">Products &amp; stock</Link>
+          <Link className={`${s.btn} ${s.btnGhost}`} to="/admin/orders">View orders</Link>
+          <Link className={s.btn} to="/admin/products/new">
+            <Icon name="plus" /> New product
+          </Link>
         </div>
       </div>
 
-      {isLoading && <p className={s.muted}>Loading…</p>}
+      {isLoading && (
+        <div className={s.kpiGrid} aria-busy="true">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={s.kpi}>
+              <span className={s.skeleton} style={{ width: "50%", marginBottom: 22 }} />
+              <span className={s.skeleton} style={{ width: "70%", height: 26, marginBottom: 12 }} />
+              <span className={s.skeleton} style={{ width: "40%" }} />
+            </div>
+          ))}
+        </div>
+      )}
       {error && <p className={s.error}>{(error as Error).message}</p>}
 
       {data && (
         <>
           <div className={s.kpiGrid}>
             <Kpi
-              accent="var(--color-success)"
-              label="Revenue (paid+)"
+              accent="var(--a-ok)"
+              label="Revenue"
               value={formatPrice(data.revenue_cents)}
-              foot={`${data.orders_total} orders all-time`}
+              foot={`Paid orders · ${data.orders_total} orders all-time`}
               icon={<IconCash />}
             />
             <Kpi
-              accent="var(--color-primary)"
+              accent="var(--a-primary)"
               label="Pending orders"
               value={data.orders_pending}
               foot={data.orders_pending ? "need processing" : "all clear"}
@@ -56,7 +69,7 @@ export function Dashboard() {
               to="/admin/orders"
             />
             <Kpi
-              accent="var(--color-secondary-dark)"
+              accent="#b7791f"
               label="Open RFQs"
               value={data.rfqs_new}
               foot={`${data.rfqs_total} total requests`}
@@ -64,7 +77,7 @@ export function Dashboard() {
               to="/admin/rfqs"
             />
             <Kpi
-              accent="#7b3ff2"
+              accent="var(--a-violet)"
               label="Products"
               value={data.products_total}
               foot={`${data.products_active} active`}
@@ -103,7 +116,7 @@ export function Dashboard() {
                 />
               </div>
 
-              <h2 className={s.panelTitle} style={{ marginTop: "var(--space-6)" }}>
+              <h2 className={s.panelTitle} style={{ marginTop: 28 }}>
                 Catalog mix
               </h2>
               <CatalogMix data={data} />
@@ -158,7 +171,7 @@ function Kpi({
     </div>
   );
   return to ? (
-    <Link to={to} style={{ textDecoration: "none", color: "inherit" }}>
+    <Link to={to} className={s.kpiLink}>
       {inner}
     </Link>
   ) : (
@@ -180,11 +193,12 @@ function Attn({
   const cls =
     tone === "danger" ? s.attnDanger : tone === "warn" ? s.attnWarn : s.attnOk;
   return (
-    <Link to={href} style={{ textDecoration: "none", color: "inherit" }}>
+    <Link to={href} className={s.attnLink}>
       <div className={`${s.attn} ${cls}`}>
         <span className={s.attnDot} />
         <span className={s.attnText}>{text}</span>
         <span className={s.attnCount}>{count}</span>
+        <Icon name="chevronRight" className={s.attnChevron} />
       </div>
     </Link>
   );
@@ -202,15 +216,15 @@ function CatalogMix({ data }: { data: DashboardStats }) {
       </div>
       <div className={s.legend}>
         <span className={s.legendItem}>
-          <span className={s.legendSwatch} style={{ background: "var(--color-primary)" }} />
+          <span className={s.legendSwatch} style={{ background: "var(--a-primary)" }} />
           Active {data.products_active}
         </span>
         <span className={s.legendItem}>
-          <span className={s.legendSwatch} style={{ background: "var(--color-secondary)" }} />
+          <span className={s.legendSwatch} style={{ background: "var(--a-accent)" }} />
           Quote-only {data.products_rfq_only}
         </span>
         <span className={s.legendItem}>
-          <span className={s.legendSwatch} style={{ background: "var(--color-bg-subtle)" }} />
+          <span className={s.legendSwatch} style={{ background: "#eceef2" }} />
           of {data.products_total} total
         </span>
       </div>

@@ -48,6 +48,9 @@ export function ConfirmModal({
       >
         <motion.div
           className={s.modal}
+          role="alertdialog"
+          aria-modal="true"
+          aria-label={title}
           onMouseDown={(e) => e.stopPropagation()}
           initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 10 }}
           animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
@@ -57,7 +60,7 @@ export function ConfirmModal({
           <h2>{title}</h2>
           <p className={s.sub}>{message}</p>
 
-          {error && <p className={s.error}>{error}</p>}
+          {error && <p className={s.error} style={{ margin: 0 }}>{error}</p>}
 
           <div className={s.modalActions}>
             <motion.button

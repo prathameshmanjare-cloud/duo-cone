@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { downloadExport } from "../../lib/adminApi";
+import { Icon } from "./ui";
 import s from "./Admin.module.css";
 
 type Resource = "products" | "orders" | "rfqs" | "users" | "brands" | "categories";
@@ -27,14 +28,21 @@ export function ExportButtons({
   }
 
   return (
-    <span className={s.actions}>
-      <button className={`${s.btn} ${s.btnGhost}`} disabled={busy !== null} onClick={() => run("csv")}>
-        {busy === "csv" ? "…" : "Export CSV"}
-      </button>
-      <button className={`${s.btn} ${s.btnGhost}`} disabled={busy !== null} onClick={() => run("pdf")}>
-        {busy === "pdf" ? "…" : "Export PDF"}
-      </button>
-      {err && <span className={s.error}>{err}</span>}
-    </span>
+    <>
+      {(["csv", "pdf"] as const).map((format) => (
+        <button
+          key={format}
+          type="button"
+          className={`${s.btn} ${s.btnGhost}`}
+          disabled={busy !== null}
+          onClick={() => run(format)}
+          aria-label={`Export ${format.toUpperCase()}`}
+        >
+          <Icon name="download" size={15} />
+          {busy === format ? "Exporting…" : format.toUpperCase()}
+        </button>
+      ))}
+      {err && <span className={s.error} style={{ margin: 0 }}>{err}</span>}
+    </>
   );
 }

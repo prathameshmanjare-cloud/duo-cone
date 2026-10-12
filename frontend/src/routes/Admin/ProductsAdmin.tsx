@@ -7,6 +7,7 @@ import { formatPrice } from "../../lib/format";
 import { ExportButtons } from "./ExportButtons";
 import { ConfirmModal } from "./ConfirmModal";
 import { usePrefersReducedMotion } from "./motionPrefs";
+import { DeleteButton, EmptyRow, Icon, PageHeader, Pager, SearchField, TableSkeleton } from "./ui";
 import s from "./Admin.module.css";
 
 const PAGE_SIZE = 50;
@@ -41,25 +42,28 @@ export function ProductsAdmin() {
     onSuccess: invalidate,
   });
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
-
   return (
     <>
-      <div className={s.row} style={{ justifyContent: "space-between" }}>
-        <h1 className={s.h1}>Products &amp; stock</h1>
-        <span className={s.actions}>
-          <ExportButtons
-            resource="products"
-            params={{
-              q: params.q,
-              is_active: params.is_active,
-              is_rfq_only: params.is_rfq_only,
-              stock: params.stock,
-            }}
-          />
-          <Link className={s.btn} to="/admin/products/new">+ New product</Link>
-        </span>
-      </div>
+      <PageHeader
+        title="Products & stock"
+        subtitle="Prices and stock save as soon as you leave a field."
+        actions={
+          <>
+            <ExportButtons
+              resource="products"
+              params={{
+                q: params.q,
+                is_active: params.is_active,
+                is_rfq_only: params.is_rfq_only,
+                stock: params.stock,
+              }}
+            />
+            <Link className={s.btn} to="/admin/products/new">
+              <Icon name="plus" /> New product
+            </Link>
+          </>
+        }
+      />
 
       <form
         className={s.toolbar}
@@ -69,37 +73,42 @@ export function ProductsAdmin() {
           setSearch(q);
         }}
       >
-        <input
-          className={s.input}
-          placeholder="Search name / SKU / slug"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        <select className={s.select} value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
+        <SearchField value={q} onChange={setQ} placeholder="Search name, SKU or slug" />
+        <select
+          className={s.select}
+          aria-label="Filter by status"
+          value={status}
+          onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+        >
           <option value="">All statuses</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
           <option value="rfq">Quote-only</option>
         </select>
-        <select className={s.select} value={stock} onChange={(e) => { setStock(e.target.value); setPage(1); }}>
+        <select
+          className={s.select}
+          aria-label="Filter by stock"
+          value={stock}
+          onChange={(e) => { setStock(e.target.value); setPage(1); }}
+        >
           <option value="">Any stock</option>
           <option value="out">Out of stock</option>
           <option value="low">Low (≤5)</option>
         </select>
-        <button className={s.btn} type="submit">Filter</button>
+        <button className={`${s.btn} ${s.btnGhost}`} type="submit">Search</button>
       </form>
 
-      {isLoading && <p className={s.muted}>Loading…</p>}
+      {isLoading && <TableSkeleton cols={7} />}
       {error && <p className={s.error}>{(error as Error).message}</p>}
+      {del.error && <p className={s.error}>{(del.error as Error).message}</p>}
 
       {data && (
         <>
           <div className={s.tableWrap}>
-            <table className={s.table}>
+            <table className={`${s.table} ${s.tableStack}`}>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>SKU</th>
+                  <th>Product</th>
                   <th>Price</th>
                   <th>Sale</th>
                   <th>Stock</th>
@@ -115,29 +124,12 @@ export function ProductsAdmin() {
                   ))}
                 </AnimatePresence>
                 {data.items.length === 0 && (
-                  <tr>
-                    <td colSpan={8} className={s.muted}>No products match.</td>
-                  </tr>
+                  <EmptyRow colSpan={7} title="No products match" hint="Clear the filters or add a new product." />
                 )}
               </tbody>
             </table>
           </div>
-
-          <div className={s.pager}>
-            <button className={`${s.btn} ${s.btnGhost}`} disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Prev
-            </button>
-            <span className={s.muted}>
-              Page {page} / {totalPages} · {data.total} total
-            </span>
-            <button
-              className={`${s.btn} ${s.btnGhost}`}
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-            </button>
-          </div>
+          <Pager page={page} pageSize={PAGE_SIZE} total={data.total} onPage={setPage} />
         </>
       )}
     </>
@@ -220,23 +212,30 @@ function ProductRow({
       exit={reduceMotion ? undefined : { opacity: 0, x: -12 }}
       transition={{ duration: reduceMotion ? 0 : 0.18 }}
     >
-      <td>
-        <Link to={`/admin/products/${product.id}`}>{product.name}</Link>
-        {msg && <span className={s.muted}> · {msg}</span>}
+      <td data-primary>
+        <span className={s.cellStack}>
+          <span>
+            <Link to={`/admin/products/${product.id}`}>{product.name}</Link>
+            {msg && <span className={s.savedTag}>{msg}</span>}
+          </span>
+          <small className={s.code}>{product.sku}</small>
+        </span>
       </td>
-      <td className={s.muted}>{product.sku}</td>
-      <td>
+      <td data-label={`Price (${product.currency})`}>
         <input
           className={s.cellInput}
+          aria-label={`Price for ${product.name}`}
+          title={`Current: ${formatPrice(product.price_cents, product.currency)}`}
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           onBlur={savePrice}
           inputMode="decimal"
         />
       </td>
-      <td>
+      <td data-label="Sale price">
         <input
           className={s.cellInput}
+          aria-label={`Sale price for ${product.name}`}
           value={sale}
           placeholder="—"
           onChange={(e) => setSale(e.target.value)}
@@ -244,44 +243,45 @@ function ProductRow({
           inputMode="decimal"
         />
       </td>
-      <td>
-        <input
-          className={s.cellInput}
-          value={qty}
-          onChange={(e) => setQty(e.target.value)}
-          onBlur={saveQty}
-          inputMode="numeric"
-        />
-        <span className={`${s.badge} ${stockQty <= 0 ? s.badgeDanger : stockQty <= 5 ? s.badgeWarn : s.badgeOk}`}>
-          {stockQty <= 0 ? "out" : stockQty <= 5 ? "low" : "ok"}
+      <td data-label="Stock">
+        <span className={s.cellInline}>
+          <input
+            className={s.cellInput}
+            style={{ width: 68 }}
+            aria-label={`Stock for ${product.name}`}
+            value={qty}
+            onChange={(e) => setQty(e.target.value)}
+            onBlur={saveQty}
+            inputMode="numeric"
+          />
+          <span className={s.badge} data-tone={stockQty <= 0 ? "danger" : stockQty <= 5 ? "warn" : "ok"}>
+            {stockQty <= 0 ? "Out" : stockQty <= 5 ? "Low" : "In stock"}
+          </span>
         </span>
       </td>
-      <td>
+      <td data-label="Active">
         <input
           type="checkbox"
+          className={s.switch}
+          aria-label={`${product.name} active`}
           checked={product.is_active}
           onChange={(e) => patch.mutate({ is_active: e.target.checked })}
         />
       </td>
-      <td>
+      <td data-label="Quote-only">
         <input
           type="checkbox"
+          className={s.switch}
+          aria-label={`${product.name} quote-only`}
           checked={product.is_rfq_only}
           onChange={(e) => patch.mutate({ is_rfq_only: e.target.checked })}
         />
       </td>
-      <td className={s.actions}>
-        <span className={s.muted} title={`current: ${formatPrice(product.price_cents, product.currency)}`}>
-          {product.currency}
-        </span>
-        <motion.button
-          className={`${s.btn} ${s.btnDanger}`}
-          onClick={() => setConfirming(true)}
-          whileHover={reduceMotion ? undefined : { scale: 1.05 }}
-          whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-        >
-          Del
-        </motion.button>
+      <td className={s.cellActions}>
+        <Link className={`${s.btn} ${s.btnGhost} ${s.btnSm}`} to={`/admin/products/${product.id}`}>
+          Edit
+        </Link>
+        <DeleteButton label={`Delete ${product.name}`} onClick={() => setConfirming(true)} />
       </td>
       {confirming && (
         <ConfirmModal

@@ -56,7 +56,7 @@ export function PasswordModal({
             autoFocus
           />
         </div>
-        <div className={s.field} style={{ marginTop: "var(--space-3)" }}>
+        <div className={s.field} style={{ marginTop: 14 }}>
           <label htmlFor="cp">Confirm password</label>
           <input
             id="cp"
@@ -67,12 +67,12 @@ export function PasswordModal({
             onChange={(e) => setConfirm(e.target.value)}
           />
         </div>
-        <label className={s.row} style={{ marginTop: "var(--space-3)", fontSize: "0.88rem" }}>
-          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> Show
-          passwords
+        <label className={s.switchLabel} style={{ marginTop: 14 }}>
+          <input type="checkbox" className={s.check} checked={show} onChange={(e) => setShow(e.target.checked)} />
+          Show passwords
         </label>
 
-        {(localErr || error) && <p className={s.error}>{localErr || error}</p>}
+        {(localErr || error) && <p className={s.error} style={{ margin: "16px 0 0" }}>{localErr || error}</p>}
 
         <div className={s.modalActions}>
           <button type="button" className={`${s.btn} ${s.btnGhost}`} onClick={onClose}>

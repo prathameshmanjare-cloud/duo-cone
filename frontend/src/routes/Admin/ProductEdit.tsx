@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { adminApi, type ProductImageRow } from "../../lib/adminApi";
 import { ConfirmModal } from "./ConfirmModal";
 import { usePrefersReducedMotion } from "./motionPrefs";
+import { DeleteButton, EmptyRow, Icon, PageHeader } from "./ui";
 import s from "./Admin.module.css";
 
 type Form = Record<string, string | boolean>;
@@ -38,6 +39,18 @@ const TEXT_FIELDS: { key: string; label: string; full?: boolean; textarea?: bool
   { key: "seo_description", label: "SEO description", full: true, textarea: true },
   { key: "short_description", label: "Short description", full: true, textarea: true },
   { key: "description_html", label: "Description HTML", full: true, textarea: true },
+];
+
+const SPEC_KEYS = [
+  "material",
+  "oring_material",
+  "hardness_hrc",
+  "lifetime_hours",
+  "inner_diameter_mm",
+  "outer_diameter_mm",
+  "height_mm",
+  "weight_g",
+  "warranty_months",
 ];
 
 export function ProductEdit() {
@@ -134,100 +147,148 @@ export function ProductEdit() {
     onError: (e) => setError((e as Error).message),
   });
 
-  if (!isNew && existing.isLoading) return <p className={s.muted}>Loading…</p>;
+  if (!isNew && existing.isLoading) return <span className={s.spinner} />;
+
+  const field = (key: string) => {
+    const f = TEXT_FIELDS.find((x) => x.key === key)!;
+    return (
+      <div key={f.key} className={`${s.field} ${f.full ? s.full : ""}`}>
+        <label htmlFor={`pf-${f.key}`}>{f.label}</label>
+        {f.textarea ? (
+          <textarea
+            id={`pf-${f.key}`}
+            className={`${s.textarea} ${f.key === "description_html" ? s.mono : ""}`}
+            style={f.key === "description_html" ? { minHeight: 180 } : undefined}
+            value={String(form[f.key] ?? "")}
+            onChange={(e) => set(f.key, e.target.value)}
+          />
+        ) : (
+          <input
+            id={`pf-${f.key}`}
+            className={s.input}
+            value={String(form[f.key] ?? "")}
+            onChange={(e) => set(f.key, e.target.value)}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
-      <h1 className={s.h1}>{isNew ? "New product" : `Edit — ${existing.data?.name ?? ""}`}</h1>
+      <PageHeader
+        back={{ to: "/admin/products", label: "Products & stock" }}
+        title={isNew ? "New product" : existing.data?.name ?? "Edit product"}
+        subtitle={isNew ? "Create a catalog entry. Images and cross-references can be added after saving." : existing.data?.sku}
+      />
       {error && <p className={s.error}>{error}</p>}
 
       <form
-        className={`${s.card}`}
-        style={{ padding: "var(--space-5)" }}
+        className={`${s.card} ${s.cardPad}`}
         onSubmit={(e) => {
           e.preventDefault();
           setError(null);
           save.mutate();
         }}
       >
-        <div className={s.formGrid}>
-          <div className={s.field}>
-            <label>Seal type</label>
-            <select className={s.select} value={String(form.seal_type)} onChange={(e) => set("seal_type", e.target.value)}>
-              <option value="DF">DF</option>
-              <option value="DO">DO</option>
-              <option value="other">other</option>
-            </select>
-          </div>
-          <div className={s.field}>
-            <label>Brand</label>
-            <select className={s.select} value={String(form.brand_id)} onChange={(e) => set("brand_id", e.target.value)}>
-              <option value="">— none —</option>
-              {brands.data?.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={s.field}>
-            <label>Price ({String(form.currency)})</label>
-            <input className={s.input} value={String(form.price_cents)} onChange={(e) => set("price_cents", e.target.value)} inputMode="decimal" />
-          </div>
-          <div className={s.field}>
-            <label>Sale price (blank = none)</label>
-            <input className={s.input} value={String(form.sale_price_cents)} onChange={(e) => set("sale_price_cents", e.target.value)} inputMode="decimal" />
-          </div>
-          <div className={s.field}>
-            <label>Currency</label>
-            <input className={s.input} value={String(form.currency)} onChange={(e) => set("currency", e.target.value)} maxLength={3} />
-          </div>
-          <div className={s.field}>
-            <label>Tax class</label>
-            <input className={s.input} value={String(form.tax_class)} onChange={(e) => set("tax_class", e.target.value)} />
-          </div>
-          {isNew && (
+        <section className={s.formSection}>
+          <h2 className={s.formSectionTitle}>Basics</h2>
+          <div className={s.formGrid}>
+            {field("name")}
+            {field("sku")}
+            {field("slug")}
             <div className={s.field}>
-              <label>Initial stock qty</label>
-              <input className={s.input} value={String(form.stock_qty)} onChange={(e) => set("stock_qty", e.target.value)} inputMode="numeric" />
+              <label htmlFor="pf-seal">Seal type</label>
+              <select id="pf-seal" className={s.select} value={String(form.seal_type)} onChange={(e) => set("seal_type", e.target.value)}>
+                <option value="DF">DF</option>
+                <option value="DO">DO</option>
+                <option value="other">Other</option>
+              </select>
             </div>
-          )}
-
-          {TEXT_FIELDS.map((f) => (
-            <div key={f.key} className={`${s.field} ${f.full ? s.full : ""}`}>
-              <label>{f.label}</label>
-              {f.textarea ? (
-                <textarea
-                  className={s.textarea}
-                  value={String(form[f.key] ?? "")}
-                  onChange={(e) => set(f.key, e.target.value)}
-                />
-              ) : (
-                <input
-                  className={s.input}
-                  value={String(form[f.key] ?? "")}
-                  onChange={(e) => set(f.key, e.target.value)}
-                />
-              )}
+            <div className={s.field}>
+              <label htmlFor="pf-brand">Brand</label>
+              <select id="pf-brand" className={s.select} value={String(form.brand_id)} onChange={(e) => set("brand_id", e.target.value)}>
+                <option value="">None</option>
+                {brands.data?.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
-
-          <div className={`${s.field} ${s.full} ${s.row}`}>
-            <label className={s.row}>
-              <input type="checkbox" checked={Boolean(form.is_active)} onChange={(e) => set("is_active", e.target.checked)} /> Active
-            </label>
-            <label className={s.row}>
-              <input type="checkbox" checked={Boolean(form.is_rfq_only)} onChange={(e) => set("is_rfq_only", e.target.checked)} /> Quote-only (RFQ)
-            </label>
+            {field("internal_code")}
+            <div className={`${s.field} ${s.full}`}>
+              <div className={s.row} style={{ gap: 24 }}>
+                <label className={s.switchLabel}>
+                  <input type="checkbox" className={s.switch} checked={Boolean(form.is_active)} onChange={(e) => set("is_active", e.target.checked)} />
+                  Active on storefront
+                </label>
+                <label className={s.switchLabel}>
+                  <input type="checkbox" className={s.switch} checked={Boolean(form.is_rfq_only)} onChange={(e) => set("is_rfq_only", e.target.checked)} />
+                  Quote-only (RFQ)
+                </label>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className={s.row} style={{ marginTop: "var(--space-5)" }}>
-          <button className={s.btn} type="submit" disabled={save.isPending}>
-            {save.isPending ? "Saving…" : isNew ? "Create product" : "Save changes"}
-          </button>
+        <section className={s.formSection}>
+          <h2 className={s.formSectionTitle}>Pricing</h2>
+          <div className={`${s.formGrid} ${s.formGrid3}`}>
+            <div className={s.field}>
+              <label htmlFor="pf-price">Price ({String(form.currency)})</label>
+              <input id="pf-price" className={s.input} value={String(form.price_cents)} onChange={(e) => set("price_cents", e.target.value)} inputMode="decimal" />
+            </div>
+            <div className={s.field}>
+              <label htmlFor="pf-sale">Sale price</label>
+              <input id="pf-sale" className={s.input} placeholder="None" value={String(form.sale_price_cents)} onChange={(e) => set("sale_price_cents", e.target.value)} inputMode="decimal" />
+            </div>
+            <div className={s.field}>
+              <label htmlFor="pf-currency">Currency</label>
+              <input id="pf-currency" className={s.input} value={String(form.currency)} onChange={(e) => set("currency", e.target.value)} maxLength={3} />
+            </div>
+            <div className={s.field}>
+              <label htmlFor="pf-tax">Tax class</label>
+              <input id="pf-tax" className={s.input} value={String(form.tax_class)} onChange={(e) => set("tax_class", e.target.value)} />
+            </div>
+            {isNew && (
+              <div className={s.field}>
+                <label htmlFor="pf-stock">Initial stock qty</label>
+                <input id="pf-stock" className={s.input} value={String(form.stock_qty)} onChange={(e) => set("stock_qty", e.target.value)} inputMode="numeric" />
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className={s.formSection}>
+          <h2 className={s.formSectionTitle}>Specifications</h2>
+          <div className={`${s.formGrid} ${s.formGrid3}`}>
+            {SPEC_KEYS.map(field)}
+          </div>
+        </section>
+
+        <section className={s.formSection}>
+          <h2 className={s.formSectionTitle}>Description</h2>
+          <div className={s.formGrid}>
+            {field("short_description")}
+            {field("description_html")}
+          </div>
+        </section>
+
+        <section className={s.formSection}>
+          <h2 className={s.formSectionTitle}>SEO</h2>
+          <div className={s.formGrid}>
+            {field("seo_title")}
+            {field("seo_description")}
+          </div>
+        </section>
+
+        <div className={s.formFooter}>
           <button type="button" className={`${s.btn} ${s.btnGhost}`} onClick={() => navigate("/admin/products")}>
             Cancel
+          </button>
+          <button className={s.btn} type="submit" disabled={save.isPending}>
+            {save.isPending ? "Saving…" : isNew ? "Create product" : "Save changes"}
           </button>
         </div>
       </form>
@@ -263,31 +324,36 @@ function CrossRefEditor({ productId }: { productId: string }) {
   });
 
   return (
-    <div className={s.card} style={{ padding: "var(--space-5)", marginTop: "var(--space-5)" }}>
-      <h2 style={{ marginTop: 0 }}>Cross-references (OEM / competitor part numbers)</h2>
+    <div className={`${s.card} ${s.cardPad} ${s.section}`}>
+      <h2 className={s.cardTitle}>Cross-references</h2>
+      <p className={s.cardSub}>OEM and competitor part numbers this product replaces.</p>
       {msg && <p className={s.error}>{msg}</p>}
-      <div className={s.toolbar}>
-        <input className={s.input} placeholder="Reference no." value={ref} onChange={(e) => setRef(e.target.value)} />
-        <input className={s.input} placeholder="Ref brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
-        <input className={s.input} placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
+      <div className={s.inlineForm} style={{ marginBottom: 16 }}>
+        <input className={s.input} aria-label="Reference number" placeholder="Reference no." value={ref} onChange={(e) => setRef(e.target.value)} />
+        <input className={s.input} aria-label="Reference brand" placeholder="Brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
+        <input className={s.input} aria-label="Note" placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
         <button className={s.btn} disabled={!ref || add.isPending} onClick={() => { setMsg(null); add.mutate(); }}>
-          Add
+          <Icon name="plus" /> Add
         </button>
       </div>
-      <table className={s.table}>
-        <thead><tr><th>Reference</th><th>Brand</th><th>Note</th><th></th></tr></thead>
-        <tbody>
-          {data?.map((r) => (
-            <tr key={r.id}>
-              <td>{r.ref_number}</td>
-              <td>{r.ref_brand ?? "—"}</td>
-              <td>{r.note ?? "—"}</td>
-              <td><button className={`${s.btn} ${s.btnDanger}`} onClick={() => del.mutate(r.id)}>Del</button></td>
-            </tr>
-          ))}
-          {data?.length === 0 && <tr><td colSpan={4} className={s.muted}>None yet.</td></tr>}
-        </tbody>
-      </table>
+      <div className={s.tableWrap}>
+        <table className={`${s.table} ${s.tableStack}`}>
+          <thead><tr><th>Reference</th><th>Brand</th><th>Note</th><th></th></tr></thead>
+          <tbody>
+            {data?.map((r) => (
+              <tr key={r.id}>
+                <td data-primary><span className={s.code}>{r.ref_number}</span></td>
+                <td data-label="Brand">{r.ref_brand ?? "—"}</td>
+                <td data-label="Note" className={s.wrap}>{r.note ?? "—"}</td>
+                <td className={s.cellActions}>
+                  <DeleteButton label={`Remove ${r.ref_number}`} onClick={() => del.mutate(r.id)} />
+                </td>
+              </tr>
+            ))}
+            {data?.length === 0 && <EmptyRow colSpan={4} title="No cross-references yet" />}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -339,13 +405,16 @@ function ImageEditor({ productId }: { productId: string }) {
   }
 
   return (
-    <div className={s.card} style={{ padding: "var(--space-5)", marginTop: "var(--space-5)" }}>
-      <h2 style={{ marginTop: 0 }}>Images</h2>
+    <div className={`${s.card} ${s.cardPad} ${s.section}`}>
+      <h2 className={s.cardTitle}>Images</h2>
+      <p className={s.cardSub}>The first image is the storefront thumbnail.</p>
       {msg && <p className={s.error}>{msg}</p>}
 
       <div className={s.toolbar} style={{ alignItems: "center" }}>
         <input
           type="file"
+          className={s.fileInput}
+          aria-label="Choose image file"
           accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
           onChange={(e) => { setMsg(null); setFile(e.target.files?.[0] ?? null); }}
         />
@@ -353,7 +422,7 @@ function ImageEditor({ productId }: { productId: string }) {
           <img
             src={URL.createObjectURL(file)}
             alt=""
-            style={{ height: 40, width: 40, objectFit: "cover", borderRadius: 6 }}
+            className={s.thumb}
           />
         )}
         <motion.button
@@ -367,16 +436,19 @@ function ImageEditor({ productId }: { productId: string }) {
         </motion.button>
       </div>
 
-      <p className={s.muted} style={{ margin: "6px 0 10px" }}>
-        …or add an image already hosted somewhere:
+      <p className={s.fieldLabel} style={{ margin: "4px 0 8px" }}>
+        Or add an image that is already hosted
       </p>
-      <div className={s.toolbar}>
-        <input className={s.input} placeholder="Image URL or /path" value={url} onChange={(e) => setUrl(e.target.value)} />
-        <input className={s.input} placeholder="Alt text" value={alt} onChange={(e) => setAlt(e.target.value)} />
-        <input className={s.input} style={{ width: 70 }} placeholder="pos" value={pos} onChange={(e) => setPos(e.target.value)} inputMode="numeric" />
-        <button className={s.btn} disabled={!url || add.isPending} onClick={() => { setMsg(null); add.mutate(); }}>Add</button>
+      <div className={s.inlineForm} style={{ marginBottom: 16 }}>
+        <input className={s.input} aria-label="Image URL" placeholder="Image URL or /path" value={url} onChange={(e) => setUrl(e.target.value)} />
+        <input className={s.input} aria-label="Alt text" placeholder="Alt text" value={alt} onChange={(e) => setAlt(e.target.value)} />
+        <input className={s.input} aria-label="Position" placeholder="Position" value={pos} onChange={(e) => setPos(e.target.value)} inputMode="numeric" />
+        <button className={`${s.btn} ${s.btnGhost}`} disabled={!url || add.isPending} onClick={() => { setMsg(null); add.mutate(); }}>
+          <Icon name="plus" /> Add
+        </button>
       </div>
-      <table className={s.table}>
+      <div className={s.tableWrap}>
+      <table className={`${s.table} ${s.tableStack}`}>
         <thead><tr><th>Preview</th><th>URL</th><th>Alt</th><th>Pos</th><th>Order</th><th></th></tr></thead>
         <tbody>
           <AnimatePresence initial={false}>
@@ -389,39 +461,44 @@ function ImageEditor({ productId }: { productId: string }) {
                 exit={reduceMotion ? undefined : { opacity: 0, x: -12 }}
                 transition={{ duration: reduceMotion ? 0 : 0.18 }}
               >
-                <td><img src={img.url} alt={img.alt ?? ""} style={{ height: 40, width: 40, objectFit: "cover" }} /></td>
-                <td style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis" }}>{img.url}</td>
-                <td>{img.alt ?? "—"}</td>
-                <td>{img.position}</td>
-                <td className={s.row}>
-                  <button
-                    type="button"
-                    className={`${s.btn} ${s.btnGhost}`}
-                    disabled={i === 0 || reorder.isPending}
-                    onClick={() => move(i, -1)}
-                    title="Move up"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className={`${s.btn} ${s.btnGhost}`}
-                    disabled={i === images.length - 1 || reorder.isPending}
-                    onClick={() => move(i, 1)}
-                    title="Move down"
-                  >
-                    ↓
-                  </button>
+                <td data-primary><img src={img.url} alt={img.alt ?? ""} className={s.thumb} /></td>
+                <td data-label="URL" className={`${s.truncate} ${s.muted}`} title={img.url}>{img.url}</td>
+                <td data-label="Alt">{img.alt ?? "—"}</td>
+                <td data-label="Position" className={s.num}>{img.position}</td>
+                <td data-label="Order">
+                  <span className={s.actions}>
+                    <button
+                      type="button"
+                      className={`${s.iconBtn} ${s.iconBtnBordered}`}
+                      disabled={i === 0 || reorder.isPending}
+                      onClick={() => move(i, -1)}
+                      aria-label="Move up"
+                      title="Move up"
+                    >
+                      <Icon name="arrowUp" />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${s.iconBtn} ${s.iconBtnBordered}`}
+                      disabled={i === images.length - 1 || reorder.isPending}
+                      onClick={() => move(i, 1)}
+                      aria-label="Move down"
+                      title="Move down"
+                    >
+                      <Icon name="arrowDown" />
+                    </button>
+                  </span>
                 </td>
-                <td>
-                  <button className={`${s.btn} ${s.btnDanger}`} onClick={() => setDeleting(img)}>Del</button>
+                <td className={s.cellActions}>
+                  <DeleteButton label="Delete image" onClick={() => setDeleting(img)} />
                 </td>
               </motion.tr>
             ))}
           </AnimatePresence>
-          {images.length === 0 && <tr><td colSpan={6} className={s.muted}>No images.</td></tr>}
+          {images.length === 0 && <EmptyRow colSpan={6} title="No images yet" hint="Upload a photo or add a hosted URL above." />}
         </tbody>
       </table>
+      </div>
 
       {deleting && (
         <ConfirmModal

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { adminApi, type SecretFingerprint } from "../../lib/adminApi";
 import { usePrefersReducedMotion } from "./motionPrefs";
+import { Icon, PageHeader } from "./ui";
 import s from "./Admin.module.css";
 
 const TEMPLATE_PLACEHOLDERS: Record<string, string[]> = {
@@ -44,19 +45,22 @@ export function EmailSettingsAdmin() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reduceMotion ? 0 : 0.25 }}
     >
-      <h1 className={s.h1}>Email &amp; SMTP settings</h1>
-      <p className={s.muted} style={{ marginTop: -8, marginBottom: "var(--space-5)" }}>
-        Configured via environment variables on the server. This page shows the effective
-        configuration (secrets masked) and lets you send a test message. There is no runtime
-        override store yet — to change a value, update the server's env vars and redeploy.
-      </p>
+      <PageHeader
+        title="Email & SMTP settings"
+        subtitle="Configured via environment variables on the server. This page shows the effective configuration (secrets masked) and lets you send a test message. To change a value, update the server's env vars and redeploy."
+      />
 
-      {isLoading && <p className={s.muted}>Loading…</p>}
+      {isLoading && <span className={s.spinner} />}
       {error && <p className={s.error}>{(error as Error).message}</p>}
 
       {data && (
-        <div className={s.card} style={{ padding: "var(--space-5)" }}>
-          <div className={s.formGrid}>
+        <div className={`${s.card} ${s.cardPad}`}>
+          <h2 className={s.cardTitle}>Delivery configuration</h2>
+          <p className={s.cardSub}>
+            Sending through <strong>{data.effective_provider}</strong>
+            {data.effective_provider !== data.provider && ` (configured: ${data.provider})`}. Read-only.
+          </p>
+          <div className={`${s.formGrid} ${s.formGrid3}`}>
             <Field label="Configured provider" value={data.provider} />
             <Field label="Effective provider" value={data.effective_provider} hint="falls back to 'console' (log only) when the selected provider has no credentials" />
             <Field label="From address" value={data.email_from} />
@@ -75,9 +79,9 @@ export function EmailSettingsAdmin() {
         </div>
       )}
 
-      <div className={s.card} style={{ padding: "var(--space-5)", marginTop: "var(--space-5)" }}>
-        <h2 style={{ marginTop: 0 }}>Send a test email</h2>
-        <p className={s.muted}>
+      <div className={`${s.card} ${s.cardPad} ${s.section}`}>
+        <h2 className={s.cardTitle}>Send a test email</h2>
+        <p className={s.cardSub}>
           Sends a short message through the effective provider above, so you can verify
           credentials without digging through server logs.
         </p>
@@ -91,7 +95,9 @@ export function EmailSettingsAdmin() {
         >
           <input
             className={s.input}
+            style={{ flex: "1 1 240px", maxWidth: 360 }}
             type="email"
+            aria-label="Test recipient"
             placeholder="you@example.com"
             value={testTo}
             onChange={(e) => setTestTo(e.target.value)}
@@ -107,7 +113,7 @@ export function EmailSettingsAdmin() {
             {sendTest.isPending ? "Sending…" : "Send test email"}
           </motion.button>
         </form>
-        {testResult && <p className={s.muted} style={{ marginTop: "var(--space-3)" }}>{testResult}</p>}
+        {testResult && <p className={s.notice} style={{ margin: 0 }}>{testResult}</p>}
       </div>
 
       <NotificationRecipient reduceMotion={reduceMotion} />
@@ -139,9 +145,9 @@ function NotificationRecipient({ reduceMotion }: { reduceMotion: boolean }) {
   });
 
   return (
-    <div className={s.card} style={{ padding: "var(--space-5)", marginTop: "var(--space-5)" }}>
-      <h2 style={{ marginTop: 0 }}>Notification recipient</h2>
-      <p className={s.muted}>
+    <div className={`${s.card} ${s.cardPad} ${s.section}`}>
+      <h2 className={s.cardTitle}>Notification recipient</h2>
+      <p className={s.cardSub}>
         Internal alerts for new orders and new inquiries go here. Leave blank to fall back to the
         sales email above{data?.notify_email ? ` (currently ${data.notify_email})` : ""}.
       </p>
@@ -155,7 +161,9 @@ function NotificationRecipient({ reduceMotion }: { reduceMotion: boolean }) {
       >
         <input
           className={s.input}
+          style={{ flex: "1 1 240px", maxWidth: 360 }}
           type="email"
+          aria-label="Notification recipient"
           placeholder="alerts@example.com"
           value={value}
           onChange={(ev) => setValue(ev.target.value)}
@@ -171,7 +179,7 @@ function NotificationRecipient({ reduceMotion }: { reduceMotion: boolean }) {
           {save.isPending ? "Saving…" : "Save"}
         </motion.button>
       </form>
-      {saved && <p className={s.muted} style={{ marginTop: "var(--space-3)" }}>{saved}</p>}
+      {saved && <p className={s.notice} style={{ margin: 0 }}>{saved}</p>}
     </div>
   );
 }
@@ -184,27 +192,28 @@ function EmailTemplates({ reduceMotion }: { reduceMotion: boolean }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
 
   return (
-    <div className={s.card} style={{ padding: "var(--space-5)", marginTop: "var(--space-5)" }}>
-      <h2 style={{ marginTop: 0 }}>Templates</h2>
-      <p className={s.muted}>
+    <div className={`${s.card} ${s.cardPad} ${s.section}`}>
+      <h2 className={s.cardTitle}>Templates</h2>
+      <p className={s.cardSub}>
         Editable subject and HTML body for the transactional emails the site sends. Keys are
         fixed — only subject/body can be edited.
       </p>
-      {isLoading && <p className={s.muted}>Loading…</p>}
+      {isLoading && <span className={s.spinner} />}
       {error && <p className={s.error}>{(error as Error).message}</p>}
       <div className={s.attentionList}>
         {(data ?? []).map((tpl) => (
-          <div key={tpl.key}>
+          <div key={tpl.key} className={s.accordion}>
             <button
               type="button"
-              className={s.btn}
-              style={{ width: "100%", justifyContent: "space-between", display: "flex" }}
+              className={s.accordionBtn}
+              aria-expanded={openKey === tpl.key}
               onClick={() => setOpenKey(openKey === tpl.key ? null : tpl.key)}
             >
-              <span>
-                <strong>{tpl.key}</strong> — {tpl.subject}
+              <span className={s.cellStack}>
+                <span className={s.code}>{tpl.key}</span>
+                <small>{tpl.subject}</small>
               </span>
-              <span>{openKey === tpl.key ? "▲" : "▼"}</span>
+              <Icon name="chevronDown" className={`${s.chevron} ${openKey === tpl.key ? s.chevronOpen : ""}`} />
             </button>
             <AnimatePresence initial={false}>
               {openKey === tpl.key && (
@@ -255,29 +264,31 @@ function TemplateEditor({ templateKey }: { templateKey: string }) {
 
   const placeholders = TEMPLATE_PLACEHOLDERS[templateKey] ?? [];
 
-  if (isLoading) return <p className={s.muted}>Loading…</p>;
+  if (isLoading) return <div className={s.accordionBody}><span className={s.spinner} /></div>;
 
   return (
-    <div style={{ padding: "var(--space-4) 0" }}>
+    <div className={s.accordionBody}>
       {placeholders.length > 0 && (
-        <p className={s.muted} style={{ fontSize: "0.85em" }}>
-          Available: {placeholders.map((p) => `{{${p}}}`).join(", ")}
-        </p>
+        <div className={s.chipRow} aria-label="Available placeholders">
+          {placeholders.map((p) => (
+            <span key={p} className={s.chip}>{`{{${p}}}`}</span>
+          ))}
+        </div>
       )}
       <div className={s.field}>
         <label>Subject</label>
         <input className={s.input} value={subject} onChange={(e) => setSubject(e.target.value)} />
       </div>
-      <div className={s.field} style={{ marginTop: "var(--space-3)" }}>
+      <div className={s.field} style={{ marginTop: 14 }}>
         <label>HTML body</label>
         <textarea
-          className={s.textarea}
-          style={{ minHeight: 180, fontFamily: "monospace", fontSize: "0.85em" }}
+          className={`${s.textarea} ${s.mono}`}
+          style={{ minHeight: 200 }}
           value={htmlBody}
           onChange={(e) => setHtmlBody(e.target.value)}
         />
       </div>
-      <div className={s.field} style={{ marginTop: "var(--space-3)" }}>
+      <div className={s.field} style={{ marginTop: 14 }}>
         <label>Live preview</label>
         {/* sandboxed with no permissions: template HTML renders, but any
             script in it can't run or reach the admin session */}
@@ -285,16 +296,10 @@ function TemplateEditor({ templateKey }: { templateKey: string }) {
           title="Email template preview"
           sandbox=""
           srcDoc={htmlBody}
-          style={{
-            width: "100%",
-            height: 240,
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius-sm)",
-            background: "#fff",
-          }}
+          className={s.previewFrame}
         />
       </div>
-      <div className={s.toolbar} style={{ marginTop: "var(--space-3)" }}>
+      <div className={s.toolbar} style={{ margin: "14px 0 0" }}>
         <motion.button
           className={s.btn}
           type="button"
@@ -329,13 +334,12 @@ function Field({
   return (
     <div className={s.field}>
       <label>{label}</label>
-      <div className={s.row} style={{ gap: 6 }}>
+      <div className={s.row} style={{ gap: 6, flexWrap: "nowrap" }}>
         <input className={s.input} value={shown} readOnly title={hint} style={{ flex: 1 }} />
         {secret && isSet && (
           <button
             type="button"
-            className={s.btnGhost}
-            style={{ padding: "6px 10px", fontSize: "0.8rem" }}
+            className={`${s.btn} ${s.btnGhost} ${s.btnSm}`}
             onClick={() => setRevealed((r) => !r)}
           >
             {revealed ? "Hide" : "Show"}

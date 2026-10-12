@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { adminApi } from "../../lib/adminApi";
 import { useAuthStore } from "../../store/auth";
+import { PageHeader } from "./ui";
 import s from "./Admin.module.css";
 
 export function AdminAccount() {
@@ -34,20 +35,21 @@ export function AdminAccount() {
 
   return (
     <>
-      <h1 className={s.h1}>My account</h1>
+      <PageHeader title="My account" subtitle="Your profile and sign-in details." />
 
-      <div className={s.card} style={{ padding: "var(--space-5)", maxWidth: 520, marginBottom: "var(--space-5)" }}>
+      <div className={`${s.card} ${s.cardPad} ${s.narrow}`}>
+        <h2 className={s.panelTitle}>Profile</h2>
         <div className={s.miniRow}><span>Email</span><span className={s.miniVal}>{user?.email}</span></div>
         <div className={s.miniRow}><span>Name</span><span className={s.miniVal}>{user?.full_name ?? "—"}</span></div>
         <div className={s.miniRow}><span>Role</span><span className={s.miniVal}>{user?.is_admin ? "Administrator" : "User"}</span></div>
       </div>
 
       <form
-        className={s.card}
-        style={{ padding: "var(--space-5)", maxWidth: 520 }}
+        className={`${s.card} ${s.cardPad} ${s.narrow}`}
         onSubmit={submit}
       >
-        <h2 style={{ marginTop: 0 }}>Change password</h2>
+        <h2 className={s.cardTitle}>Change password</h2>
+        <p className={s.cardSub}>Use at least 8 characters.</p>
 
         <div className={s.field}>
           <label htmlFor="np">New password</label>
@@ -60,7 +62,7 @@ export function AdminAccount() {
             onChange={(e) => setPw(e.target.value)}
           />
         </div>
-        <div className={s.field} style={{ marginTop: "var(--space-3)" }}>
+        <div className={s.field} style={{ marginTop: 14 }}>
           <label htmlFor="cp">Confirm new password</label>
           <input
             id="cp"
@@ -71,15 +73,15 @@ export function AdminAccount() {
             onChange={(e) => setConfirm(e.target.value)}
           />
         </div>
-        <label className={s.row} style={{ marginTop: "var(--space-3)", fontSize: "0.88rem" }}>
-          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> Show
-          passwords
+        <label className={s.switchLabel} style={{ marginTop: 14 }}>
+          <input type="checkbox" className={s.check} checked={show} onChange={(e) => setShow(e.target.checked)} />
+          Show passwords
         </label>
 
-        {localErr && <p className={s.error}>{localErr}</p>}
-        {done && <p style={{ color: "var(--color-success)", fontWeight: 600 }}>Password updated.</p>}
+        {localErr && <p className={s.error} style={{ margin: "16px 0 0" }}>{localErr}</p>}
+        {done && <p className={s.notice} data-tone="ok" style={{ margin: "16px 0 0" }}>Password updated.</p>}
 
-        <div className={s.row} style={{ marginTop: "var(--space-4)" }}>
+        <div className={s.formFooter}>
           <button className={s.btn} type="submit" disabled={change.isPending}>
             {change.isPending ? "Saving…" : "Update password"}
           </button>

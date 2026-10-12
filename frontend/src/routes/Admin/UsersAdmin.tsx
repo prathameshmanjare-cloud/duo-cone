@@ -4,6 +4,8 @@ import { adminApi, type AdminUserRow } from "../../lib/adminApi";
 import { useAuthStore } from "../../store/auth";
 import { ExportButtons } from "./ExportButtons";
 import { PasswordModal } from "./PasswordModal";
+import { ConfirmModal } from "./ConfirmModal";
+import { DeleteButton, EmptyRow, Icon, PageHeader, Pager, SearchField, TableSkeleton, fmtDate } from "./ui";
 import s from "./Admin.module.css";
 
 const PAGE_SIZE = 50;
@@ -32,14 +34,13 @@ export function UsersAdmin() {
     qc.invalidateQueries({ queryKey: ["admin", "stats"] });
   };
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
-
   return (
     <>
-      <div className={s.row} style={{ justifyContent: "space-between" }}>
-        <h1 className={s.h1}>Users</h1>
-        <ExportButtons resource="users" params={params} />
-      </div>
+      <PageHeader
+        title="Users"
+        subtitle="Customer and administrator accounts."
+        actions={<ExportButtons resource="users" params={params} />}
+      />
 
       <form
         className={s.toolbar}
@@ -49,26 +50,31 @@ export function UsersAdmin() {
           setSearch(q);
         }}
       >
-        <input className={s.input} placeholder="Search email / name / company" value={q} onChange={(e) => setQ(e.target.value)} />
-        <select className={s.select} value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }}>
+        <SearchField value={q} onChange={setQ} placeholder="Search email, name or company" />
+        <select
+          className={s.select}
+          aria-label="Filter by role"
+          value={role}
+          onChange={(e) => { setRole(e.target.value); setPage(1); }}
+        >
           <option value="">Everyone</option>
           <option value="admin">Admins</option>
           <option value="customer">Customers</option>
           <option value="unverified">Unverified</option>
         </select>
-        <button className={s.btn} type="submit">Filter</button>
+        <button className={`${s.btn} ${s.btnGhost}`} type="submit">Search</button>
       </form>
 
-      {isLoading && <p className={s.muted}>Loading…</p>}
+      {isLoading && <TableSkeleton cols={7} />}
       {error && <p className={s.error}>{(error as Error).message}</p>}
 
       {data && (
         <>
           <div className={s.tableWrap}>
-            <table className={s.table}>
+            <table className={`${s.table} ${s.tableStack}`}>
               <thead>
                 <tr>
-                  <th>Email</th><th>Name</th><th>Company</th><th>Orders</th><th>RFQs</th>
+                  <th>User</th><th>Company</th><th className={s.right}>Orders</th><th className={s.right}>RFQs</th>
                   <th>Verified</th><th>Admin</th><th>Joined</th><th></th>
                 </tr>
               </thead>
@@ -77,16 +83,12 @@ export function UsersAdmin() {
                   <UserRow key={u.id} user={u} selfId={me?.id} onChanged={invalidate} />
                 ))}
                 {data.items.length === 0 && (
-                  <tr><td colSpan={9} className={s.muted}>No users.</td></tr>
+                  <EmptyRow colSpan={8} title="No users found" hint="Try a different search or role filter." />
                 )}
               </tbody>
             </table>
           </div>
-          <div className={s.pager}>
-            <button className={`${s.btn} ${s.btnGhost}`} disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Prev</button>
-            <span className={s.muted}>Page {page} / {totalPages} · {data.total} total</span>
-            <button className={`${s.btn} ${s.btnGhost}`} disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</button>
-          </div>
+          <Pager page={page} pageSize={PAGE_SIZE} total={data.total} onPage={setPage} />
         </>
       )}
     </>
@@ -105,6 +107,7 @@ function UserRow({
   const [msg, setMsg] = useState<string | null>(null);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetErr, setResetErr] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const isSelf = user.id === selfId;
 
   const patch = useMutation({
@@ -134,50 +137,65 @@ function UserRow({
 
   return (
     <tr>
-      <td>{user.email}{msg && <span className={s.muted}> · {msg}</span>}</td>
-      <td>{user.full_name ?? "—"}</td>
-      <td>{user.company_name ?? "—"}</td>
-      <td className={s.muted}>{user.order_count}</td>
-      <td className={s.muted}>{user.rfq_count}</td>
-      <td>
+      <td data-primary>
+        <span className={s.cellStack}>
+          <span className={s.strong}>
+            {user.full_name || user.email}
+            {isSelf && <span className={s.savedTag}>you</span>}
+            {msg && <span className={s.savedTag}>{msg}</span>}
+          </span>
+          {user.full_name && <small>{user.email}</small>}
+        </span>
+      </td>
+      <td data-label="Company">{user.company_name ?? "—"}</td>
+      <td data-label="Orders" className={`${s.right} ${s.num}`}>{user.order_count}</td>
+      <td data-label="RFQs" className={`${s.right} ${s.num}`}>{user.rfq_count}</td>
+      <td data-label="Verified">
         <input
           type="checkbox"
+          className={s.switch}
+          aria-label={`${user.email} verified`}
           checked={user.is_verified}
           onChange={(e) => patch.mutate({ is_verified: e.target.checked })}
         />
       </td>
-      <td>
+      <td data-label="Admin">
         <input
           type="checkbox"
+          className={s.switch}
+          aria-label={`${user.email} admin`}
           checked={user.is_admin}
           disabled={isSelf}
           title={isSelf ? "You cannot change your own admin flag" : ""}
           onChange={(e) => patch.mutate({ is_admin: e.target.checked })}
         />
       </td>
-      <td className={s.muted}>{user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}</td>
-      <td className={s.actions}>
+      <td data-label="Joined" className={s.muted}>{fmtDate(user.created_at)}</td>
+      <td className={s.cellActions}>
         <button
-          className={`${s.btn} ${s.btnGhost}`}
+          className={`${s.btn} ${s.btnGhost} ${s.btnSm}`}
           onClick={() => {
             setResetErr(null);
             setResetOpen(true);
           }}
         >
-          Reset PW
+          <Icon name="lock" size={14} /> Reset password
         </button>
-        {!isSelf && (
-          <button
-            className={`${s.btn} ${s.btnDanger}`}
-            onClick={() => {
-              if (confirm(`Delete ${user.email}? Their orders/RFQs stay but are unlinked.`)) del.mutate();
-            }}
-          >
-            Del
-          </button>
-        )}
+        {!isSelf && <DeleteButton label={`Delete ${user.email}`} onClick={() => setConfirming(true)} />}
       </td>
 
+      {confirming && (
+        <ConfirmModal
+          title="Delete user"
+          message={`Delete ${user.email}? Their orders and RFQs stay but are unlinked.`}
+          confirmLabel="Delete"
+          onConfirm={() => {
+            setConfirming(false);
+            del.mutate();
+          }}
+          onClose={() => setConfirming(false)}
+        />
+      )}
       {resetOpen && (
         <PasswordModal
           title="Reset password"
