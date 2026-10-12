@@ -134,10 +134,6 @@ export function Header() {
                 >
                   <IconLogout size={16} />
                 </button>
-                <button className={styles.cartBtn} onClick={openCart} aria-label={`Cart, ${count} items`}>
-                  <IconCart size={20} />
-                  {count > 0 && <span className={styles.badge}>{count}</span>}
-                </button>
               </>
             ) : (
               <Link to="/login" className={styles.signIn}>
@@ -145,6 +141,10 @@ export function Header() {
                 <span className={styles.signInLabel}>Sign in</span>
               </Link>
             )}
+            <button className={styles.cartBtn} onClick={openCart} aria-label={`Cart, ${count} items`}>
+              <IconCart size={20} />
+              {count > 0 && <span className={styles.badge}>{count}</span>}
+            </button>
           </div>
         </div>
         {menuOpen && (
