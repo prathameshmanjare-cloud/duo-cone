@@ -12,6 +12,7 @@ function AuthScreen({ mode }: { mode: Mode }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const next = params.get("next") || "/account";
+  const nextQuery = params.get("next") ? `?next=${encodeURIComponent(next)}` : "";
   const { login, register } = useSession();
 
   const [form, setForm] = useState({
@@ -110,10 +111,10 @@ function AuthScreen({ mode }: { mode: Mode }) {
           {mode === "login" ? (
             <>
               <Link to="/forgot-password">Forgot password?</Link> ·{" "}
-              <Link to="/register">Create account</Link>
+              <Link to={`/register${nextQuery}`}>Create account</Link>
             </>
           ) : (
-            <Link to="/login">Already have an account? Log in</Link>
+            <Link to={`/login${nextQuery}`}>Already have an account? Log in</Link>
           )}
         </p>
       </div>
