@@ -31,6 +31,7 @@ export function Checkout() {
   const { lines, subtotalCents, clear } = useCartStore();
   const navigate = useNavigate();
   const status = useSession((s) => s.status);
+  const user = useSession((s) => s.user);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [params] = useSearchParams();
   const cancelled = params.get("cancelled") === "1";
@@ -38,10 +39,23 @@ export function Checkout() {
     register,
     handleSubmit,
     watch,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
+  // prefill from the signed-in customer's profile, never over what they typed
+  useEffect(() => {
+    if (!user) return;
+    const fill = (field: "email" | "fullName" | "company", value: string | null) => {
+      if (value && !getValues(field)) setValue(field, value);
+    };
+    fill("email", user.email);
+    fill("fullName", user.full_name);
+    fill("company", user.company_name);
+  }, [user, getValues, setValue]);
+
   const countryCode = watch("countryCode");
   const cc = (countryCode || "").trim().toUpperCase();
   // outside Europe: no direct purchase, the customer sends an enquiry instead
