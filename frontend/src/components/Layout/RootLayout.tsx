@@ -8,12 +8,10 @@ import { CtaBanner } from "../CtaBanner/CtaBanner";
 import { CookieConsent } from "../CookieConsent/CookieConsent";
 import { ScrollProgress } from "../ScrollProgress/ScrollProgress";
 import { PageTransition } from "../PageTransition/PageTransition";
-import { useSession } from "../../store/session";
 import styles from "./RootLayout.module.css";
 
 export function RootLayout() {
   const location = useLocation();
-  const authed = useSession((s) => s.status === "authed");
   // these pages carry their own closing contact/CTA section
   const hideCta = location.pathname === "/contact" || location.pathname === "/about";
 
@@ -33,7 +31,7 @@ export function RootLayout() {
       </main>
       {!hideCta && <CtaBanner />}
       <Footer />
-      {authed && <CartDrawer />}
+      <CartDrawer />
       <ChatWidget />
       <WhatsAppButton />
       <CookieConsent />
