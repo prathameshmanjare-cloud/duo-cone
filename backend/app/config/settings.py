@@ -115,6 +115,9 @@ class Settings(BaseSettings):
         "Tel. +49 2171 362 9923  |  Fax  |  www.sapparts-europe.com"
     )
 
+    # where the admin "send delivery note" button mails the PDF (warehouse / dispatch)
+    delivery_note_email: str = "Sznober@sapparts.com"
+
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_whatsapp_from: str = ""

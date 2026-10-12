@@ -109,17 +109,12 @@ const qs = (params: Record<string, string | number | boolean | undefined>) => {
 };
 
 /** Fetch an export (csv|pdf) with auth and trigger a browser download. */
-export async function downloadExport(
-  resource: "products" | "orders" | "rfqs" | "users" | "brands" | "categories",
-  format: "csv" | "pdf",
-  params: Record<string, string | number | boolean | undefined> = {}
-): Promise<void> {
-  const res = await raw(`/admin/export/${resource}${qs({ ...params, fmt: format })}`, {});
+async function saveResponse(res: Response, fallbackName: string): Promise<void> {
   if (!res.ok) throw new AdminApiError(res.status, parseDetail(await res.text()));
   const blob = await res.blob();
   const cd = res.headers.get("Content-Disposition") ?? "";
   const match = /filename="?([^"]+)"?/.exec(cd);
-  const name = match ? match[1] : `${resource}.${format}`;
+  const name = match ? match[1] : fallbackName;
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -128,6 +123,20 @@ export async function downloadExport(
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+export async function downloadExport(
+  resource: "products" | "orders" | "rfqs" | "users" | "brands" | "categories",
+  format: "csv" | "pdf",
+  params: Record<string, string | number | boolean | undefined> = {}
+): Promise<void> {
+  const res = await raw(`/admin/export/${resource}${qs({ ...params, fmt: format })}`, {});
+  await saveResponse(res, `${resource}.${format}`);
+}
+
+export async function downloadDeliveryNote(order: AdminOrder): Promise<void> {
+  const res = await raw(`/admin/orders/${order.id}/delivery-note.pdf`, {});
+  await saveResponse(res, `Delivery-note-${order.delivery_note_number ?? order.number}.pdf`);
 }
 
 // ---------------------------------------------------------------- types ----
@@ -244,7 +253,20 @@ export interface AdminOrder {
   shipping_method: string | null;
   customer_note: string | null;
   created_at: string | null;
+  delivery_note_number: string | null;
+  delivery_note: DeliveryNoteDetails | null;
+  delivery_note_sent_at: string | null;
+  delivery_note_email: string;
   items: OrderItem[];
+}
+
+/** Shipment details an admin types in before the delivery note PDF is built. */
+export interface DeliveryNoteDetails {
+  packages?: string;
+  size?: string;
+  weight?: string;
+  hs_code?: string;
+  eori?: string;
 }
 
 export type RfqStatus = "new" | "quoted" | "won" | "lost" | "closed";
@@ -407,6 +429,11 @@ export const adminApi = {
   getOrder: (id: string) => req<AdminOrder>(`/admin/orders/${id}`),
   setOrderStatus: (id: string, status: OrderStatus) =>
     req<AdminOrder>(`/admin/orders/${id}`, { method: "PATCH", body: body({ status }) }),
+
+  saveDeliveryNote: (id: string, details: DeliveryNoteDetails) =>
+    req<AdminOrder>(`/admin/orders/${id}/delivery-note`, { method: "PUT", body: body(details) }),
+  sendDeliveryNote: (id: string) =>
+    req<AdminOrder>(`/admin/orders/${id}/delivery-note/send`, { method: "POST" }),
 
   listRfqs: (params: { q?: string; status?: string; page?: number; page_size?: number }) =>
     req<Paged<AdminRfq>>(`/admin/rfqs${qs(params)}`),

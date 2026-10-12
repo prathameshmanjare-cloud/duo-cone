@@ -100,6 +100,8 @@ class OrderStatus(str, enum.Enum):
 
 # Gap-tolerant counter behind Order.invoice_number (INV-<year>-<seq>).
 invoice_number_seq = Sequence("invoice_number_seq", metadata=Base.metadata)
+# Same idea for Order.delivery_note_number (DN-<year>-<seq>).
+delivery_note_number_seq = Sequence("delivery_note_number_seq", metadata=Base.metadata)
 
 
 class Order(Base):
@@ -128,6 +130,11 @@ class Order(Base):
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # assigned once, when the order first becomes paid; never reused
     invoice_number: Mapped[str | None] = mapped_column(String(40), unique=True, nullable=True)
+    # assigned when an admin first creates the delivery note; never reused
+    delivery_note_number: Mapped[str | None] = mapped_column(String(40), unique=True, nullable=True)
+    # shipment details typed in by the admin: packages, size, weight, hs_code, eori, issued_at
+    delivery_note: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    delivery_note_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

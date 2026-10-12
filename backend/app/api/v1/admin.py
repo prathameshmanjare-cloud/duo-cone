@@ -20,6 +20,7 @@ from fastapi import (
     HTTPException,
     Query,
     Request,
+    Response,
     UploadFile,
     status,
 )
@@ -35,6 +36,12 @@ from app.config.settings import get_settings
 from app.db.bootstrap import get_app_setting, set_app_setting
 from app.db.session import get_db
 from app.integrations.email import _effective_provider, send_email_diagnostic
+from app.integrations.email import Attachment, send_email
+from app.services.delivery_note import (
+    DEFAULT_HS_CODE,
+    assign_delivery_note_number,
+    build_delivery_note_pdf,
+)
 from app.services.invoice import assign_invoice_number, build_invoice_pdf
 from app.models.catalog import (
     Brand,
@@ -60,6 +67,7 @@ from app.schemas.admin import (
     InventoryIn,
     InventoryOut,
     OrderAdminOut,
+    DeliveryNoteIn,
     OrderStatusIn,
     PagedOrders,
     PagedProductsAdmin,
@@ -510,6 +518,86 @@ async def update_order_status(
             invoice_pdf=build_invoice_pdf(order),
             invoice_number=order.invoice_number,
         )
+    return OrderAdminOut.model_validate(order)
+
+
+# a delivery note only makes sense once the goods are paid for
+_DELIVERABLE = {OrderStatus.paid, OrderStatus.processing, OrderStatus.shipped, OrderStatus.completed}
+
+
+async def _deliverable_order(db: AsyncSession, order_id: uuid.UUID) -> Order:
+    order = (
+        await db.execute(
+            select(Order).where(Order.id == order_id).options(selectinload(Order.items))
+        )
+    ).scalar_one_or_none()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.status not in _DELIVERABLE:
+        raise HTTPException(status_code=409, detail="A delivery note needs a paid order")
+    return order
+
+
+@router.put("/orders/{order_id}/delivery-note", response_model=OrderAdminOut)
+async def save_delivery_note(
+    order_id: uuid.UUID, payload: DeliveryNoteIn, db: AsyncSession = Depends(get_db)
+) -> OrderAdminOut:
+    """Create the delivery note (assigning its number) or update its shipment details."""
+    order = await _deliverable_order(db, order_id)
+    details = {k: v.strip() for k, v in payload.model_dump().items() if v and v.strip()}
+    details.setdefault("hs_code", DEFAULT_HS_CODE)
+    details["issued_at"] = (order.delivery_note or {}).get("issued_at") or datetime.now(
+        timezone.utc
+    ).isoformat()
+    order.delivery_note = details
+    await assign_delivery_note_number(db, order)
+    await db.commit()
+    await db.refresh(order)
+    return OrderAdminOut.model_validate(order)
+
+
+@router.get("/orders/{order_id}/delivery-note.pdf")
+async def download_delivery_note(order_id: uuid.UUID, db: AsyncSession = Depends(get_db)) -> Response:
+    order = await _deliverable_order(db, order_id)
+    if not order.delivery_note_number:
+        raise HTTPException(status_code=404, detail="Create the delivery note first")
+    filename = f"Delivery-note-{order.delivery_note_number}.pdf"
+    return Response(
+        content=build_delivery_note_pdf(order),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/orders/{order_id}/delivery-note/send", response_model=OrderAdminOut)
+async def send_delivery_note(order_id: uuid.UUID, db: AsyncSession = Depends(get_db)) -> OrderAdminOut:
+    """Mail the delivery note PDF to the configured dispatch address."""
+    order = await _deliverable_order(db, order_id)
+    if not order.delivery_note_number:
+        raise HTTPException(status_code=404, detail="Create the delivery note first")
+    number = order.delivery_note_number
+    settings = get_settings()
+    sent = send_email(
+        to=settings.delivery_note_email,
+        subject=f"Delivery note {number} for order {order.number}",
+        html=(
+            f"<p>Delivery note <strong>{number}</strong> for order "
+            f"<strong>{order.number}</strong> is attached as a PDF.</p>"
+        ),
+        reply_to=settings.sales_email,
+        attachments=[
+            Attachment(
+                filename=f"Delivery-note-{number}.pdf",
+                content=build_delivery_note_pdf(order),
+                mime_type="application/pdf",
+            )
+        ],
+    )
+    if not sent:
+        raise HTTPException(status_code=502, detail="Email provider rejected the message — check Email settings")
+    order.delivery_note_sent_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(order)
     return OrderAdminOut.model_validate(order)
 
 

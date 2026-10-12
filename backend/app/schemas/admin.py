@@ -7,6 +7,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.config.settings import get_settings
 from app.models.catalog import BackorderPolicy, SealType, Segment
 from app.models.commerce import OrderStatus, RfqStatus
 
@@ -221,6 +222,11 @@ class OrderAdminOut(BaseModel):
     payment_method: str = "invoice"
     paid_at: datetime | None = None
     invoice_number: str | None = None
+    delivery_note_number: str | None = None
+    delivery_note: dict | None = None
+    delivery_note_sent_at: datetime | None = None
+    # not an Order column — the configured recipient, so the UI can label its send button
+    delivery_note_email: str = get_settings().delivery_note_email
     shipping_address: dict | None = None
     billing_address: dict | None = None
     shipping_method: str | None = None
@@ -239,6 +245,14 @@ class PagedOrders(BaseModel):
 
 class OrderStatusIn(BaseModel):
     status: OrderStatus
+
+
+class DeliveryNoteIn(BaseModel):
+    packages: str | None = Field(None, max_length=40)
+    size: str | None = Field(None, max_length=80)
+    weight: str | None = Field(None, max_length=40)
+    hs_code: str | None = Field(None, max_length=40)
+    eori: str | None = Field(None, max_length=40)
 
 
 # -------------------------------------------------------------------- rfqs ----

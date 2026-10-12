@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi, type AdminOrder, type OrderStatus } from "../../lib/adminApi";
+import {
+  adminApi,
+  downloadDeliveryNote,
+  type AdminOrder,
+  type DeliveryNoteDetails,
+  type OrderStatus,
+} from "../../lib/adminApi";
 import { formatPrice } from "../../lib/format";
 import { ExportButtons } from "./ExportButtons";
 import {
@@ -30,6 +36,8 @@ const STATUSES: OrderStatus[] = [
   "refunded",
 ];
 const PAGE_SIZE = 50;
+// a delivery note only exists for orders that have been paid
+const DELIVERABLE: OrderStatus[] = ["paid", "processing", "shipped", "completed"];
 
 export function OrdersAdmin() {
   const qc = useQueryClient();
@@ -190,6 +198,8 @@ function OrderDrawer({ id, onClose }: { id: string; onClose: () => void }) {
             <Totals order={data} />
           </DrawerSection>
 
+          {DELIVERABLE.includes(data.status) && <DeliveryNote key={data.delivery_note_number} order={data} />}
+
           <DrawerSection title="Shipping">
             <Address value={data.shipping_address} />
             {data.shipping_method && (
@@ -211,6 +221,93 @@ function OrderDrawer({ id, onClose }: { id: string; onClose: () => void }) {
         </>
       )}
     </Drawer>
+  );
+}
+
+const NOTE_FIELDS: { key: keyof DeliveryNoteDetails; label: string; placeholder: string }[] = [
+  { key: "packages", label: "No. of packages", placeholder: "1" },
+  { key: "weight", label: "Weight", placeholder: "3,10 KG" },
+  { key: "size", label: "Size", placeholder: "20x20x20 cm" },
+  { key: "hs_code", label: "HS code", placeholder: "84842000" },
+  { key: "eori", label: "Customer EORI", placeholder: "Optional" },
+];
+
+/** Create / download the delivery note PDF and mail it to dispatch. */
+function DeliveryNote({ order }: { order: AdminOrder }) {
+  const qc = useQueryClient();
+  const [details, setDetails] = useState<DeliveryNoteDetails>(order.delivery_note ?? {});
+  const created = order.delivery_note_number != null;
+
+  const onSaved = (o: AdminOrder) => {
+    qc.setQueryData(["admin", "order", order.id], o);
+    qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+  };
+  const saveMut = useMutation({
+    mutationFn: async () => {
+      const saved = await adminApi.saveDeliveryNote(order.id, details);
+      await downloadDeliveryNote(saved);
+      return saved;
+    },
+    onSuccess: onSaved,
+  });
+  const sendMut = useMutation({
+    // save first so the mailed PDF always carries what is on screen
+    mutationFn: async () => {
+      await adminApi.saveDeliveryNote(order.id, details);
+      return adminApi.sendDeliveryNote(order.id);
+    },
+    onSuccess: onSaved,
+  });
+  const busy = saveMut.isPending || sendMut.isPending;
+  const err = (saveMut.error ?? sendMut.error) as Error | null;
+
+  return (
+    <DrawerSection title="Delivery note">
+      {created && (
+        <p className={s.row} style={{ marginBottom: 12 }}>
+          <span className={s.code}>{order.delivery_note_number}</span>
+          {order.delivery_note_sent_at ? (
+            <StatusPill tone="ok">Sent {fmtDateTime(order.delivery_note_sent_at)}</StatusPill>
+          ) : (
+            <StatusPill tone="neutral">Not sent</StatusPill>
+          )}
+        </p>
+      )}
+      <div className={s.formGrid}>
+        {NOTE_FIELDS.map((f) => (
+          <div className={s.field} key={f.key}>
+            <label htmlFor={`dn-${f.key}`}>{f.label}</label>
+            <input
+              id={`dn-${f.key}`}
+              className={s.input}
+              placeholder={f.placeholder}
+              value={details[f.key] ?? ""}
+              onChange={(e) => setDetails({ ...details, [f.key]: e.target.value })}
+            />
+          </div>
+        ))}
+      </div>
+      {err && <p className={s.error} style={{ margin: "12px 0 0" }}>{err.message}</p>}
+      <div className={s.row} style={{ marginTop: 14 }}>
+        <button
+          type="button"
+          className={`${s.btn} ${created ? s.btnGhost : ""}`}
+          disabled={busy}
+          onClick={() => saveMut.mutate()}
+        >
+          <Icon name="download" size={15} />
+          {saveMut.isPending ? "Preparing…" : created ? "Download PDF" : "Create delivery note"}
+        </button>
+        {created && (
+          <button type="button" className={s.btn} disabled={busy} onClick={() => sendMut.mutate()}>
+            <Icon name="mail" size={15} />
+            {sendMut.isPending
+              ? "Sending…"
+              : `${order.delivery_note_sent_at ? "Resend" : "Send"} to ${order.delivery_note_email}`}
+          </button>
+        )}
+      </div>
+    </DrawerSection>
   );
 }
 
