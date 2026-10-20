@@ -32,6 +32,8 @@ export function Seo({
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={desc} />
+      {/* indexable, and Google may show large image previews and full snippets */}
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <link rel="canonical" href={url} />
       {alternates && <link rel="alternate" hrefLang="en" href={alternates.en} />}
       {alternates && <link rel="alternate" hrefLang="de" href={alternates.de} />}
