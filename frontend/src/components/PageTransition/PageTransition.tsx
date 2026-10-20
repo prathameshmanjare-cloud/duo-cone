@@ -1,6 +1,7 @@
 import { useLayoutEffect, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
+import { isHydrating } from "../../lib/ssr";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -21,7 +22,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
   return (
     <motion.div
       key={location.pathname}
-      initial={{ opacity: 0, y: 14 }}
+      initial={isHydrating() ? false : { opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.32, ease: EASE }}
     >

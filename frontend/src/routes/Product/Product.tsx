@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../../lib/api";
+import { productQuery, relatedQuery } from "../../lib/queries";
 import { useCartStore } from "../../store/cart";
 import { Price } from "../../components/Price/Price";
 import { Button } from "../../components/Button/Button";
@@ -20,19 +20,13 @@ export function Product() {
   const [imgOk, setImgOk] = useState(true);
   const add = useCartStore((s) => s.add);
 
-  const { data: product, isLoading, isError } = useQuery({
-    queryKey: ["product", slug],
-    queryFn: () => api.getProduct(slug),
-  });
+  const { data: product, isLoading } = useQuery(productQuery(slug));
 
-  const { data: related } = useQuery({
-    queryKey: ["product-related", slug],
-    queryFn: () => api.getRelated(slug),
-    enabled: !!product,
-  });
+  const { data: related } = useQuery({ ...relatedQuery(slug), enabled: !!product });
 
   if (isLoading) return <div className={styles.page}>Loading…</div>;
-  if (isError || !product) {
+  // a failed background refetch keeps the prerendered data on screen
+  if (!product) {
     return (
       <div className={styles.page}>
         <EmptyState title="Product not found" description="It may be out of catalog or the link is outdated." action={<Link to="/shop">Back to shop</Link>} />
@@ -68,7 +62,7 @@ export function Product() {
       <Breadcrumbs
         items={[
           { label: "Shop", to: "/shop" },
-          product.brand ? { label: product.brand.name, to: `/category/${product.brand.slug}` } : { label: "Product" },
+          product.brand ? { label: product.brand.name, to: `/shop?brand=${product.brand.slug}` } : { label: "Product" },
           { label: product.name },
         ]}
       />

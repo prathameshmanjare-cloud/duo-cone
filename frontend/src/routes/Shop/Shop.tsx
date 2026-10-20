@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { api } from "../../lib/api";
+import { SHOP_PAGE_SIZE, shopQuery } from "../../lib/queries";
+import { isHydrating } from "../../lib/ssr";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { ProductGridSkeleton } from "../../components/Skeleton/Skeleton";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
@@ -53,7 +54,6 @@ const SEAL_TYPE_LABEL: Record<string, string> = {
   DO: "DO Type",
   other: "Universal",
 };
-const PAGE_SIZE = 24;
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export function Shop({
@@ -61,10 +61,16 @@ export function Shop({
   embedded = false,
 }: { categorySlug?: string; embedded?: boolean } = {}) {
   const reduce = useReducedMotion();
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { page: pagePath } = useParams<{ page?: string }>();
   const [showFilters, setShowFilters] = useState(false);
 
-  const page = Number(params.get("page") ?? 1);
+  // pages live in the path (/shop/page/2) so each one is its own prerendered,
+  // crawlable URL; ?page= is still read for old links
+  const page = Math.max(1, Number(pagePath ?? params.get("page") ?? 1) || 1);
+  const basePath = pathname.replace(/\/page\/[^/]+\/?$/, "") || "/";
   const sort = params.get("sort") ?? "relevance";
   const sealType = params.get("seal_type") ?? undefined;
   const brand = params.get("brand") ?? undefined;
@@ -76,44 +82,46 @@ export function Shop({
   useEffect(() => setMinLocal(priceMin ?? ""), [priceMin]);
   useEffect(() => setMaxLocal(priceMax ?? ""), [priceMax]);
 
-  const { data, isLoading, isError, isFetching, refetch } = useQuery({
-    queryKey: ["products", { categorySlug, page, sort, sealType, brand, priceMin, priceMax }],
-    queryFn: () =>
-      api.listProducts({
-        category: categorySlug,
-        page,
-        page_size: PAGE_SIZE,
-        sort,
-        seal_type: sealType,
-        brand,
-        price_min: priceMin ? Number(priceMin) * 100 : undefined,
-        price_max: priceMax ? Number(priceMax) * 100 : undefined,
-      }),
-  });
+  const { data, isLoading, isError, isFetching, refetch } = useQuery(
+    shopQuery({ categorySlug, page, sort, sealType, brand, priceMin, priceMax })
+  );
+
+  // any filter change goes back to page 1
+  function goFiltered(next: URLSearchParams) {
+    next.delete("page");
+    const qs = next.toString();
+    navigate({ pathname: basePath, search: qs ? `?${qs}` : "" });
+  }
+
+  function pageHref(n: number) {
+    const next = new URLSearchParams(params);
+    next.delete("page");
+    const qs = next.toString();
+    const path = n > 1 ? `${basePath === "/" ? "" : basePath}/page/${n}` : basePath;
+    return `${path}${qs ? `?${qs}` : ""}`;
+  }
 
   function updateParam(key: string, value?: string) {
     const next = new URLSearchParams(params);
     if (value) next.set(key, value);
     else next.delete(key);
-    if (key !== "page") next.delete("page");
-    setParams(next);
+    goFiltered(next);
   }
 
   function clearAll() {
     const next = new URLSearchParams(params);
-    ["seal_type", "brand", "price_min", "price_max", "page"].forEach((k) => next.delete(k));
-    setParams(next);
+    ["seal_type", "brand", "price_min", "price_max"].forEach((k) => next.delete(k));
+    goFiltered(next);
   }
 
   function applyPrice() {
     const next = new URLSearchParams(params);
     minLocal ? next.set("price_min", minLocal) : next.delete("price_min");
     maxLocal ? next.set("price_max", maxLocal) : next.delete("price_max");
-    next.delete("page");
-    setParams(next);
+    goFiltered(next);
   }
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / SHOP_PAGE_SIZE)) : 1;
   const title = categorySlug ? categorySlug.replace(/-/g, " ") : "All products";
 
   const activeChips: { label: string; onClear: () => void }[] = [];
@@ -288,7 +296,7 @@ export function Shop({
 
           {isLoading && <ProductGridSkeleton count={12} />}
 
-          {isError && (
+          {isError && !data && (
             <EmptyState
               title="Couldn't load products"
               description="Something went wrong reaching the catalog. Please try again."
@@ -316,7 +324,7 @@ export function Shop({
                 key={page + sort + (sealType ?? "") + (priceMin ?? "") + (priceMax ?? "")}
                 className={`${styles.grid} ${isFetching ? styles.gridBusy : ""}`}
                 variants={gridVariants}
-                initial="hidden"
+                initial={isHydrating() ? false : "hidden"}
                 animate="show"
               >
                 {data.items.map((p) => (
@@ -328,29 +336,35 @@ export function Shop({
 
               {totalPages > 1 && (
                 <div className={styles.pagination}>
-                  <button
-                    className={styles.pageBtn}
-                    disabled={page <= 1}
-                    onClick={() => updateParam("page", String(page - 1))}
-                    aria-label="Previous page"
-                  >
-                    <span className={styles.flip}>
-                      <IconArrowRight size={16} />
+                  {page > 1 ? (
+                    <Link className={styles.pageBtn} to={pageHref(page - 1)} rel="prev" aria-label="Previous page">
+                      <span className={styles.flip}>
+                        <IconArrowRight size={16} />
+                      </span>
+                      Prev
+                    </Link>
+                  ) : (
+                    <span className={styles.pageBtn} aria-disabled="true">
+                      <span className={styles.flip}>
+                        <IconArrowRight size={16} />
+                      </span>
+                      Prev
                     </span>
-                    Prev
-                  </button>
+                  )}
                   <span className={styles.pageInfo}>
                     Page <b>{page}</b> of {totalPages}
                   </span>
-                  <button
-                    className={styles.pageBtn}
-                    disabled={page >= totalPages}
-                    onClick={() => updateParam("page", String(page + 1))}
-                    aria-label="Next page"
-                  >
-                    Next
-                    <IconArrowRight size={16} />
-                  </button>
+                  {page < totalPages ? (
+                    <Link className={styles.pageBtn} to={pageHref(page + 1)} rel="next" aria-label="Next page">
+                      Next
+                      <IconArrowRight size={16} />
+                    </Link>
+                  ) : (
+                    <span className={styles.pageBtn} aria-disabled="true">
+                      Next
+                      <IconArrowRight size={16} />
+                    </span>
+                  )}
                 </div>
               )}
             </>

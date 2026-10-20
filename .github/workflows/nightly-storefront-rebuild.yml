@@ -1,0 +1,23 @@
+# Rebuilds the storefront every night so prerendered product pages and the
+# sitemap pick up catalog changes the admin-triggered rebuild missed (for
+# example while the Render API was asleep). Needs the repository secret
+# VERCEL_DEPLOY_HOOK_URL (Vercel -> Project -> Settings -> Git -> Deploy Hooks).
+name: Nightly storefront rebuild
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake the API
+        run: curl -fsS --max-time 120 https://duo-cone.onrender.com/healthz > /dev/null || true
+      - name: Trigger Vercel deploy hook
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "VERCEL_DEPLOY_HOOK_URL secret not set"; exit 1; fi
+          curl -fsS -X POST "$HOOK"

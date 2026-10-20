@@ -42,7 +42,9 @@ export default function App() {
       <Route element={<RootLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
+        <Route path="/shop/page/:page" element={<Shop />} />
         <Route path="/category/:slug" element={<Category />} />
+        <Route path="/category/:slug/page/:page" element={<Category />} />
         <Route path="/product/:slug" element={<Product />} />
         <Route path="/search" element={<Search />} />
         <Route path="/rfq" element={<Rfq />} />

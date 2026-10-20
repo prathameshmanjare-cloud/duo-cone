@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../../lib/api";
+import { featuredQuery } from "../../lib/queries";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { Hero } from "../../components/Hero/Hero";
 import { HeroSlider } from "../../components/HeroSlider/HeroSlider";
@@ -14,10 +14,7 @@ import { IconArrowRight } from "../../components/Icon/Icon";
 import styles from "./Home.module.css";
 
 export function Home() {
-  const { data } = useQuery({
-    queryKey: ["products", "featured"],
-    queryFn: () => api.listProducts({ page: 1, page_size: 4, sort: "latest" }),
-  });
+  const { data } = useQuery(featuredQuery());
 
   return (
     <>
