@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "../../lib/i18n";
 import { useCartStore } from "../../store/cart";
 import { Price } from "../../components/Price/Price";
 import { Button } from "../../components/Button/Button";

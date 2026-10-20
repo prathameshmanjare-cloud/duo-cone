@@ -1,4 +1,5 @@
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { Link } from "../../lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { Button } from "../../components/Button/Button";

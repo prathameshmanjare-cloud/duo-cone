@@ -36,6 +36,14 @@ export const categoryQuery = (slug: string) => ({
   queryFn: () => api.getCategory(slug),
 });
 
+/** Counts for the German brand page text: all, DF and DO products. Page 1
+ *  of `all` is the same query the brand page's product list uses. */
+export const brandStatsQueries = (segment: string, brand: string) => ({
+  all: shopQuery({ categorySlug: segment, brand, page: 1, sort: "relevance" }),
+  df: shopQuery({ categorySlug: segment, brand, page: 1, sort: "relevance", sealType: "DF" }),
+  do: shopQuery({ categorySlug: segment, brand, page: 1, sort: "relevance", sealType: "DO" }),
+});
+
 export const featuredQuery = () => ({
   queryKey: ["products", "featured"],
   queryFn: () => api.listProducts({ page: 1, page_size: 4, sort: "latest" }),

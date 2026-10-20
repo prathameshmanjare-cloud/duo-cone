@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "../../lib/i18n";
 import { api, type ChatBotProduct } from "../../lib/api";
 import { formatPrice } from "../../lib/format";
 import { openTidio, tidioEnabled } from "../../lib/tidio";

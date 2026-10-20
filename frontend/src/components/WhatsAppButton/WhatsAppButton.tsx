@@ -1,19 +1,24 @@
 import { useState } from "react";
+import { useT } from "../../lib/i18n";
 import styles from "./WhatsAppButton.module.css";
 
 const PHONE = "4915510386300";
-const DEFAULT_MESSAGE = "Hi, I'd like to place an order for DuoCone seals.";
+const DEFAULT_MESSAGE = {
+  en: "Hi, I'd like to place an order for DuoCone seals.",
+  de: "Hallo, ich möchte DuoCone-Dichtungen bestellen.",
+};
 
 function waHref(text: string) {
   return `https://wa.me/${PHONE}?text=${encodeURIComponent(text)}`;
 }
 
 export function WhatsAppButton() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
 
   function send() {
-    window.open(waHref(draft.trim() || DEFAULT_MESSAGE), "_blank", "noopener,noreferrer");
+    window.open(waHref(draft.trim() || t(DEFAULT_MESSAGE)), "_blank", "noopener,noreferrer");
     setDraft("");
     setOpen(false);
   }
@@ -21,10 +26,10 @@ export function WhatsAppButton() {
   return (
     <>
       {open && (
-        <div className={styles.panel} role="dialog" aria-label="Chat on WhatsApp">
+        <div className={styles.panel} role="dialog" aria-label={t({ en: "Chat on WhatsApp", de: "Chat über WhatsApp" })}>
           <div className={styles.head}>
             <WhatsAppIcon size={22} />
-            <span className={styles.headTitle}>Let's chat on WhatsApp</span>
+            <span className={styles.headTitle}>{t({ en: "Let's chat on WhatsApp", de: "Schreiben Sie uns auf WhatsApp" })}</span>
           </div>
 
           <div className={styles.body}>
@@ -32,7 +37,7 @@ export function WhatsAppButton() {
               <span className={styles.avatar}>DC</span>
               <div className={styles.bubble}>
                 <div className={styles.bubbleName}>DuoCone</div>
-                <div className={styles.bubbleText}>How can we help you? :)</div>
+                <div className={styles.bubbleText}>{t({ en: "How can we help you? :)", de: "Wie können wir Ihnen helfen? :)" })}</div>
                 <div className={styles.bubbleTime}>
                   {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </div>
@@ -49,12 +54,12 @@ export function WhatsAppButton() {
           >
             <input
               className={styles.input}
-              placeholder="Write your message…"
+              placeholder={t({ en: "Write your message…", de: "Ihre Nachricht…" })}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               autoFocus
             />
-            <button type="submit" className={styles.sendBtn} aria-label="Send on WhatsApp">
+            <button type="submit" className={styles.sendBtn} aria-label={t({ en: "Send on WhatsApp", de: "Über WhatsApp senden" })}>
               <SendIcon />
             </button>
           </form>
@@ -65,7 +70,7 @@ export function WhatsAppButton() {
         type="button"
         className={styles.launcher}
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? "Close WhatsApp chat" : "Chat on WhatsApp"}
+        aria-label={open ? t({ en: "Close WhatsApp chat", de: "WhatsApp-Chat schließen" }) : t({ en: "Chat on WhatsApp", de: "Chat über WhatsApp" })}
       >
         {open ? <CloseIcon /> : <WhatsAppIcon size={30} />}
       </button>

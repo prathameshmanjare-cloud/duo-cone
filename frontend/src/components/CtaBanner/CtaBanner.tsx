@@ -1,5 +1,6 @@
 import { COMPANY, COMPANY_ADDRESS, MAP_EMBED_URL } from "../../lib/company";
 import { Reveal } from "../Reveal/Reveal";
+import { useT } from "../../lib/i18n";
 import styles from "./CtaBanner.module.css";
 
 const PHONE_DISPLAY = COMPANY.phoneDisplay;
@@ -9,18 +10,20 @@ const ADDRESS = COMPANY_ADDRESS;
 const MAP_EMBED = MAP_EMBED_URL;
 
 export function CtaBanner() {
+  const t = useT();
   return (
     <section className={styles.section} aria-labelledby="cta-title">
       <div className={styles.grid}>
         <Reveal className={styles.panel}>
-          <span className={styles.eyebrow}>Let&rsquo;s work together</span>
+          <span className={styles.eyebrow}>{t({ en: "Let’s work together", de: "Lassen Sie uns zusammenarbeiten" })}</span>
           <h2 id="cta-title" className={styles.title}>
-            Get in touch to start your next project<span>.</span>
+            {t({ en: "Get in touch to start your next project", de: "Sprechen Sie uns zu Ihrem nächsten Projekt an" })}<span>.</span>
           </h2>
           <p className={styles.copy}>
-            Questions, a part number to cross-reference, or a bulk requirement? Our
-            German-based engineering team gives expert guidance and tailored seal
-            solutions, and replies within one business day.
+            {t({
+              en: "Questions, a part number to cross-reference, or a bulk requirement? Our German-based engineering team gives expert guidance and tailored seal solutions, and replies within one business day.",
+              de: "Fragen, eine Teilenummer zum Abgleich oder ein Großbedarf? Unser Technikteam in Deutschland berät Sie fachkundig, findet die passende Dichtungslösung und antwortet innerhalb eines Werktags.",
+            })}
           </p>
           <div className={styles.contacts}>
             <a
@@ -40,11 +43,11 @@ export function CtaBanner() {
         <Reveal className={styles.mapCard} delay={0.12}>
           <iframe
             src={MAP_EMBED}
-            title={`Map showing ${ADDRESS}`}
+            title={t({ en: `Map showing ${ADDRESS}`, de: `Karte: ${ADDRESS}` })}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
-          <span className={styles.mapCaption}>Headquarters and home of engineering</span>
+          <span className={styles.mapCaption}>{t({ en: "Headquarters and home of engineering", de: "Firmensitz und Technik" })}</span>
         </Reveal>
       </div>
     </section>

@@ -6,8 +6,10 @@ import { QueryClient, QueryClientProvider, dehydrate } from "@tanstack/react-que
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 
+export { alternatePath } from "./lib/i18n";
 export {
   brandQuery,
+  brandStatsQueries,
   categoryQuery,
   featuredQuery,
   productQuery,

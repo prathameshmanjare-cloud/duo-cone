@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Link, useT, useLang } from "../../lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { api } from "../../lib/api";
 import { IconClose, IconSearch } from "../Icon/Icon";
+import { productName } from "../../lib/productText";
 import styles from "./ProductSearch.module.css";
 
 export function ProductSearch({
   className = "",
-  placeholder = "Search products, SKU, OEM ref…",
+  placeholder,
 }: { className?: string; placeholder?: string }) {
+  const t = useT();
+  const lang = useLang();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -49,7 +53,6 @@ export function ProductSearch({
       <IconSearch size={16} />
       <input
         type="text"
-        placeholder={placeholder}
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
@@ -57,13 +60,14 @@ export function ProductSearch({
         }}
         onFocus={() => query.length > 1 && setSuggestOpen(true)}
         onKeyDown={(e) => e.key === "Enter" && runSearch(query)}
-        aria-label="Search products"
+        placeholder={placeholder ?? t({ en: "Search products, SKU, OEM ref…", de: "Produkte, Artikelnr., OEM-Nr. suchen…" })}
+        aria-label={t({ en: "Search products", de: "Produkte suchen" })}
       />
       {query && (
         <button
           type="button"
           className={styles.searchClear}
-          aria-label="Clear search"
+          aria-label={t({ en: "Clear search", de: "Suche löschen" })}
           onClick={() => {
             setQuery("");
             setSuggestOpen(false);
@@ -82,9 +86,9 @@ export function ProductSearch({
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
           >
-            {suggestLoading && <div className={styles.suggestEmpty}>Searching…</div>}
+            {suggestLoading && <div className={styles.suggestEmpty}>{t({ en: "Searching…", de: "Suche läuft…" })}</div>}
             {!suggestLoading && suggestions && suggestions.length === 0 && (
-              <div className={styles.suggestEmpty}>No matches for "{debouncedQuery}"</div>
+              <div className={styles.suggestEmpty}>{t({ en: `No matches for "${debouncedQuery}"`, de: `Keine Treffer für „${debouncedQuery}“` })}</div>
             )}
             {!suggestLoading &&
               suggestions &&
@@ -97,7 +101,7 @@ export function ProductSearch({
                 >
                   {p.image_url && <img src={p.image_url} alt="" width={40} height={40} />}
                   <div className={styles.suggestInfo}>
-                    <span className={styles.suggestName}>{p.name}</span>
+                    <span className={styles.suggestName}>{productName(p.name, lang)}</span>
                     <span className={styles.suggestMeta}>
                       {p.brand?.name ? `${p.brand.name} · ` : ""}
                       {p.sku}
@@ -111,7 +115,7 @@ export function ProductSearch({
                 className={styles.suggestSeeAll}
                 onClick={() => runSearch(debouncedQuery)}
               >
-                See all results for "{debouncedQuery}"
+                {t({ en: `See all results for "${debouncedQuery}"`, de: `Alle Ergebnisse für „${debouncedQuery}“` })}
               </button>
             )}
           </motion.div>

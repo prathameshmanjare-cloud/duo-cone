@@ -55,41 +55,57 @@ await writeFile(
 );
 
 /** Retries cover Render's free tier waking up and transient 5xx. */
-async function prefetch(qc, options, { optional = false } = {}) {
+// one API call per query for the whole build: the English and German page
+// of the same content share the result
+const fetched = new Map();
+
+async function fetchOnce(options) {
   let lastError;
   for (let attempt = 0; attempt < 4; attempt++) {
     try {
-      const data = await options.queryFn();
-      qc.setQueryData(options.queryKey, data);
-      return data;
+      return { data: await options.queryFn() };
     } catch (err) {
       lastError = err;
       if (err?.status === 404) break;
       await new Promise((r) => setTimeout(r, 1500 * 2 ** attempt));
     }
   }
-  if (optional) return undefined;
-  throw lastError;
+  return { error: lastError };
+}
+
+async function prefetch(qc, options, { optional = false } = {}) {
+  const key = JSON.stringify(options.queryKey);
+  if (!fetched.has(key)) fetched.set(key, fetchOnce(options));
+  const { data, error } = await fetched.get(key);
+  if (error) {
+    if (optional) return undefined;
+    throw error;
+  }
+  qc.setQueryData(options.queryKey, data);
+  return data;
 }
 
 const HEAD_TAG_RE =
-  /<title>[\s\S]*?<\/title>|<meta\s+(?:name|property)="[^"]+"[^>]*\/?>|<link\s+rel="canonical"[^>]*\/?>/g;
+  /<title>[\s\S]*?<\/title>|<meta\s+(?:name|property)="[^"]+"[^>]*\/?>|<link\s+rel="(?:canonical|alternate)"[^>]*\/?>/g;
 
 function tagKey(tag) {
   if (tag.startsWith("<title")) return "title";
+  if (tag.startsWith('<link rel="alternate"')) return "alternate:" + tag.match(/hreflang="([^"]+)"/i)?.[1];
   if (tag.startsWith("<link")) return "canonical";
   return tag.match(/(?:name|property)="([^"]+)"/)?.[1] ?? tag;
 }
 
 /** React 19 emits <title>/<meta> where <Helmet> sits; move them into <head>,
  *  replacing the template's defaults with the same name. */
-function buildPage(appHtml, state) {
+function buildPage(appHtml, state, lang = "en") {
   const pageTags = new Map();
   const body = appHtml.replace(HEAD_TAG_RE, (tag) => {
     pageTags.set(tagKey(tag), tag);
     return "";
   });
-  let head = template.replace(HEAD_TAG_RE, (tag) => (pageTags.has(tagKey(tag)) ? "" : tag));
+  let head = template
+    .replace(HEAD_TAG_RE, (tag) => (pageTags.has(tagKey(tag)) ? "" : tag))
+    .replace('<html lang="en">', `<html lang="${lang}">`);
   head = head.replace("</head>", `    ${[...pageTags.values()].join("\n    ")}\n  </head>`);
   const json = JSON.stringify(state).replace(/</g, "\\u003c");
   return head.replace(
@@ -98,18 +114,35 @@ function buildPage(appHtml, state) {
   );
 }
 
+const written = { en: 0, de: 0 };
+
 async function writeRoute(route, html) {
+  written[route.startsWith("/de/") ? "de" : "en"]++;
   const file = join(DIST, route.replace(/^\/|\/$/g, ""), "index.html");
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, html);
 }
 
-async function renderRoute(route, load) {
+async function renderOne(route, load, lang) {
   const qc = ssr.createQueryClient();
   if (load) await load(qc);
   const { html, state } = ssr.render(route, qc);
-  await writeRoute(route, buildPage(html, state));
+  await writeRoute(route, buildPage(html, state, lang));
 }
+
+/** Renders the English route and, where one exists, its German twin. */
+async function renderRoute(route, load) {
+  await renderOne(route, load, "en");
+  const de = ssr.alternatePath(route, "de");
+  if (de) await renderOne(de, load, "de");
+}
+
+// sitemap entries for a route in both languages
+const withGerman = (entries) =>
+  entries.flatMap((e) => {
+    const de = ssr.alternatePath(e.route, "de");
+    return de ? [e, { ...e, route: de }] : [e];
+  });
 
 async function pool(items, fn) {
   let i = 0;
@@ -168,7 +201,13 @@ async function main() {
     await renderRoute(route, async (qc) => {
       const data = await prefetch(qc, shopQuery({ categorySlug, brand, page }));
       // admin-written page text shown under the products (first page only)
-      if (page === 1 && brand) await prefetch(qc, ssr.brandQuery(brand), { optional: true });
+      if (page === 1 && brand) {
+        await prefetch(qc, ssr.brandQuery(brand), { optional: true });
+        // counts for the German brand page text
+        const stats = ssr.brandStatsQueries(categorySlug, brand);
+        await prefetch(qc, stats.df, { optional: true });
+        await prefetch(qc, stats.do, { optional: true });
+      }
       else if (page === 1 && categorySlug) await prefetch(qc, ssr.categoryQuery(categorySlug), { optional: true });
       for (const p of data.items) {
         productSlugs.add(p.slug);
@@ -215,8 +254,8 @@ async function main() {
       .join("\n") +
     `\n</urlset>\n`;
   const sitemaps = [
-    { file: "sitemap-pages.xml", entries: pageEntries },
-    { file: "sitemap-products.xml", entries: productEntries },
+    { file: "sitemap-pages.xml", entries: withGerman(pageEntries) },
+    { file: "sitemap-products.xml", entries: withGerman(productEntries) },
   ];
   for (const sm of sitemaps) await writeFile(join(DIST, sm.file), urlset(sm.entries));
   await writeFile(
@@ -235,10 +274,10 @@ async function main() {
   await writeFile(join(DIST, "404.html"), buildPage(ssr.render("/404/", ssr.createQueryClient()).html, {}));
 
   const failures = [...listingFailures, ...staticFailures, ...productFailures];
-  const pageCount = listingJobs.length + STATIC_ROUTES.length - 1 + productSlugs.size - productFailures.length;
   console.log(
-    `prerendered ${pageCount} pages (${productSlugs.size - productFailures.length} products, ` +
-      `${listingJobs.length} listing pages, ${brandPages} brand pages) in ${((Date.now() - started) / 1000).toFixed(1)}s`
+    `prerendered ${written.en} English + ${written.de} German pages (${productSlugs.size - productFailures.length} products, ` +
+      `${listingJobs.length} listing pages, ${brandPages} brand pages, ${fetched.size} API calls) in ` +
+      `${((Date.now() - started) / 1000).toFixed(1)}s`
   );
   if (failures.length) {
     console.warn(`${failures.length} routes failed:`, failures.slice(0, 10));

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useDict, useLang } from "../../lib/i18n";
 import {
   AnimatePresence,
   animate,
@@ -20,6 +20,8 @@ import heatImg from "../../assets/technology/heat-treatment.webp";
 import coatImg from "../../assets/technology/coating.webp";
 import { Seo } from "../../components/Seo/Seo";
 import { pageTitle } from "../../lib/seo";
+import { DE_TECHNOLOGY } from "../../content/de-technology";
+import { DE_SEO } from "../../content/de";
 import s from "./Technology.module.css";
 
 type AnatomyKey = "metal" | "toric" | "lapped" | "cavity";
@@ -241,13 +243,22 @@ const gridItem = {
 
 export function Technology() {
   const [part, setPart] = useState<AnatomyKey>("metal");
-  const a = ANATOMY[part];
+  const L = useDict(DE_TECHNOLOGY);
+  const lang = useLang();
+  const a = L.deep(ANATOMY[part]);
   const reduce = useReducedMotion();
-  const words = "Engineered at the molecular & micron level.".split(" ");
+  const words = L("Engineered at the molecular & micron level.").split(" ");
 
   return (
     <div className={s.page}>
-      <Seo title={pageTitle("Technology – How Mechanical Face Seals Are Made")} description={"How DUO-CONE mechanical face seals are engineered: centrifugal casting, precision CNC and optical lapping, elastomer moulding, grinding, heat treatment and tribological coatings."} />
+      <Seo
+        title={lang === "de" ? DE_SEO.technology.title : pageTitle("Technology – How Mechanical Face Seals Are Made")}
+        description={
+          lang === "de"
+            ? DE_SEO.technology.description
+            : "How DUO-CONE mechanical face seals are engineered: centrifugal casting, precision CNC and optical lapping, elastomer moulding, grinding, heat treatment and tribological coatings."
+        }
+      />
 
       {/* 1 — hero */}
       <section className={`${s.section} ${s.dark} ${s.hero}`}>
@@ -266,10 +277,9 @@ export function Technology() {
             className={s.pill}
             variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } } }}
           >
-            <span className={s.dot} /> Manufacturing metallurgy &amp; tribology
-          </motion.span>
+            <span className={s.dot} />{L("Manufacturing metallurgy & tribology")}</motion.span>
 
-          <h1 className={s.h1} aria-label="Engineered at the molecular & micron level.">
+          <h1 className={s.h1} aria-label={L("Engineered at the molecular & micron level.")}>
             {words.map((w, i) => (
               <motion.span
                 key={i}
@@ -288,11 +298,7 @@ export function Technology() {
           <motion.p
             className={s.lead}
             variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } } }}
-          >
-            Every DUO-CONE mechanical face seal is the outcome of specialised metallurgy, proprietary
-            centrifugal casting, precision lapping and rigorous elastomer formulation, designed to
-            resist abrasive slurry, extreme load and high sliding velocities.
-          </motion.p>
+          >{L("Every DUO-CONE mechanical face seal is the outcome of specialised metallurgy, proprietary centrifugal casting, precision lapping and rigorous elastomer formulation, designed to resist abrasive slurry, extreme load and high sliding velocities.")}</motion.p>
 
           <motion.div
             className={s.blueprint}
@@ -300,16 +306,15 @@ export function Technology() {
           >
             <figure className={s.scanFrame}>
               <span className={s.ringGlow} aria-hidden="true" />
-              <img src={heroImg} alt="DUO-CONE precision-engineered mechanical face seals" width={2000} height={740} loading="lazy" />
+              <img src={heroImg} alt={L("DUO-CONE precision-engineered mechanical face seals")} width={2000} height={740} loading="lazy" />
               <span className={s.corner} data-c="tl" />
               <span className={s.corner} data-c="tr" />
               <span className={s.corner} data-c="bl" />
               <span className={s.corner} data-c="br" />
               <span className={s.scanLine} aria-hidden="true" />
               <span className={s.feedTag}>
-                <span className={s.liveDot} /> Live optical sensor feed · 4K metrology
-              </span>
-              {MARKERS.map((m, i) => (
+                <span className={s.liveDot} />{L("Live optical sensor feed · 4K metrology")}</span>
+              {L.deep(MARKERS).map((m, i) => (
                 <motion.span
                   key={m.id}
                   className={s.marker}
@@ -330,7 +335,7 @@ export function Technology() {
             </figure>
 
             <div className={s.metricStrip}>
-              {METRICS.map((m) => (
+              {L.deep(METRICS).map((m) => (
                 <motion.div
                   key={m.label}
                   initial={{ opacity: 0, y: 14 }}
@@ -353,12 +358,12 @@ export function Technology() {
       <section className={s.section}>
         <RevealHead
           overline="[ Cross-section engineering ]"
-          title="Interactive seal anatomy"
+          title={L("Interactive seal anatomy")}
           sub="Pick a component to see how complementary mechanical forces guarantee zero leakage under high particulate intrusion."
         />
 
         <div className={s.anatomy}>
-          <div className={s.tabs} role="tablist" aria-label="Seal components">
+          <div className={s.tabs} role="tablist" aria-label={L("Seal components")}>
             {(Object.keys(ANATOMY) as AnatomyKey[]).map((k) => (
               <button
                 key={k}
@@ -375,7 +380,7 @@ export function Technology() {
                   />
                 )}
                 <span className={s.tabNo}>{ANATOMY[k].n}</span>
-                <span className={s.tabName}>{ANATOMY[k].tab}</span>
+                <span className={s.tabName}>{L(ANATOMY[k].tab)}</span>
               </button>
             ))}
           </div>
@@ -413,7 +418,7 @@ export function Technology() {
       <section className={`${s.section} ${s.tint}`}>
         <RevealHead
           overline="[ Process architecture ]"
-          title="The 6 core technologies"
+          title={L("The 6 core technologies")}
           sub="From molten-alloy centrifugal pouring to optical helium testing, every phase reflects rigorous German manufacturing standards."
         />
 
@@ -424,7 +429,7 @@ export function Technology() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.12 }}
         >
-          {TECHS.map((t) => (
+          {L.deep(TECHS).map((t) => (
             <motion.article
               key={t.n}
               className={s.techCard}
@@ -460,7 +465,7 @@ export function Technology() {
       <section className={`${s.section} ${s.tint}`}>
         <RevealHead
           kicker="Pending patents / ongoing development"
-          title="DUO-CONE research lab"
+          title={L("DUO-CONE research lab")}
           sub="Continuously testing metallurgy under extreme simulation inside our Engelskirchen facilities."
         />
 
@@ -471,7 +476,7 @@ export function Technology() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.12 }}
         >
-          {LAB.map((l, i) => (
+          {L.deep(LAB).map((l, i) => (
             <motion.div
               key={l.n}
               className={s.labCard}
@@ -498,7 +503,7 @@ export function Technology() {
       <section className={s.section}>
         <RevealHead
           overline="[ Validation ]"
-          title="Seal life testing"
+          title={L("Seal life testing")}
           sub="Which tests we run on every duo cone face seal before it leaves Engelskirchen."
         />
 
@@ -509,7 +514,7 @@ export function Technology() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.12 }}
         >
-          {TESTS.map((t, i) => (
+          {L.deep(TESTS).map((t, i) => (
             <motion.div key={t.n} className={s.step} variants={gridItem}>
               <div className={s.stepRail}>
                 <span className={s.stepNode}>{t.n}</span>
@@ -553,15 +558,13 @@ export function Technology() {
             aria-hidden="true"
           />
           <figcaption>
-            <span className={s.pressureKicker}>[ FEA · contact model ]</span>
-            <strong>Contact-pressure simulation</strong>
-            <span className={s.pressureText}>
-              Finite-element map of face load and hydrodynamic film across the sealing band.
-            </span>
+            <span className={s.pressureKicker}>{L("[ FEA · contact model ]")}</span>
+            <strong>{L("Contact-pressure simulation")}</strong>
+            <span className={s.pressureText}>{L("Finite-element map of face load and hydrodynamic film across the sealing band.")}</span>
             <div className={s.pressureScale} aria-hidden="true">
-              <span>low</span>
+              <span>{L("low")}</span>
               <span className={s.pressureBar} />
-              <span>peak</span>
+              <span>{L("peak")}</span>
             </div>
           </figcaption>
         </motion.figure>
@@ -577,16 +580,12 @@ export function Technology() {
           transition={{ duration: 0.7, ease: EASE }}
         >
           <span className={s.ctaShimmer} aria-hidden="true" />
-          <span className={s.overline}>[ Direct engineering desk ]</span>
-          <h2>Specific dimensional or metallurgical requirements?</h2>
-          <p>
-            Our senior seal engineers help with custom mould prototyping, CAD cross-referencing,
-            material pairings and express OEM batch production.
-          </p>
+          <span className={s.overline}>{L("[ Direct engineering desk ]")}</span>
+          <h2>{L("Specific dimensional or metallurgical requirements?")}</h2>
+          <p>{L("Our senior seal engineers help with custom mould prototyping, CAD cross-referencing, material pairings and express OEM batch production.")}</p>
           <div className={s.ctaActions}>
             <Link to="/rfq/">
-              <Button variant="primary">
-                Request 24h technical RFQ <IconArrowRight size={18} />
+              <Button variant="primary">{L("Request 24h technical RFQ")}<IconArrowRight size={18} />
               </Button>
             </Link>
             <a className={s.callBtn} href={COMPANY.phoneHref}>
@@ -594,9 +593,9 @@ export function Technology() {
             </a>
           </div>
           <div className={s.ctaStrip}>
-            <span>Standard dispatch: 24 hours</span>
+            <span>{L("Standard dispatch: 24 hours")}</span>
             <span>{COMPANY.certification}</span>
-            <span>100% optical test</span>
+            <span>{L("100% optical test")}</span>
           </div>
         </motion.div>
       </section>

@@ -1,22 +1,36 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLang, useT } from "../../lib/i18n";
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from "framer-motion";
 import { Button } from "../Button/Button";
 import { IconArrowRight, IconCheck } from "../Icon/Icon";
 import productImg from "../../assets/product/do-cut.webp";
 import styles from "./AboutBlock.module.css";
 
-const POINTS = [
-  "Premium wear- and corrosion-resistant materials",
-  "Short delivery times from our German warehouse",
-  "A service level built to impress on every enquiry",
-];
+const POINTS = {
+  en: [
+    "Premium wear- and corrosion-resistant materials",
+    "Short delivery times from our German warehouse",
+    "A service level built to impress on every enquiry",
+  ],
+  de: [
+    "Hochwertige verschleiß- und korrosionsbeständige Werkstoffe",
+    "Kurze Lieferzeiten aus unserem Lager in Deutschland",
+    "Ein Service, der bei jeder Anfrage überzeugt",
+  ],
+};
 
-const STATS = [
-  { k: "17+", v: "Years of experience" },
-  { k: "Worldwide", v: "Delivery network" },
-  { k: "2,100+", v: "Seal references" },
-];
+const STATS = {
+  en: [
+    { k: "17+", v: "Years of experience" },
+    { k: "Worldwide", v: "Delivery network" },
+    { k: "2,100+", v: "Seal references" },
+  ],
+  de: [
+    { k: "17+", v: "Jahre Erfahrung" },
+    { k: "Weltweit", v: "Liefernetz" },
+    { k: "2.100+", v: "Dichtungsreferenzen" },
+  ],
+};
 
 const CERTS = ["ISO 9001", "RoHS", "REACH", "CE"];
 
@@ -24,6 +38,8 @@ export function AboutBlock() {
   const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
+  const t = useT();
+  const lang = useLang();
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -61,16 +77,25 @@ export function AboutBlock() {
             Made in Germany
           </span>
           <h2 id="about-heading">
-            <span>Leading</span> <span>German</span> <span>producer</span>
+            {lang === "de" ? (
+              <>
+                <span>Führender</span> <span>deutscher</span> <span>Hersteller</span>
+              </>
+            ) : (
+              <>
+                <span>Leading</span> <span>German</span> <span>producer</span>
+              </>
+            )}
           </h2>
           <p className={styles.lead}>
-            We are a German manufacturer of high-performance mechanical face seals. With years of
-            experience and advanced technology, we deliver durable, wear-resistant solutions for mining,
-            construction, agriculture, and defense.
+            {t({
+              en: "We are a German manufacturer of high-performance mechanical face seals. With years of experience and advanced technology, we deliver durable, wear-resistant solutions for mining, construction, agriculture, and defense.",
+              de: "Wir sind ein deutscher Hersteller von Hochleistungs-Laufwerksdichtungen. Mit langjähriger Erfahrung und moderner Technik liefern wir langlebige, verschleißfeste Lösungen für Bergbau, Bau, Landwirtschaft und Verteidigung.",
+            })}
           </p>
 
           <ul className={styles.points}>
-            {POINTS.map((p) => (
+            {POINTS[lang].map((p) => (
               <li key={p}>
                 <span className={styles.tick}>
                   <IconCheck size={15} />
@@ -81,7 +106,7 @@ export function AboutBlock() {
           </ul>
 
           <div className={styles.stats}>
-            {STATS.map((s) => (
+            {STATS[lang].map((s) => (
               <div key={s.k} className={styles.stat}>
                 <strong>{s.k}</strong>
                 <span>{s.v}</span>
@@ -90,7 +115,7 @@ export function AboutBlock() {
           </div>
 
           <div className={styles.trust}>
-            <span className={styles.trustLabel}>Certified</span>
+            <span className={styles.trustLabel}>{t({ en: "Certified", de: "Zertifiziert" })}</span>
             <ul>
               {CERTS.map((c) => (
                 <li key={c}>{c}</li>
@@ -101,11 +126,11 @@ export function AboutBlock() {
           <div className={styles.actions}>
             <Link to="/about-us/">
               <Button variant="primary">
-                More about us <IconArrowRight size={18} />
+                {t({ en: "More about us", de: "Mehr über uns" })} <IconArrowRight size={18} />
               </Button>
             </Link>
             <Link to="/contact/" className={styles.textLink}>
-              Talk to our team
+              {t({ en: "Talk to our team", de: "Sprechen Sie mit uns" })}
             </Link>
           </div>
         </div>
@@ -139,24 +164,24 @@ export function AboutBlock() {
 
             <span className={`${styles.tag} ${styles.tag1}`}>
               <b>Ø 180 mm</b>
-              <i>nominal bore</i>
+              <i>{t({ en: "nominal bore", de: "Nennbohrung" })}</i>
             </span>
             <span className={`${styles.tag} ${styles.tag2}`}>
-              <b>Hardened face</b>
+              <b>{t({ en: "Hardened face", de: "Gehärtete Fläche" })}</b>
               <i>58–62 HRC</i>
             </span>
             <span className={`${styles.tag} ${styles.tag3}`}>
-              <b>Elastomer ring</b>
+              <b>{t({ en: "Elastomer ring", de: "Elastomerring" })}</b>
               <i>FKM / NBR</i>
             </span>
             <span className={`${styles.tag} ${styles.tag4}`}>
               <b>Rz 0.2 µm</b>
-              <i>lapped finish</i>
+              <i>{t({ en: "lapped finish", de: "geläppt" })}</i>
             </span>
           </div>
 
           <span className={styles.titleBlock}>
-            <b>DUO CONE · DF TYPE</b>
+            <b>{t({ en: "DUO CONE · DF TYPE", de: "DUO CONE · TYP DF" })}</b>
             <span>MADE IN GERMANY · DIN ISO 2768&#8209;m · SHEET 1/1</span>
           </span>
         </motion.div>

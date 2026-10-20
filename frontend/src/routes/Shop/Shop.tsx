@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLang, useT } from "../../lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { SHOP_PAGE_SIZE, shopQuery } from "../../lib/queries";
+import { DE_SEO } from "../../content/de";
 import { isHydrating } from "../../lib/ssr";
 import { brandPath, segmentPath } from "../../lib/catalog";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
@@ -17,13 +19,13 @@ import {
 } from "../../components/Icon/Icon";
 import { ProductSearch } from "../../components/ProductSearch/ProductSearch";
 import { Seo } from "../../components/Seo/Seo";
-import { pageSuffix, pageTitle } from "../../lib/seo";
+import { localTitle } from "../../lib/seo";
 import styles from "./Shop.module.css";
 
 const SEAL_TYPES: { value: string; label: string }[] = [
   { value: "DF", label: "DF" },
   { value: "DO", label: "DO" },
-  { value: "other", label: "Universal" },
+  { value: "other", label: "Universal" }, // same word in German
 ];
 
 const BRAND_PRIORITY = ["Caterpillar", "Goetze", "Trelleborg"];
@@ -51,10 +53,10 @@ const OTHER_BRANDS = [
 const BRANDS: { value: string; label: string }[] = [...BRAND_PRIORITY, ...OTHER_BRANDS].map(
   (name) => ({ label: name, value: name.toLowerCase().replace(/\s+/g, "-") }),
 );
-const SEAL_TYPE_LABEL: Record<string, string> = {
-  DF: "DF Type",
-  DO: "DO Type",
-  other: "Universal",
+const SEAL_TYPE_LABEL: Record<string, { en: string; de: string }> = {
+  DF: { en: "DF Type", de: "Typ DF" },
+  DO: { en: "DO Type", de: "Typ DO" },
+  other: { en: "Universal", de: "Universal" },
 };
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -64,6 +66,8 @@ export function Shop({
   embedded = false,
 }: { categorySlug?: string; brandSlug?: string; embedded?: boolean } = {}) {
   const reduce = useReducedMotion();
+  const t = useT();
+  const lang = useLang();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -127,7 +131,7 @@ export function Shop({
   }
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / SHOP_PAGE_SIZE)) : 1;
-  const title = categorySlug ? categorySlug.replace(/-/g, " ") : "All products";
+  const title = categorySlug ? categorySlug.replace(/-/g, " ") : t({ en: "All products", de: DE_SEO.shop.h1 });
 
   const activeChips: { label: string; onClear: () => void }[] = [];
   if (brand)
@@ -137,11 +141,11 @@ export function Shop({
     });
   if (sealType)
     activeChips.push({
-      label: SEAL_TYPE_LABEL[sealType] ?? sealType,
+      label: SEAL_TYPE_LABEL[sealType]?.[lang] ?? sealType,
       onClear: () => updateParam("seal_type", undefined),
     });
-  if (priceMin) activeChips.push({ label: `Min €${priceMin}`, onClear: () => updateParam("price_min", undefined) });
-  if (priceMax) activeChips.push({ label: `Max €${priceMax}`, onClear: () => updateParam("price_max", undefined) });
+  if (priceMin) activeChips.push({ label: `${t({ en: "Min", de: "Min." })} €${priceMin}`, onClear: () => updateParam("price_min", undefined) });
+  if (priceMax) activeChips.push({ label: `${t({ en: "Max", de: "Max." })} €${priceMax}`, onClear: () => updateParam("price_max", undefined) });
 
   const gridVariants = {
     hidden: {},
@@ -157,31 +161,31 @@ export function Shop({
   const FiltersBody = (
     <>
       <div className={styles.filterGroup}>
-        <span className={styles.filterLabel}>Seal type</span>
-        <div className={styles.segmented} role="group" aria-label="Seal type">
+        <span className={styles.filterLabel}>{t({ en: "Seal type", de: "Dichtungstyp" })}</span>
+        <div className={styles.segmented} role="group" aria-label={t({ en: "Seal type", de: "Dichtungstyp" })}>
           <button
             type="button"
             className={!sealType ? styles.segOn : undefined}
             onClick={() => updateParam("seal_type", undefined)}
           >
-            All
+            {t({ en: "All", de: "Alle" })}
           </button>
-          {SEAL_TYPES.map((t) => (
+          {SEAL_TYPES.map((st) => (
             <button
-              key={t.value}
+              key={st.value}
               type="button"
-              className={sealType === t.value ? styles.segOn : undefined}
-              onClick={() => updateParam("seal_type", t.value)}
+              className={sealType === st.value ? styles.segOn : undefined}
+              onClick={() => updateParam("seal_type", st.value)}
             >
-              {t.label}
+              {st.label}
             </button>
           ))}
         </div>
       </div>
 
       <div className={styles.filterGroup}>
-        <span className={styles.filterLabel}>Brand</span>
-        <div className={styles.brandList} role="group" aria-label="Brand">
+        <span className={styles.filterLabel}>{t({ en: "Brand", de: "Marke" })}</span>
+        <div className={styles.brandList} role="group" aria-label={t({ en: "Brand", de: "Marke" })}>
           {BRANDS.map((b) => (
             // real links to the brand pages, so crawlers can follow them
             <Link
@@ -197,14 +201,14 @@ export function Shop({
       </div>
 
       <div className={styles.filterGroup}>
-        <span className={styles.filterLabel}>Price (€, excl. VAT)</span>
+        <span className={styles.filterLabel}>{t({ en: "Price (€, excl. VAT)", de: "Preis (€, zzgl. MwSt.)" })}</span>
         <div className={styles.priceRow}>
           <div className={styles.priceField}>
             <span>€</span>
             <input
               type="number"
               inputMode="numeric"
-              placeholder="Min"
+              placeholder={t({ en: "Min", de: "Min." })}
               value={minLocal}
               onChange={(e) => setMinLocal(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && applyPrice()}
@@ -216,7 +220,7 @@ export function Shop({
             <input
               type="number"
               inputMode="numeric"
-              placeholder="Max"
+              placeholder={t({ en: "Max", de: "Max." })}
               value={maxLocal}
               onChange={(e) => setMaxLocal(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && applyPrice()}
@@ -230,7 +234,7 @@ export function Shop({
 
       {activeChips.length > 0 && (
         <button type="button" className={styles.clearAll} onClick={clearAll}>
-          Clear all filters
+          {t({ en: "Clear all filters", de: "Alle Filter zurücksetzen" })}
         </button>
       )}
     </>
@@ -241,13 +245,21 @@ export function Shop({
       {!embedded && (
         <>
           <Seo
-            title={pageTitle(`Mechanical Face Seals, DF & DO Type${pageSuffix(page)}`)}
-            description="Shop mechanical face seals (floating seals, duo cone seals) in DF and DO type: replacement and aftermarket parts for Caterpillar, Komatsu, Goetze, SKF and more. Search by OEM part number."
+            title={localTitle(lang, "Mechanical Face Seals, DF & DO Type", DE_SEO.shop.title, page)}
+            description={t({
+              en: "Shop mechanical face seals (floating seals, duo cone seals) in DF and DO type: replacement and aftermarket parts for Caterpillar, Komatsu, Goetze, SKF and more. Search by OEM part number.",
+              de: DE_SEO.shop.description,
+            })}
           />
           <header className={styles.head}>
-            <span className={styles.kicker}>Catalog</span>
+            <span className={styles.kicker}>{t({ en: "Catalog", de: "Katalog" })}</span>
             <h1>{title}</h1>
-            <p>Mechanical face seals (DF &amp; DO type). Filter by type and price.</p>
+            <p>
+              {t({
+                en: "Mechanical face seals (DF & DO type). Filter by type and price.",
+                de: "Laufwerksdichtungen (Typ DF & DO). Nach Typ, Marke und Preis filtern oder direkt nach der OEM-Teilenummer suchen.",
+              })}
+            </p>
           </header>
         </>
       )}
@@ -256,8 +268,8 @@ export function Shop({
         <aside className={`${styles.filters} ${showFilters ? styles.filtersOpen : ""}`}>
           <div className={styles.filtersInner}>
             <div className={styles.filtersHeadMobile}>
-              <span>Filters</span>
-              <button type="button" onClick={() => setShowFilters(false)} aria-label="Close filters">
+              <span>{t({ en: "Filters", de: "Filter" })}</span>
+              <button type="button" onClick={() => setShowFilters(false)} aria-label={t({ en: "Close filters", de: "Filter schließen" })}>
                 <IconClose size={18} />
               </button>
             </div>
@@ -275,10 +287,15 @@ export function Shop({
                 className={styles.filterToggle}
                 onClick={() => setShowFilters((v) => !v)}
               >
-                Filters {showFilters ? <IconChevronUp size={15} /> : <IconChevronDown size={15} />}
+                {t({ en: "Filters", de: "Filter" })} {showFilters ? <IconChevronUp size={15} /> : <IconChevronDown size={15} />}
               </button>
               <span className={styles.count}>
-                {data ? `${data.total} result${data.total === 1 ? "" : "s"}` : "Loading…"}
+                {data
+                  ? t({
+                      en: `${data.total} result${data.total === 1 ? "" : "s"}`,
+                      de: `${data.total.toLocaleString("de-DE")} ${data.total === 1 ? "Ergebnis" : "Ergebnisse"}`,
+                    })
+                  : t({ en: "Loading…", de: "Wird geladen…" })}
               </span>
               <div className={styles.chips}>
                 {activeChips.map((c) => (
@@ -290,12 +307,12 @@ export function Shop({
               </div>
             </div>
             <label className={styles.sort}>
-              <span>Sort</span>
-              <select value={sort} onChange={(e) => updateParam("sort", e.target.value)} aria-label="Sort products">
-                <option value="relevance">Relevance</option>
-                <option value="latest">Newest</option>
-                <option value="price_asc">Price: low to high</option>
-                <option value="price_desc">Price: high to low</option>
+              <span>{t({ en: "Sort", de: "Sortieren" })}</span>
+              <select value={sort} onChange={(e) => updateParam("sort", e.target.value)} aria-label={t({ en: "Sort products", de: "Produkte sortieren" })}>
+                <option value="relevance">{t({ en: "Relevance", de: "Relevanz" })}</option>
+                <option value="latest">{t({ en: "Newest", de: "Neueste" })}</option>
+                <option value="price_asc">{t({ en: "Price: low to high", de: "Preis: aufsteigend" })}</option>
+                <option value="price_desc">{t({ en: "Price: high to low", de: "Preis: absteigend" })}</option>
               </select>
               <IconChevronDown size={15} />
             </label>
@@ -305,20 +322,20 @@ export function Shop({
 
           {isError && !data && (
             <EmptyState
-              title="Couldn't load products"
-              description="Something went wrong reaching the catalog. Please try again."
-              action={<Button onClick={() => refetch()}>Retry</Button>}
+              title={t({ en: "Couldn't load products", de: "Produkte konnten nicht geladen werden" })}
+              description={t({ en: "Something went wrong reaching the catalog. Please try again.", de: "Der Katalog ist gerade nicht erreichbar. Bitte versuchen Sie es erneut." })}
+              action={<Button onClick={() => refetch()}>{t({ en: "Retry", de: "Erneut versuchen" })}</Button>}
             />
           )}
 
           {data && data.items.length === 0 && (
             <EmptyState
-              title="No products match"
-              description="Try clearing filters, or search by your OEM part number."
+              title={t({ en: "No products match", de: "Keine passenden Produkte" })}
+              description={t({ en: "Try clearing filters, or search by your OEM part number.", de: "Setzen Sie Filter zurück oder suchen Sie nach Ihrer OEM-Teilenummer." })}
               action={
                 activeChips.length > 0 ? (
                   <Button variant="ghost" onClick={clearAll}>
-                    Clear filters
+                    {t({ en: "Clear filters", de: "Filter zurücksetzen" })}
                   </Button>
                 ) : undefined
               }
@@ -344,31 +361,31 @@ export function Shop({
               {totalPages > 1 && (
                 <div className={styles.pagination}>
                   {page > 1 ? (
-                    <Link className={styles.pageBtn} to={pageHref(page - 1)} rel="prev" aria-label="Previous page">
+                    <Link className={styles.pageBtn} to={pageHref(page - 1)} rel="prev" aria-label={t({ en: "Previous page", de: "Vorherige Seite" })}>
                       <span className={styles.flip}>
                         <IconArrowRight size={16} />
                       </span>
-                      Prev
+                      {t({ en: "Prev", de: "Zurück" })}
                     </Link>
                   ) : (
                     <span className={styles.pageBtn} aria-disabled="true">
                       <span className={styles.flip}>
                         <IconArrowRight size={16} />
                       </span>
-                      Prev
+                      {t({ en: "Prev", de: "Zurück" })}
                     </span>
                   )}
                   <span className={styles.pageInfo}>
-                    Page <b>{page}</b> of {totalPages}
+                    {t({ en: "Page", de: "Seite" })} <b>{page}</b> {t({ en: "of", de: "von" })} {totalPages}
                   </span>
                   {page < totalPages ? (
-                    <Link className={styles.pageBtn} to={pageHref(page + 1)} rel="next" aria-label="Next page">
-                      Next
+                    <Link className={styles.pageBtn} to={pageHref(page + 1)} rel="next" aria-label={t({ en: "Next page", de: "Nächste Seite" })}>
+                      {t({ en: "Next", de: "Weiter" })}
                       <IconArrowRight size={16} />
                     </Link>
                   ) : (
                     <span className={styles.pageBtn} aria-disabled="true">
-                      Next
+                      {t({ en: "Next", de: "Weiter" })}
                       <IconArrowRight size={16} />
                     </span>
                   )}

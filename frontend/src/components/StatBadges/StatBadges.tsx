@@ -1,24 +1,26 @@
 import { useEffect, useRef, useState } from "react";
+import { useT } from "../../lib/i18n";
 import styles from "./StatBadges.module.css";
 
 interface Stat {
   value: number;
   prefix?: string;
   suffix?: string;
-  label: string;
-  format?: (n: number) => string;
+  label: { en: string; de: string };
+  /** thousands separator in the page language */
+  grouped?: boolean;
 }
 
 const STATS: Stat[] = [
-  { value: 12, suffix: "h", label: "Express RFQ turnaround" },
-  { value: 24, suffix: "h", label: "Shipping from Germany" },
-  { value: 2100, suffix: "+", label: "Seals in stock", format: (n) => n.toLocaleString("en-US") },
-  { value: 5000, suffix: " h+", label: "Assurance on every unit", format: (n) => n.toLocaleString("en-US") },
+  { value: 12, suffix: "h", label: { en: "Express RFQ turnaround", de: "Express-Angebot" } },
+  { value: 24, suffix: "h", label: { en: "Shipping from Germany", de: "Versand ab Deutschland" } },
+  { value: 2100, suffix: "+", label: { en: "Seals in stock", de: "Dichtungen auf Lager" }, grouped: true },
+  { value: 5000, suffix: " h+", label: { en: "Assurance on every unit", de: "Lebensdauer je Dichtung" }, grouped: true },
 ];
 
 const DURATION = 900;
 
-function CountUp({ stat, start }: { stat: Stat; start: boolean }) {
+function CountUp({ stat, start, locale }: { stat: Stat; start: boolean; locale: string }) {
   const [n, setN] = useState(0);
   const prefersReduced =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -48,7 +50,7 @@ function CountUp({ stat, start }: { stat: Stat; start: boolean }) {
     };
   }, [start, stat.value, prefersReduced]);
 
-  const shown = stat.format ? stat.format(n) : String(n);
+  const shown = stat.grouped ? n.toLocaleString(locale) : String(n);
   return (
     <span className={styles.value}>
       {stat.prefix}
@@ -59,6 +61,7 @@ function CountUp({ stat, start }: { stat: Stat; start: boolean }) {
 }
 
 export function StatBadges() {
+  const t = useT();
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -82,12 +85,12 @@ export function StatBadges() {
   }, []);
 
   return (
-    <section className={styles.wrap} aria-label="Key facts">
+    <section className={styles.wrap} aria-label={t({ en: "Key facts", de: "Kennzahlen" })}>
       <div ref={ref} className={`${styles.grid} ${visible ? styles.in : ""}`}>
         {STATS.map((s, i) => (
-          <div key={s.label} className={styles.item} style={{ transitionDelay: `${i * 90}ms` }}>
-            <CountUp stat={s} start={visible} />
-            <span className={styles.label}>{s.label}</span>
+          <div key={s.label.en} className={styles.item} style={{ transitionDelay: `${i * 90}ms` }}>
+            <CountUp stat={s} start={visible} locale={t({ en: "en-US", de: "de-DE" })} />
+            <span className={styles.label}>{t(s.label)}</span>
           </div>
         ))}
       </div>
