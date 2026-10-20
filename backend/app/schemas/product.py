@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -60,6 +61,8 @@ class ProductDetailOut(ProductCardOut):
     images: list[ProductImageOut] = []
     attributes: list[ProductAttributeOut] = []
     cross_references: list[CrossReferenceOut] = []
+    # sitemap <lastmod>
+    updated_at: datetime | None = None
 
 
 class PagedProducts(BaseModel):

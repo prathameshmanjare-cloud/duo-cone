@@ -1,4 +1,5 @@
-import { Helmet } from "react-helmet-async";
+import { Seo } from "../../components/Seo/Seo";
+import { pageTitle } from "../../lib/seo";
 import styles from "./Content.module.css";
 
 export function StaticPage({
@@ -12,7 +13,7 @@ export function StaticPage({
 }) {
   return (
     <div className={styles.page}>
-      <Helmet><title>{`${title} | DuoCone`}</title></Helmet>
+      <Seo title={pageTitle(title)} description={intro ?? `${title}: ${sections.map((s) => s.body).join(" ")}`} />
       <h1>{title}</h1>
       {intro && <p className={styles.intro}>{intro}</p>}
       {sections.map((s) => (

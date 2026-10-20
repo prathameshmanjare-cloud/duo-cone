@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
@@ -18,6 +17,8 @@ import pumpImg from "../../assets/industries/app-pumps.png";
 import tunelImg from "../../assets/industries/app-tunnel.png";
 import doImg from "../../assets/product/do-cut.png";
 import dfImg from "../../assets/product/df-cut.png";
+import { Seo } from "../../components/Seo/Seo";
+import { pageTitle } from "../../lib/seo";
 import s from "./Industries.module.css";
 
 const INDUSTRIES = [
@@ -153,13 +154,7 @@ export function Industries() {
 
   return (
     <div className={s.page}>
-      <Helmet>
-        <title>Industries | DuoCone</title>
-        <meta
-          name="description"
-          content="The severe-duty industries and drive assemblies where DUO-CONE mechanical face seals guarantee zero leakage across mining, construction, forestry, defense, cement, tunnel boring and more."
-        />
-      </Helmet>
+      <Seo title={pageTitle("Industries – Mechanical Face Seals for Heavy Duty")} description={"The severe-duty industries and drive assemblies where DUO-CONE mechanical face seals guarantee zero leakage across mining, construction, forestry, defense, cement, tunnel boring and more."} />
 
       {/* 1 — hero */}
       <section className={`${s.section} ${s.dark} ${s.hero}`}>

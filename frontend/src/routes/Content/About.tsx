@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY, COMPANY_ADDRESS } from "../../lib/company";
 import heroImg from "../../assets/industries/tunel.jpg";
 import s from "./About.module.css";
+import { Seo } from "../../components/Seo/Seo";
+import { pageTitle } from "../../lib/seo";
 import ds from "./DuoCone.module.css";
 
 const PILLARS = [
@@ -153,13 +154,7 @@ export function About() {
   const [statsRef, statsSeen] = useInViewOnce<HTMLDivElement>();
   return (
     <div className={s.page}>
-      <Helmet>
-        <title>About Us | DuoCone</title>
-        <meta
-          name="description"
-          content="DUO-CONE is a specialised German manufacturer and distributor of heavy-duty mechanical face seals, shipping from Engelskirchen with 24-hour quotations and 24-hour dispatch."
-        />
-      </Helmet>
+      <Seo title={pageTitle("About Us – Mechanical Face Seal Specialists")} description={"DUO-CONE is a specialised German manufacturer and distributor of heavy-duty mechanical face seals, shipping from Engelskirchen with 24-hour quotations and 24-hour dispatch."} />
 
       {/* 1 — cinematic hero */}
       <section className={`${s.section} ${s.dark} ${s.hero}`}>

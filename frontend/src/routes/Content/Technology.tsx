@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import {
   AnimatePresence,
@@ -19,6 +18,8 @@ import moldImg from "../../assets/technology/molding.webp";
 import grindImg from "../../assets/technology/grinding.webp";
 import heatImg from "../../assets/technology/heat-treatment.webp";
 import coatImg from "../../assets/technology/coating.webp";
+import { Seo } from "../../components/Seo/Seo";
+import { pageTitle } from "../../lib/seo";
 import s from "./Technology.module.css";
 
 type AnatomyKey = "metal" | "toric" | "lapped" | "cavity";
@@ -246,13 +247,7 @@ export function Technology() {
 
   return (
     <div className={s.page}>
-      <Helmet>
-        <title>Technology | DuoCone</title>
-        <meta
-          name="description"
-          content="How DUO-CONE mechanical face seals are engineered: centrifugal casting, precision CNC and optical lapping, elastomer moulding, grinding, heat treatment and tribological coatings."
-        />
-      </Helmet>
+      <Seo title={pageTitle("Technology – How Mechanical Face Seals Are Made")} description={"How DUO-CONE mechanical face seals are engineered: centrifugal casting, precision CNC and optical lapping, elastomer moulding, grinding, heat treatment and tribological coatings."} />
 
       {/* 1 — hero */}
       <section className={`${s.section} ${s.dark} ${s.hero}`}>

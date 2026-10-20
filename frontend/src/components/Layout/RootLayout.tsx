@@ -1,4 +1,7 @@
+import { Suspense } from "react";
+import { Helmet } from "react-helmet-async";
 import { Outlet, useLocation } from "react-router-dom";
+import { organizationJsonLd, websiteJsonLd } from "../../lib/seo";
 import { Header } from "../Header/Header";
 import { Footer } from "../Footer/Footer";
 import { CartDrawer } from "../CartDrawer/CartDrawer";
@@ -18,6 +21,10 @@ export function RootLayout() {
 
   return (
     <>
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(organizationJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(websiteJsonLd)}</script>
+      </Helmet>
       <a href="#main" className="skip-link">
         Skip to content
       </a>
@@ -26,7 +33,10 @@ export function RootLayout() {
       <main id="main">
         <PageTransition>
           <div className={styles.page}>
-            <Outlet />
+            {/* on-demand pages load here; header and footer stay put */}
+            <Suspense fallback={null}>
+              <Outlet />
+            </Suspense>
           </div>
         </PageTransition>
       </main>

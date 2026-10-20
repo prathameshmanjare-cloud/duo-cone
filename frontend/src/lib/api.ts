@@ -36,6 +36,7 @@ export interface ProductDetail extends ProductCard {
   images: { url: string; alt?: string | null; position: number }[];
   attributes: { name: string; value: string }[];
   cross_references: { ref_number: string; ref_brand?: string | null }[];
+  updated_at?: string | null;
 }
 
 export interface PagedProducts {

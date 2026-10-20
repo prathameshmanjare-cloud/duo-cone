@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -17,6 +16,8 @@ import {
   IconArrowRight,
 } from "../../components/Icon/Icon";
 import { ProductSearch } from "../../components/ProductSearch/ProductSearch";
+import { Seo } from "../../components/Seo/Seo";
+import { pageSuffix, pageTitle } from "../../lib/seo";
 import styles from "./Shop.module.css";
 
 const SEAL_TYPES: { value: string; label: string }[] = [
@@ -239,9 +240,10 @@ export function Shop({
     <div className={embedded ? styles.pageEmbedded : styles.page} id="products">
       {!embedded && (
         <>
-          <Helmet>
-            <title>{`${categorySlug ? `${categorySlug} seals` : "Shop"} | DuoCone Mechanical Face Seals`}</title>
-          </Helmet>
+          <Seo
+            title={pageTitle(`Mechanical Face Seals, DF & DO Type${pageSuffix(page)}`)}
+            description="Shop mechanical face seals (floating seals, duo cone seals) in DF and DO type: replacement and aftermarket parts for Caterpillar, Komatsu, Goetze, SKF and more. Search by OEM part number."
+          />
           <header className={styles.head}>
             <span className={styles.kicker}>Catalog</span>
             <h1>{title}</h1>

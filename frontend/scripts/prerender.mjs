@@ -9,7 +9,7 @@
 //
 // On Vercel a failed catalog fetch fails the build, so the live deployment
 // is never replaced by one without product pages. Locally it only warns.
-import { mkdir, readFile, writeFile, copyFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -42,7 +42,11 @@ const SITE_URL = "https://www.duo-cone.com";
 
 const ssr = await import(pathToFileURL(join(ROOT, "dist-ssr", "entry-server.js")).href);
 const template = await readFile(join(DIST, "index.html"), "utf8");
-await copyFile(join(DIST, "index.html"), join(DIST, "_shell.html"));
+// client-only pages (cart, checkout, account, admin, ...) stay out of search
+await writeFile(
+  join(DIST, "_shell.html"),
+  template.replace("</head>", '    <meta name="robots" content="noindex, follow" />\n  </head>')
+);
 
 /** Retries cover Render's free tier waking up and transient 5xx. */
 async function prefetch(qc, options, { optional = false } = {}) {
@@ -141,6 +145,7 @@ async function main() {
     ),
   ];
   const productSlugs = new Set();
+  const listingProducts = new Map(); // listing base path -> product slugs on all its pages
   const listingJobs = [];
   let brandPages = 0;
   for (const l of listings) {
@@ -156,7 +161,11 @@ async function main() {
     const route = page > 1 ? `${base}page/${page}/` : base;
     await renderRoute(route, async (qc) => {
       const data = await prefetch(qc, shopQuery({ categorySlug, brand, page }));
-      for (const p of data.items) productSlugs.add(p.slug);
+      for (const p of data.items) {
+        productSlugs.add(p.slug);
+        if (!listingProducts.has(base)) listingProducts.set(base, []);
+        listingProducts.get(base).push(p.slug);
+      }
     });
   });
 
@@ -167,7 +176,7 @@ async function main() {
   );
 
   let missing = 0;
-  const rendered = new Set();
+  const lastmod = new Map(); // product slug -> YYYY-MM-DD
   const productFailures = await pool([...productSlugs], (slug) =>
     renderRoute(`/product/${slug}/`, async (qc) => {
       const product = await prefetch(qc, ssr.productQuery(slug), { optional: true });
@@ -176,20 +185,41 @@ async function main() {
         throw new Error("product not found");
       }
       await prefetch(qc, ssr.relatedQuery(slug), { optional: true });
-      rendered.add(`/product/${slug}/`);
+      lastmod.set(slug, product.updated_at ? product.updated_at.slice(0, 10) : "");
     })
   );
 
-  // sitemap: every rendered page except listing page 2, 3, ...
-  const sitemapRoutes = [
-    ...STATIC_ROUTES,
-    ...listingJobs.filter((j) => j.page === 1 && j.base !== "/shop/").map((j) => j.base),
-    ...[...rendered],
+  // sitemaps: pages (static + listings) and products, tied by an index.
+  // lastmod comes from the products; static pages have no reliable date.
+  const newest = (slugs) => slugs.map((sl) => lastmod.get(sl) ?? "").sort().at(-1) ?? "";
+  const pageEntries = [
+    ...STATIC_ROUTES.map((route) => ({ route, date: route === "/shop/" ? newest([...lastmod.keys()]) : "" })),
+    ...listingJobs
+      .filter((j) => j.page === 1 && j.base !== "/shop/")
+      .map((j) => ({ route: j.base, date: newest(listingProducts.get(j.base) ?? []) })),
   ];
-  const urls = sitemapRoutes.map((r) => `  <url><loc>${SITE_URL}${r}</loc></url>`).join("\n");
+  const productEntries = [...lastmod].map(([slug, date]) => ({ route: `/product/${slug}/`, date }));
+  const urlset = (entries) =>
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    entries
+      .map(({ route, date }) => `  <url><loc>${SITE_URL}${route}</loc>${date ? `<lastmod>${date}</lastmod>` : ""}</url>`)
+      .join("\n") +
+    `\n</urlset>\n`;
+  const sitemaps = [
+    { file: "sitemap-pages.xml", entries: pageEntries },
+    { file: "sitemap-products.xml", entries: productEntries },
+  ];
+  for (const sm of sitemaps) await writeFile(join(DIST, sm.file), urlset(sm.entries));
   await writeFile(
     join(DIST, "sitemap.xml"),
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
+    `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+      sitemaps
+        .map((sm) => {
+          const date = sm.entries.map((e) => e.date).sort().at(-1) ?? "";
+          return `  <sitemap><loc>${SITE_URL}/${sm.file}</loc>${date ? `<lastmod>${date}</lastmod>` : ""}</sitemap>`;
+        })
+        .join("\n") +
+      `\n</sitemapindex>\n`
   );
 
   // any URL without a file gets this page with an HTTP 404 status (Vercel)

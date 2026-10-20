@@ -1,7 +1,9 @@
-import { Helmet } from "react-helmet-async";
+import { useParams } from "react-router-dom";
 import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs";
 import { AFTERMARKET_BRANDS, REPLACEMENT_BRANDS, segmentPath, type SegmentSlug } from "../../lib/catalog";
 import { Shop } from "./Shop";
+import { Seo } from "../../components/Seo/Seo";
+import { pageSuffix, pageTitle } from "../../lib/seo";
 import styles from "./Shop.module.css";
 
 const LABELS = new Map([...REPLACEMENT_BRANDS, ...AFTERMARKET_BRANDS].map((b) => [b.value, b.label]));
@@ -14,6 +16,7 @@ const brandLabel = (slug: string) =>
  *  at the same URL the old shop used for its brand category pages. */
 export function BrandPage({ segment, brandSlug }: { segment: SegmentSlug; brandSlug: string }) {
   const name = brandLabel(brandSlug);
+  const { page } = useParams<{ page?: string }>();
   const intro =
     segment === "replacement"
       ? `${name} mechanical face seals (floating seals, duo cone seals) in DF and DO type, matched to the ${name} part number.`
@@ -21,10 +24,7 @@ export function BrandPage({ segment, brandSlug }: { segment: SegmentSlug; brandS
 
   return (
     <div className={styles.page}>
-      <Helmet>
-        <title>{`${name} Mechanical Face Seals | DuoCone`}</title>
-        <meta name="description" content={intro} />
-      </Helmet>
+      <Seo title={pageTitle(`${name} Mechanical Face Seals${pageSuffix(page)}`)} description={intro} />
       <Breadcrumbs
         items={[
           { label: "Shop", to: "/shop/" },

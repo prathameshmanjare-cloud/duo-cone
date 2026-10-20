@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { featuredQuery } from "../../lib/queries";
@@ -11,6 +10,7 @@ import { Industries } from "../../components/Industries/Industries";
 import { AboutBlock } from "../../components/AboutBlock/AboutBlock";
 import { Reveal } from "../../components/Reveal/Reveal";
 import { IconArrowRight } from "../../components/Icon/Icon";
+import { Seo } from "../../components/Seo/Seo";
 import styles from "./Home.module.css";
 
 export function Home() {
@@ -18,13 +18,7 @@ export function Home() {
 
   return (
     <>
-      <Helmet>
-        <title>DuoCone Mechanical Face Seals (DF &amp; DO Type) | German Manufacturer</title>
-        <meta
-          name="description"
-          content="DuoCone manufactures high-pressure mechanical face seals (Duo Cone DF & DO type) for mining, construction, agriculture and defense equipment. RFQ within 24h, shipping within 24h."
-        />
-      </Helmet>
+      <Seo title={"Mechanical Face Seals, DF & DO Type | Duo Cone Germany"} description={"DuoCone manufactures high-pressure mechanical face seals (Duo Cone DF & DO type) for mining, construction, agriculture and defense equipment. RFQ within 24h, shipping within 24h."} />
 
       <SealTypes />
 

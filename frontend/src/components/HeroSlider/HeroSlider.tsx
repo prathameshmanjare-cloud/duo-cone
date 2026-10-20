@@ -170,7 +170,7 @@ export function HeroSlider() {
                 <span className={styles.tick} /> {String(i + 1).padStart(2, "0")} · {s.eyebrow}
               </span>
 
-              <h1 className={styles.title} aria-label={s.title}>
+              <h2 className={styles.title} aria-label={s.title}>
                 {words.map((w, wi) => (
                   <span key={wi} className={styles.wordMask}>
                     <span
@@ -181,7 +181,7 @@ export function HeroSlider() {
                     </span>
                   </span>
                 ))}
-              </h1>
+              </h2>
 
               <p className={styles.copy}>{s.copy}</p>
 

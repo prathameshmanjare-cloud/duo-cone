@@ -71,26 +71,26 @@ export function Footer() {
         </RevealItem>
 
         <RevealItem className={styles.col}>
-          <h4>Shop</h4>
+          <h2 className={styles.colTitle}>Shop</h2>
           <Link to="/product-category/aftermarket/">Aftermarket</Link>
           <Link to="/product-category/replacement/">Replacement</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
-          <h4>Company</h4>
+          <h2 className={styles.colTitle}>Company</h2>
           <Link to="/about-us/">About Us</Link>
           <Link to="/industries/">Industries</Link>
           <Link to="/technology/">Technology</Link>
           <Link to="/contact/">Contact</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
-          <h4>Support</h4>
+          <h2 className={styles.colTitle}>Support</h2>
           <Link to="/faq/">FAQ</Link>
           <Link to="/shipping/">Shipping</Link>
           <Link to="/returns/">Returns &amp; Refunds</Link>
           <Link to="/rfq/">Request a Quote</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
-          <h4>Legal</h4>
+          <h2 className={styles.colTitle}>Legal</h2>
           <Link to="/legal-notice/">Legal Notice</Link>
           <Link to="/terms/">Terms &amp; Conditions</Link>
           <Link to="/privacy-policy/">Privacy Policy</Link>
