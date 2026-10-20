@@ -2,7 +2,7 @@
  *  Update here and every CTA / footer / About block stays in sync. */
 
 export const COMPANY = {
-  legalName: "SAPPARTS EUROPE GMBH",
+  legalName: "SAPPARTS Europe GmbH", // same spelling as the legal notice and invoices
   phoneDisplay: "+49 155 10386300",
   phoneHref: "tel:+4915510386300",
   email: "sale@duo-cone.com",
