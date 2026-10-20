@@ -91,7 +91,7 @@ export function ProductSearch({
               suggestions.slice(0, 6).map((p) => (
                 <Link
                   key={p.id}
-                  to={`/product/${p.slug}`}
+                  to={`/product/${p.slug}/`}
                   className={styles.suggestItem}
                   onClick={() => setSuggestOpen(false)}
                 >

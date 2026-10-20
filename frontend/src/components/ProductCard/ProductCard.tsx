@@ -28,7 +28,7 @@ export function ProductCard({ product }: { product: ProductCardT }) {
       whileHover={reduce ? undefined : { y: -6 }}
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
     >
-      <Link to={`/product/${product.slug}`} className={styles.media} aria-label={product.name}>
+      <Link to={`/product/${product.slug}/`} className={styles.media} aria-label={product.name}>
         <span className={styles.mediaBg} aria-hidden="true" />
         {showImage ? (
           <img
@@ -60,7 +60,7 @@ export function ProductCard({ product }: { product: ProductCardT }) {
 
       <div className={styles.body}>
         {product.brand && <span className={styles.brand}>{product.brand.name}</span>}
-        <Link to={`/product/${product.slug}`} className={styles.name}>
+        <Link to={`/product/${product.slug}/`} className={styles.name}>
           {product.name}
         </Link>
         <span className={styles.sku}>{product.sku}</span>
@@ -81,7 +81,7 @@ export function ProductCard({ product }: { product: ProductCardT }) {
         </div>
 
         {product.is_rfq_only ? (
-          <Link to="/rfq" className={`${styles.addBtn} ${styles.quoteBtn}`}>
+          <Link to="/rfq/" className={`${styles.addBtn} ${styles.quoteBtn}`}>
             Request a quote <IconArrowRight size={15} />
           </Link>
         ) : (

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { ProductCard } from "../lib/api";
+import { isHydrating } from "../lib/ssr";
 
 export interface CartLine {
   product: ProductCard;
@@ -51,6 +52,11 @@ export const useCartStore = create<CartState>()(
         get().lines.reduce((sum, l) => sum + (l.product.sale_price_cents ?? l.product.price_cents) * l.qty, 0),
       count: () => get().lines.reduce((sum, l) => sum + l.qty, 0),
     }),
-    { name: "duocone-cart" }
+    {
+      name: "duocone-cart",
+      // on prerendered pages the saved cart is loaded after hydration
+      // (main.tsx) so the first client render matches the server HTML
+      skipHydration: isHydrating(),
+    }
   )
 );

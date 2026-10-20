@@ -6,7 +6,6 @@ Grouped: dashboard, products, inventory, brands, categories, orders, rfqs.
 
 from __future__ import annotations
 
-import re
 import uuid
 
 from datetime import datetime, timezone
@@ -54,6 +53,7 @@ from app.models.catalog import (
     ProductImage,
 )
 from app.models.commerce import EmailTemplate, Order, OrderItem, OrderStatus, Rfq, User
+from app.utils.slug import product_slug
 from app.schemas.admin import (
     BrandIn,
     BrandOut,
@@ -103,11 +103,6 @@ from app.services.export import export_response
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
 LOW_STOCK_THRESHOLD = 5
-
-
-def _slugify(value: str) -> str:
-    value = re.sub(r"[^a-z0-9]+", "-", (value or "").strip().lower())
-    return value.strip("-") or "item"
 
 
 # ============================================================== dashboard ====
@@ -237,7 +232,8 @@ async def list_products(
 async def create_product(payload: ProductCreateIn, db: AsyncSession = Depends(get_db)) -> ProductAdminOut:
     data = payload.model_dump(exclude_unset=False)
     stock_qty = data.pop("stock_qty", None)
-    slug = data.get("slug") or _slugify(f"{data['name']}-{data['sku']}")
+    # same rule as the old shop's URLs (see app.utils.slug)
+    slug = data.get("slug") or product_slug(data["name"])
     data["slug"] = slug
 
     if payload.brand_id is not None:
@@ -251,7 +247,10 @@ async def create_product(payload: ProductCreateIn, db: AsyncSession = Depends(ge
         await db.flush()
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(status_code=409, detail="A product with that slug or SKU already exists")
+        raise HTTPException(
+            status_code=409,
+            detail="A product with that URL, or with this brand and part number, already exists",
+        )
 
     db.add(Inventory(product_id=product.id, stock_qty=stock_qty or 0))
     await db.commit()
@@ -283,7 +282,10 @@ async def update_product(
         await db.commit()
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(status_code=409, detail="slug or SKU already in use")
+        raise HTTPException(
+            status_code=409,
+            detail="That URL, or this brand and part number, is already used by another product",
+        )
 
     return await _serialize_product(db, product_id)
 

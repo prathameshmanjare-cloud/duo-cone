@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../../lib/api";
+import { featuredQuery } from "../../lib/queries";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { Hero } from "../../components/Hero/Hero";
 import { HeroSlider } from "../../components/HeroSlider/HeroSlider";
@@ -14,10 +14,7 @@ import { IconArrowRight } from "../../components/Icon/Icon";
 import styles from "./Home.module.css";
 
 export function Home() {
-  const { data } = useQuery({
-    queryKey: ["products", "featured"],
-    queryFn: () => api.listProducts({ page: 1, page_size: 4, sort: "latest" }),
-  });
+  const { data } = useQuery(featuredQuery());
 
   return (
     <>
@@ -44,11 +41,11 @@ export function Home() {
           <h2>Shop by segment</h2>
         </div>
         <div className={styles.segmentGrid}>
-          <Link to="/category/replacement" className={styles.segmentCard}>
+          <Link to="/product-category/replacement/" className={styles.segmentCard}>
             <h3>Replacement</h3>
             <p>Seal-brand originals: Goetze, Trelleborg, SKF, Eagle Burgmann and more.</p>
           </Link>
-          <Link to="/category/aftermarket" className={styles.segmentCard}>
+          <Link to="/product-category/aftermarket/" className={styles.segmentCard}>
             <h3>Aftermarket</h3>
             <p>Fits Caterpillar, Komatsu, Liebherr, John Deere and other OEM machines.</p>
           </Link>
@@ -59,7 +56,7 @@ export function Home() {
         <Reveal as="section" className={styles.section}>
           <div className={styles.sectionHead}>
             <h2>Latest products</h2>
-            <Link to="/shop">View all <IconArrowRight size={15} /></Link>
+            <Link to="/shop/">View all <IconArrowRight size={15} /></Link>
           </div>
           <div className={styles.grid}>
             {data.items.map((p) => (

@@ -30,7 +30,7 @@ const SLIDES: Slide[] = [
     copy: "German-engineered mechanical face seals (DF and DO type) for the heaviest duty on earth. Stocked in Engelskirchen, shipped within 24 hours.",
     chips: ["DF & DO type", "24h dispatch", "DIN EN ISO 9001"],
     cta: "Browse the shop",
-    to: "/shop",
+    to: "/shop/",
     fitContain: true,
   },
   {
@@ -41,8 +41,8 @@ const SLIDES: Slide[] = [
     copy: "Centrifugal casting, optical face lapping and proprietary elastomer science. Every seal validated on our own endurance rigs.",
     chips: ["Ra < 0.13 µm", "Optical lapping", "Endurance rigs"],
     cta: "Explore the technology",
-    to: "/technology",
-    secondary: { label: "About us", to: "/about" },
+    to: "/technology/",
+    secondary: { label: "About us", to: "/about-us/" },
   },
   {
     img: slideIndustries,
@@ -52,7 +52,7 @@ const SLIDES: Slide[] = [
     copy: "Mining, construction, tunnel boring, forestry, defense and cement. Zero-leakage sealing where downtime is not an option.",
     chips: ["12 sectors", "Zero leakage", "0.5 MPa rated"],
     cta: "See the industries",
-    to: "/industries",
+    to: "/industries/",
   },
   {
     img: slideSupport,
@@ -62,8 +62,8 @@ const SLIDES: Slide[] = [
     copy: "Direct access to senior sealing engineers, CAD cross-section validation and binding quotations inside 24 hours.",
     chips: ["24h quotation", "CAD validation", "Made in Germany"],
     cta: "Contact us",
-    to: "/contact",
-    secondary: { label: "Start a partnership", to: "/rfq" },
+    to: "/contact/",
+    secondary: { label: "Start a partnership", to: "/rfq/" },
   },
 ];
 

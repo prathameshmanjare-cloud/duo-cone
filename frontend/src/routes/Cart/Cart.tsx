@@ -16,7 +16,7 @@ export function Cart() {
         <EmptyState
           title="Your cart is empty"
           description="Browse our seal catalog to find your part."
-          action={<Link to="/shop"><Button>Browse products</Button></Link>}
+          action={<Link to="/shop/"><Button>Browse products</Button></Link>}
         />
       </div>
     );
@@ -32,7 +32,7 @@ export function Cart() {
             <li key={line.product.id} className={styles.line}>
               {line.product.image_url && <img src={line.product.image_url} alt={line.product.name} width={96} height={96} />}
               <div className={styles.body}>
-                <Link to={`/product/${line.product.slug}`}>{line.product.name}</Link>
+                <Link to={`/product/${line.product.slug}/`}>{line.product.name}</Link>
                 <span className={styles.sku}>SKU: {line.product.sku}</span>
                 <Price cents={line.product.price_cents} salePriceCents={line.product.sale_price_cents} />
               </div>

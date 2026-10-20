@@ -4,7 +4,14 @@ Source: scripts/data/pricelist.xlsx  (sheet "Shop Liste")
 Columns: Hersteller | Artikelnr | Titel | Beschreibung | VK Shop |
          Reybex Artikel | Verfuegbarkeit | Hilfsspalte Beschreibung 1
 
-Idempotent: upserts Product by slug (brand + article number). Re-runnable.
+Idempotent: upserts Product by brand + part number, ignoring dots, dashes and
+spaces ("140.30.00141" == "140-30-00141"). Re-runnable; never creates a second
+product for a part that already exists. New products get their URL slug from
+the title (app.utils.slug.product_slug); existing products keep theirs.
+
+A part listed more than once in the sheet with different data is skipped and
+reported, so a re-import can't overwrite whichever version was chosen in the
+admin.
 
 Usage:
     python -m scripts.import_pricelist
@@ -26,6 +33,7 @@ from sqlalchemy import select, text
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app.db.session import Base, SessionLocal, engine  # noqa: E402
+from app.utils.slug import PART_KEY_SQL, part_key, product_slug  # noqa: E402
 from app.models import catalog as _catalog  # noqa: E402,F401  (register tables)
 from app.models import commerce as _commerce  # noqa: E402,F401
 from app.models.catalog import (  # noqa: E402
@@ -144,39 +152,46 @@ def read_rows(path: Path, limit: int | None):
     ws = wb[SHEET]
     rows = list(ws.iter_rows(values_only=True))
     wb.close()
-    out = []
-    seen: set[tuple[str, str]] = set()
+    by_part: dict[tuple[str, str], dict] = {}
+    conflicts: dict[tuple[str, str], list[dict]] = {}
     for r in rows[HEADER_ROW + 1 :]:
         manufacturer = (r[0] or "").strip() if r[0] else ""
         article = str(r[1]).strip() if r[1] not in (None, "") else ""
         if not manufacturer or not article:
             continue
-        key = (manufacturer.lower(), article.lower())
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(
-            {
-                "manufacturer": manufacturer,
-                "article": article,
-                "title": (r[2] or "").strip() if r[2] else "",
-                "description": r[3],
-                "price": r[4],
-                "internal_code": (str(r[5]).strip() if r[5] not in (None, "") else None),
-                "availability": r[6],
-            }
-        )
-        if limit and len(out) >= limit:
-            break
-    return out
+        row = {
+            "manufacturer": manufacturer,
+            "article": article,
+            "title": (r[2] or "").strip() if r[2] else "",
+            "description": r[3],
+            "price": r[4],
+            "internal_code": (str(r[5]).strip() if r[5] not in (None, "") else None),
+            "availability": r[6],
+        }
+        key = (manufacturer.lower(), part_key(article))
+        first = by_part.get(key)
+        if first is None:
+            if limit and len(by_part) >= limit:
+                continue
+            by_part[key] = row
+        elif first != row:
+            conflicts.setdefault(key, [first]).append(row)
+    for key in conflicts:
+        del by_part[key]
+    return list(by_part.values()), list(conflicts.values())
 
 
 async def run(args: argparse.Namespace) -> None:
     path = Path(args.file)
     if not path.is_absolute():
         path = Path(__file__).resolve().parents[1] / path
-    rows = read_rows(path, args.limit)
+    rows, conflicts = read_rows(path, args.limit)
     print(f"Read {len(rows)} product rows from {path.name}")
+    if conflicts:
+        print(f"Skipped {len(conflicts)} part(s) listed more than once with different data "
+              "(fix the sheet, or edit them in the admin):")
+        for group in conflicts:
+            print("  -", " | ".join(f"{r['manufacturer']} {r['article']} EUR {r['price']}" for r in group))
     if args.dry_run:
         for row in rows[:10]:
             print(" -", row["manufacturer"], row["article"], "|", row["title"][:60], "| EUR", row["price"])
@@ -198,7 +213,7 @@ async def run(args: argparse.Namespace) -> None:
         cat_ids = await ensure_categories(db)
 
         brand_cache: dict[str, Brand] = {}
-        slug_seen: set[str] = set()
+        slugs_taken = set((await db.execute(select(Product.slug))).scalars())
         pending = 0
 
         for i, row in enumerate(rows, 1):
@@ -221,22 +236,25 @@ async def run(args: argparse.Namespace) -> None:
                     await db.flush()
                 brand_cache[brand_slug] = brand
 
-            base_slug = slugify(f"{brand_name}-{row['article']}")
-            slug = base_slug
-            n = 2
-            while slug in slug_seen:
-                slug = f"{base_slug}-{n}"
-                n += 1
-            slug_seen.add(slug)
-
             short_desc, html = build_description(row["description"])
             title = row["title"] or f"{brand_name} Mechanical Face Seal {row['article']}"
 
             product = (
-                await db.execute(select(Product).where(Product.slug == slug))
+                await db.execute(
+                    select(Product).where(
+                        Product.brand_id == brand.id,
+                        text(f"{PART_KEY_SQL} = :part").bindparams(part=part_key(row["article"])),
+                    )
+                )
             ).scalar_one_or_none()
             is_new = product is None
             if is_new:
+                # -2, -3 ... like WordPress, only if two titles give the same slug
+                base_slug = product_slug(title)
+                slug, n = base_slug, 2
+                while slug in slugs_taken:
+                    slug, n = f"{base_slug}-{n}", n + 1
+                slugs_taken.add(slug)
                 product = Product(slug=slug)
                 db.add(product)
 

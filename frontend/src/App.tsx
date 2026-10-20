@@ -42,7 +42,11 @@ export default function App() {
       <Route element={<RootLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
-        <Route path="/category/:slug" element={<Category />} />
+        <Route path="/shop/page/:page" element={<Shop />} />
+        <Route path="/product-category/:segment" element={<Category />} />
+        <Route path="/product-category/:segment/page/:page" element={<Category />} />
+        <Route path="/product-category/:segment/:brand" element={<Category />} />
+        <Route path="/product-category/:segment/:brand/page/:page" element={<Category />} />
         <Route path="/product/:slug" element={<Product />} />
         <Route path="/search" element={<Search />} />
         <Route path="/rfq" element={<Rfq />} />
@@ -64,7 +68,7 @@ export default function App() {
           <Route path="profile" element={<AccountProfile />} />
         </Route>
 
-        <Route path="/about" element={<About />} />
+        <Route path="/about-us" element={<About />} />
         <Route path="/technology" element={<Technology />} />
         <Route path="/industries" element={<Industries />} />
         <Route path="/contact" element={<Contact />} />

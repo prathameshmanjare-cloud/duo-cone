@@ -72,29 +72,29 @@ export function Footer() {
 
         <RevealItem className={styles.col}>
           <h4>Shop</h4>
-          <Link to="/category/aftermarket">Aftermarket</Link>
-          <Link to="/category/replacement">Replacement</Link>
+          <Link to="/product-category/aftermarket/">Aftermarket</Link>
+          <Link to="/product-category/replacement/">Replacement</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
           <h4>Company</h4>
-          <Link to="/about">About Us</Link>
-          <Link to="/industries">Industries</Link>
-          <Link to="/technology">Technology</Link>
-          <Link to="/contact">Contact</Link>
+          <Link to="/about-us/">About Us</Link>
+          <Link to="/industries/">Industries</Link>
+          <Link to="/technology/">Technology</Link>
+          <Link to="/contact/">Contact</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
           <h4>Support</h4>
-          <Link to="/faq">FAQ</Link>
-          <Link to="/shipping">Shipping</Link>
-          <Link to="/returns">Returns &amp; Refunds</Link>
-          <Link to="/rfq">Request a Quote</Link>
+          <Link to="/faq/">FAQ</Link>
+          <Link to="/shipping/">Shipping</Link>
+          <Link to="/returns/">Returns &amp; Refunds</Link>
+          <Link to="/rfq/">Request a Quote</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
           <h4>Legal</h4>
-          <Link to="/legal-notice">Legal Notice</Link>
-          <Link to="/terms">Terms &amp; Conditions</Link>
-          <Link to="/privacy-policy">Privacy Policy</Link>
-          <Link to="/cookie-policy">Cookie Policy</Link>
+          <Link to="/legal-notice/">Legal Notice</Link>
+          <Link to="/terms/">Terms &amp; Conditions</Link>
+          <Link to="/privacy-policy/">Privacy Policy</Link>
+          <Link to="/cookie-policy/">Cookie Policy</Link>
         </RevealItem>
       </RevealGroup>
 
@@ -110,9 +110,9 @@ export function Footer() {
           <div className={styles.bottomRow}>
             <span>© {year} DuoCone. All rights reserved.</span>
             <nav>
-              <Link to="/legal-notice">Legal Notice</Link>
-              <Link to="/terms">Terms &amp; Conditions</Link>
-              <Link to="/privacy-policy">Privacy Policy</Link>
+              <Link to="/legal-notice/">Legal Notice</Link>
+              <Link to="/terms/">Terms &amp; Conditions</Link>
+              <Link to="/privacy-policy/">Privacy Policy</Link>
             </nav>
           </div>
         </div>

@@ -1,12 +1,15 @@
-import { Navigate, useParams } from "react-router-dom";
-import { Shop } from "./Shop";
+import { useParams } from "react-router-dom";
+import type { SegmentSlug } from "../../lib/catalog";
+import { NotFound } from "../NotFound/NotFound";
+import { BrandPage } from "./BrandPage";
 import { SegmentPage } from "./SegmentPage";
 
-const SEGMENTS = new Set(["replacement", "aftermarket"]);
+const SEGMENTS = new Set<string>(["replacement", "aftermarket"]);
 
+/** /product-category/<segment>/ and /product-category/<segment>/<brand>/ */
 export function Category() {
-  const { slug } = useParams<{ slug: string }>();
-  if (slug === "duo-cone") return <Navigate to="/shop" replace />;
-  if (slug && SEGMENTS.has(slug)) return <SegmentPage slug={slug} />;
-  return <Shop categorySlug={slug} />;
+  const { segment = "", brand } = useParams<{ segment: string; brand?: string }>();
+  if (!SEGMENTS.has(segment)) return <NotFound />;
+  if (brand) return <BrandPage segment={segment as SegmentSlug} brandSlug={brand} />;
+  return <SegmentPage slug={segment} />;
 }

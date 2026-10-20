@@ -35,7 +35,7 @@ export function CookieConsent() {
     <div className={styles.banner} role="dialog" aria-live="polite" aria-label="Cookie consent">
       <p>
         We use cookies to run this site and, with your consent, to understand how it's used via Google
-        Analytics. See our <Link to="/cookie-policy">Cookie Policy</Link> for details.
+        Analytics. See our <Link to="/cookie-policy/">Cookie Policy</Link> for details.
       </p>
       <div className={styles.actions}>
         <Button variant="ghost" onClick={decline}>Decline</Button>

@@ -99,12 +99,12 @@ export function AboutBlock() {
           </div>
 
           <div className={styles.actions}>
-            <Link to="/about">
+            <Link to="/about-us/">
               <Button variant="primary">
                 More about us <IconArrowRight size={18} />
               </Button>
             </Link>
-            <Link to="/contact" className={styles.textLink}>
+            <Link to="/contact/" className={styles.textLink}>
               Talk to our team
             </Link>
           </div>

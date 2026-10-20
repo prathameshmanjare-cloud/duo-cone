@@ -142,7 +142,7 @@ function MsgView({ msg, onChip, last }: { msg: Msg; onChip: (t: string) => void;
       {msg.products && msg.products.length > 0 && (
         <div className={styles.cards}>
           {msg.products.map((p) => (
-            <Link key={p.slug} to={`/product/${p.slug}`} className={styles.pcard}>
+            <Link key={p.slug} to={`/product/${p.slug}/`} className={styles.pcard}>
               <div className={styles.pcardName}>{p.name}</div>
               <div className={styles.pcardMeta}>
                 {p.sku} ·{" "}

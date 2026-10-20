@@ -15,13 +15,13 @@ import {
 import styles from "./Header.module.css";
 
 const NAV = [
-  { to: "/shop", label: "Shop" },
-  { to: "/category/replacement", label: "Replacement" },
-  { to: "/category/aftermarket", label: "Aftermarket" },
-  { to: "/industries", label: "Industries" },
-  { to: "/technology", label: "Technology" },
-  { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
+  { to: "/shop/", label: "Shop" },
+  { to: "/product-category/replacement/", label: "Replacement" },
+  { to: "/product-category/aftermarket/", label: "Aftermarket" },
+  { to: "/industries/", label: "Industries" },
+  { to: "/technology/", label: "Technology" },
+  { to: "/about-us/", label: "About" },
+  { to: "/contact/", label: "Contact" },
 ];
 
 export function Header() {
@@ -113,7 +113,7 @@ export function Header() {
             ))}
           </nav>
           <div className={styles.actions}>
-            <Link to="/rfq" className={styles.rfqBtn}>
+            <Link to="/rfq/" className={styles.rfqBtn}>
               <span className={styles.rfqLabel}>Start RFQ</span> <IconArrowRight size={15} />
             </Link>
             <span className={styles.divider} aria-hidden="true" />

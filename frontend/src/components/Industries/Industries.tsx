@@ -114,7 +114,7 @@ export function Industries() {
           <h2 id="industries-heading">Trusted across industries</h2>
           <p className={styles.sub}>Twelve demanding sectors, one sealing standard.</p>
         </div>
-        <Link to="/industries" className={styles.headLink}>
+        <Link to="/industries/" className={styles.headLink}>
           All industries <IconArrowRight size={16} />
         </Link>
       </div>
@@ -199,7 +199,7 @@ export function Industries() {
               </span>
               <h3 className={styles.captionName}>{current.name}</h3>
               <p className={styles.captionBlurb}>{current.blurb}</p>
-              <Link to="/industries" className={styles.captionLink}>
+              <Link to="/industries/" className={styles.captionLink}>
                 Explore applications <IconArrowRight size={16} />
               </Link>
             </motion.div>

@@ -363,7 +363,7 @@ export function Industries() {
               <div><dt>Diameter</dt><dd>50 mm to 1,000 mm</dd></div>
               <div><dt>Typical machinery</dt><dd>Track rollers, front idlers, final drives</dd></div>
             </dl>
-            <Link to="/shop?seal_type=DO" className={s.typeLink}>
+            <Link to="/shop/?seal_type=DO" className={s.typeLink}>
               Explore DO specifications <IconArrowRight size={16} />
             </Link>
           </article>
@@ -383,7 +383,7 @@ export function Industries() {
               <div><dt>Diameter</dt><dd>100 mm to 1,200 mm</dd></div>
               <div><dt>Typical machinery</dt><dd>TBM cutters, heavy conveyors, centrifuges</dd></div>
             </dl>
-            <Link to="/shop?seal_type=DF" className={s.typeLink}>
+            <Link to="/shop/?seal_type=DF" className={s.typeLink}>
               Explore DF specifications <IconArrowRight size={16} />
             </Link>
           </article>
@@ -401,7 +401,7 @@ export function Industries() {
           validation and rapid express quotes.
         </p>
         <div className={s.heroActions}>
-          <Link to="/rfq">
+          <Link to="/rfq/">
             <Button variant="primary">
               Get express offer <IconArrowRight size={18} />
             </Button>

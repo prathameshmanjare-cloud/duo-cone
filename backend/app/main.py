@@ -22,8 +22,14 @@ from app.api.v1 import (
 )
 from app.config.settings import get_settings
 from app.db.seed_data import ensure_seed_data
-from app.db.bootstrap import ensure_admin_user, ensure_email_templates, ensure_schema_upgrades
+from app.db.bootstrap import (
+    ensure_admin_user,
+    ensure_email_templates,
+    ensure_product_uniqueness,
+    ensure_schema_upgrades,
+)
 from app.db.session import Base, SessionLocal, engine
+from app.integrations.storefront import schedule_rebuild
 from app.middleware.rate_limit import limiter
 
 # import models so metadata is populated before create_all
@@ -47,6 +53,11 @@ async def lifespan(_: FastAPI):
                 await ensure_schema_upgrades(db)
         except Exception:  # noqa: BLE001
             log.exception("Schema upgrade failed")
+        try:
+            async with SessionLocal() as db:
+                await ensure_product_uniqueness(db)
+        except Exception:  # noqa: BLE001
+            log.exception("Product uniqueness check failed")
         try:
             async with SessionLocal() as db:
                 await ensure_email_templates(db)
@@ -112,6 +123,22 @@ async def security_headers(request: Request, call_next):  # noqa: ANN001
         return response  # Swagger UI needs to load its own scripts
     for name, value in _SECURITY_HEADERS.items():
         response.headers.setdefault(name, value)
+    return response
+
+
+# admin writes that change what the prerendered storefront shows
+_CATALOG_WRITE = re.compile(r"^/api/v1/admin/(products|brands|categories)(/|$)")
+
+
+@app.middleware("http")
+async def rebuild_storefront_on_catalog_change(request: Request, call_next):  # noqa: ANN001
+    response = await call_next(request)
+    if (
+        request.method in ("POST", "PUT", "PATCH", "DELETE")
+        and response.status_code < 400
+        and _CATALOG_WRITE.match(request.url.path)
+    ):
+        schedule_rebuild()
     return response
 
 

@@ -117,13 +117,13 @@ export function Checkout() {
     return (
       <div className={styles.page}>
         <PageTitle title="Checkout" />
-        <EmptyState title="Nothing to check out" description="Your cart is empty." action={<Link to="/shop">Browse products</Link>} />
+        <EmptyState title="Nothing to check out" description="Your cart is empty." action={<Link to="/shop/">Browse products</Link>} />
       </div>
     );
   }
 
   function sendEnquiry() {
-    navigate("/rfq", {
+    navigate("/rfq/", {
       state: {
         email: watch("email"),
         company: watch("company"),
@@ -209,7 +209,7 @@ export function Checkout() {
             </label>
           </section>
           <label className={styles.terms}>
-            <input type="checkbox" {...register("terms")} /> I accept the <Link to="/terms">terms &amp; conditions</Link>
+            <input type="checkbox" {...register("terms")} /> I accept the <Link to="/terms/">terms &amp; conditions</Link>
           </label>
           {errors.terms && <span className={styles.err}>{errors.terms.message}</span>}
         </div>

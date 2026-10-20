@@ -1,8 +1,9 @@
 import type { MouseEvent } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { Shop } from "./Shop";
+import { AFTERMARKET_BRANDS, REPLACEMENT_BRANDS, brandPath, segmentPath } from "../../lib/catalog";
 import replacementAnimation from "../../assets/replacement/replacement-animation.mp4";
 import styles from "./SegmentPage.module.css";
 
@@ -13,16 +14,10 @@ type Segment = {
   kicker: string;
   intro: string;
   metaWord: string;
-  facet: "brand" | "seal_type";
   tilesLabel: string;
   tiles: Tile[];
   shipHours: number;
 };
-
-const brand = (name: string): Tile => ({
-  label: name,
-  value: name.toLowerCase().replace(/\s+/g, "-"),
-});
 
 const SEGMENTS: Record<string, Segment> = {
   replacement: {
@@ -32,9 +27,8 @@ const SEGMENTS: Record<string, Segment> = {
     intro:
       "Seal-brand originals, matched to the specifications of the leading seal manufacturers. Fast delivery, shipping within 24 hours.",
     metaWord: "seal brands",
-    facet: "brand",
     tilesLabel: "Shop by seal brand",
-    tiles: ["Goetze", "Trelleborg", "Nuova Sjat", "GNL", "SKF", "Eagle Burgmann"].map(brand),
+    tiles: REPLACEMENT_BRANDS,
     shipHours: 24,
   },
   aftermarket: {
@@ -44,26 +38,8 @@ const SEGMENTS: Record<string, Segment> = {
     intro:
       "Mechanical face seals that fit the leading OEM machines. A direct aftermarket alternative for construction, mining, agriculture and earthmoving equipment. Fast delivery, shipping within 24 hours.",
     metaWord: "OEM fitments",
-    facet: "brand",
     tilesLabel: "Shop by OEM machine",
-    tiles: [
-      "Caterpillar",
-      "CNHI",
-      "Hitachi",
-      "Fiat Hitachi",
-      "John Deere",
-      "Komatsu",
-      "Liebherr",
-      "FIAT Allis",
-      "Poclain",
-      "Busak Luyken",
-      "Massey Ferguson",
-      "Laltesi",
-      "International",
-      "Hanomag",
-      "Hydromac",
-      "Benati",
-    ].map(brand),
+    tiles: AFTERMARKET_BRANDS,
     shipHours: 24,
   },
 };
@@ -71,12 +47,10 @@ const SEGMENTS: Record<string, Segment> = {
 function TileCard({
   label,
   to,
-  active,
   featured,
 }: {
   label: string;
   to: string;
-  active: boolean;
   featured?: boolean;
 }) {
   function onMove(e: MouseEvent<HTMLAnchorElement>) {
@@ -90,7 +64,7 @@ function TileCard({
     <Link
       to={to}
       onMouseMove={onMove}
-      className={`${styles.brand} ${active ? styles.brandOn : ""} ${featured ? styles.brandFeatured : ""}`}
+      className={`${styles.brand} ${featured ? styles.brandFeatured : ""}`}
     >
       <span className={styles.ghost} aria-hidden="true">
         {abbr}
@@ -113,11 +87,8 @@ function TileCard({
 
 export function SegmentPage({ slug }: { slug: string }) {
   const seg = SEGMENTS[slug];
-  const [params] = useSearchParams();
 
   if (!seg) return <Shop categorySlug={slug} />;
-
-  const activeValue = params.get(seg.facet) ?? undefined;
 
   return (
     <div className={styles.wrap}>
@@ -164,7 +135,7 @@ export function SegmentPage({ slug }: { slug: string }) {
       <section className={styles.brands} aria-label={seg.tilesLabel}>
         <div className={styles.brandsHead}>
           <h2>{seg.tilesLabel}</h2>
-          <Link to={`/category/${seg.slug}`} className={styles.allLink}>
+          <Link to={segmentPath(seg.slug)} className={styles.allLink}>
             View all {seg.title.toLowerCase()} <IconArrowRight size={15} />
           </Link>
         </div>
@@ -174,8 +145,7 @@ export function SegmentPage({ slug }: { slug: string }) {
               key={t.value}
               label={t.label}
               featured={i === 0}
-              active={activeValue === t.value}
-              to={`/category/${seg.slug}?${seg.facet}=${t.value}#products`}
+              to={brandPath(t.value, seg.slug)}
             />
           ))}
         </div>

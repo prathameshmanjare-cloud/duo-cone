@@ -177,7 +177,7 @@ export function Contact() {
                 <input type="checkbox" {...register("agree", { required: true })} />
                 <span>
                   I agree to the{" "}
-                  <Link to="/privacy-policy" target="_blank">
+                  <Link to="/privacy-policy/" target="_blank">
                     Privacy Policy
                   </Link>
                   .

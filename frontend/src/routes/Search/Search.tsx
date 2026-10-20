@@ -26,7 +26,7 @@ export function Search() {
         <EmptyState
           title="No products matched"
           description="Try a different OEM part number, or browse the full catalog."
-          action={<Link to="/shop">Browse catalog</Link>}
+          action={<Link to="/shop/">Browse catalog</Link>}
         />
       )}
       {data && data.length > 0 && (

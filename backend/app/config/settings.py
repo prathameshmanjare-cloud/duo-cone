@@ -29,6 +29,7 @@ _SECRET_FIELDS = (
     "smtp_host",
     "smtp_user",
     "smtp_password",
+    "vercel_deploy_hook_url",
 )
 
 
@@ -79,6 +80,10 @@ class Settings(BaseSettings):
 
     # public base URL of the storefront, for Stripe success/cancel redirects
     frontend_url: str = "http://localhost:5173"
+    # Vercel Deploy Hook (Project -> Settings -> Git -> Deploy Hooks). When set,
+    # catalog edits in the admin trigger a storefront rebuild so the
+    # prerendered product pages and sitemap pick them up. Blank = off.
+    vercel_deploy_hook_url: str = ""
 
     # Stripe — leave blank to disable card payments (checkout falls back to invoice)
     stripe_secret_key: str = ""
