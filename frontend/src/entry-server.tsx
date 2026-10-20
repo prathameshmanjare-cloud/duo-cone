@@ -6,7 +6,15 @@ import { QueryClient, QueryClientProvider, dehydrate } from "@tanstack/react-que
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 
-export { featuredQuery, productQuery, relatedQuery, shopQuery, SHOP_PAGE_SIZE } from "./lib/queries";
+export {
+  brandQuery,
+  categoryQuery,
+  featuredQuery,
+  productQuery,
+  relatedQuery,
+  shopQuery,
+  SHOP_PAGE_SIZE,
+} from "./lib/queries";
 
 export function createQueryClient() {
   // never refetch or retry during the build; whatever was prefetched is final

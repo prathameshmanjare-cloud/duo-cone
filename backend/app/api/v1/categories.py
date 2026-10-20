@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.repositories import product_repository as repo
+from app.services import product_service
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
@@ -25,6 +26,6 @@ async def get_category(slug: str, db: AsyncSession = Depends(get_db)):
         "id": cat.id,
         "slug": cat.slug,
         "name": cat.name,
-        "description": cat.description,
+        "description": product_service.rich_text(cat.description),
         "image_url": cat.image_url,
     }

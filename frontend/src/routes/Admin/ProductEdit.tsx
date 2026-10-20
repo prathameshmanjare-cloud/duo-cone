@@ -309,13 +309,15 @@ function CrossRefEditor({ productId }: { productId: string }) {
   const { data } = useQuery({ queryKey: key, queryFn: () => adminApi.listCrossRefs(productId) });
   const [ref, setRef] = useState("");
   const [brand, setBrand] = useState("");
+  const [models, setModels] = useState("");
   const [note, setNote] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
 
   const add = useMutation({
-    mutationFn: () => adminApi.addCrossRef(productId, { ref_number: ref, ref_brand: brand || null, note: note || null }),
-    onSuccess: () => { setRef(""); setBrand(""); setNote(""); invalidate(); },
+    mutationFn: () =>
+      adminApi.addCrossRef(productId, { ref_number: ref, ref_brand: brand || null, machine_models: models || null, note: note || null }),
+    onSuccess: () => { setRef(""); setBrand(""); setModels(""); setNote(""); invalidate(); },
     onError: (e) => setMsg((e as Error).message),
   });
   const del = useMutation({
@@ -326,11 +328,12 @@ function CrossRefEditor({ productId }: { productId: string }) {
   return (
     <div className={`${s.card} ${s.cardPad} ${s.section}`}>
       <h2 className={s.cardTitle}>Cross-references</h2>
-      <p className={s.cardSub}>OEM and competitor part numbers this product replaces.</p>
+      <p className={s.cardSub}>OEM and competitor part numbers this product replaces, and the machines they fit. Shown on the product page.</p>
       {msg && <p className={s.error}>{msg}</p>}
       <div className={s.inlineForm} style={{ marginBottom: 16 }}>
         <input className={s.input} aria-label="Reference number" placeholder="Reference no." value={ref} onChange={(e) => setRef(e.target.value)} />
         <input className={s.input} aria-label="Reference brand" placeholder="Brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
+        <input className={s.input} aria-label="Machine models" placeholder="Machine models, e.g. D6R, D6T" value={models} onChange={(e) => setModels(e.target.value)} />
         <input className={s.input} aria-label="Note" placeholder="Note" value={note} onChange={(e) => setNote(e.target.value)} />
         <button className={s.btn} disabled={!ref || add.isPending} onClick={() => { setMsg(null); add.mutate(); }}>
           <Icon name="plus" /> Add
@@ -338,19 +341,20 @@ function CrossRefEditor({ productId }: { productId: string }) {
       </div>
       <div className={s.tableWrap}>
         <table className={`${s.table} ${s.tableStack}`}>
-          <thead><tr><th>Reference</th><th>Brand</th><th>Note</th><th></th></tr></thead>
+          <thead><tr><th>Reference</th><th>Brand</th><th>Machine models</th><th>Note</th><th></th></tr></thead>
           <tbody>
             {data?.map((r) => (
               <tr key={r.id}>
                 <td data-primary><span className={s.code}>{r.ref_number}</span></td>
                 <td data-label="Brand">{r.ref_brand ?? "—"}</td>
+                <td data-label="Machine models" className={s.wrap}>{r.machine_models ?? "—"}</td>
                 <td data-label="Note" className={s.wrap}>{r.note ?? "—"}</td>
                 <td className={s.cellActions}>
                   <DeleteButton label={`Remove ${r.ref_number}`} onClick={() => del.mutate(r.id)} />
                 </td>
               </tr>
             ))}
-            {data?.length === 0 && <EmptyRow colSpan={4} title="No cross-references yet" />}
+            {data?.length === 0 && <EmptyRow colSpan={5} title="No cross-references yet" />}
           </tbody>
         </table>
       </div>

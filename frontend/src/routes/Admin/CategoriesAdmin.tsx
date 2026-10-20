@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type AdminCategory } from "../../lib/adminApi";
 import { ExportButtons } from "./ExportButtons";
 import { ConfirmModal } from "./ConfirmModal";
+import { PageTextRow } from "./PageTextRow";
 import { DeleteButton, EmptyRow, Icon, PageHeader, TableSkeleton } from "./ui";
 import s from "./Admin.module.css";
 
@@ -115,6 +116,7 @@ function CategoryRow({
   const [slug, setSlug] = useState(cat.slug);
   const [sort, setSort] = useState(String(cat.sort));
   const [confirming, setConfirming] = useState(false);
+  const [editingText, setEditingText] = useState(false);
 
   const patch = useMutation({
     mutationFn: (data: Record<string, unknown>) => adminApi.updateCategory(cat.id, data),
@@ -123,6 +125,7 @@ function CategoryRow({
   });
 
   return (
+    <>
     <tr>
       <td data-label="Name"><input className={s.input} aria-label="Category name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => name !== cat.name && patch.mutate({ name })} /></td>
       <td data-label="Slug"><input className={`${s.input} ${s.mono}`} aria-label="Category slug" value={slug} onChange={(e) => setSlug(e.target.value)} onBlur={() => slug !== cat.slug && patch.mutate({ slug })} /></td>
@@ -151,6 +154,9 @@ function CategoryRow({
         />
       </td>
       <td className={s.cellActions}>
+        <button type="button" className={`${s.btn} ${s.btnGhost} ${s.btnSm}`} onClick={() => setEditingText((v) => !v)} aria-expanded={editingText}>
+          Page text{cat.description ? " ✓" : ""}
+        </button>
         <DeleteButton label={`Delete ${cat.name}`} onClick={() => setConfirming(true)} />
         {confirming && (
           <ConfirmModal
@@ -162,5 +168,16 @@ function CategoryRow({
         )}
       </td>
     </tr>
+    {editingText && (
+      <PageTextRow
+        colSpan={5}
+        label={cat.name}
+        value={cat.description}
+        saving={patch.isPending}
+        onSave={(description) => patch.mutate({ description }, { onSuccess: () => setEditingText(false) })}
+        onClose={() => setEditingText(false)}
+      />
+    )}
+    </>
   );
 }

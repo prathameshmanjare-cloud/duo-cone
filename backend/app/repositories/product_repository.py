@@ -139,6 +139,10 @@ async def list_brands(db: AsyncSession) -> list[Brand]:
     return list((await db.execute(select(Brand).order_by(Brand.name))).scalars().all())
 
 
+async def get_brand_by_slug(db: AsyncSession, slug: str) -> Brand | None:
+    return (await db.execute(select(Brand).where(Brand.slug == slug))).scalar_one_or_none()
+
+
 async def list_categories(db: AsyncSession) -> list[Category]:
     return list((await db.execute(select(Category).order_by(Category.sort))).scalars().all())
 

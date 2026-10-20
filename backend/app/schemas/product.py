@@ -29,6 +29,12 @@ class CrossReferenceOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     ref_number: str
     ref_brand: str | None = None
+    machine_models: str | None = None
+
+
+class BrandDetailOut(BrandOut):
+    # sanitized HTML for the brand's catalog page
+    description_html: str | None = None
 
 
 class ProductCardOut(BaseModel):

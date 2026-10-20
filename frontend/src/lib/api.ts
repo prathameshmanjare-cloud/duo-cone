@@ -35,7 +35,7 @@ export interface ProductDetail extends ProductCard {
   warranty_months?: number | null;
   images: { url: string; alt?: string | null; position: number }[];
   attributes: { name: string; value: string }[];
-  cross_references: { ref_number: string; ref_brand?: string | null }[];
+  cross_references: { ref_number: string; ref_brand?: string | null; machine_models?: string | null }[];
   updated_at?: string | null;
 }
 
@@ -181,6 +181,9 @@ export const api = {
   getProduct: (slug: string) => request<ProductDetail>(`/products/${slug}`),
   getRelated: (slug: string) => request<ProductCard[]>(`/products/${slug}/related`),
   listBrands: () => request<Brand[]>(`/brands`),
+  getBrand: (slug: string) => request<Brand & { description_html?: string | null }>(`/brands/${slug}`),
+  getCategory: (slug: string) =>
+    request<{ id: number; slug: string; name: string; description?: string | null }>(`/categories/${slug}`),
   listCategories: () => request<{ id: number; slug: string; name: string; image_url?: string }[]>(`/categories`),
   search: (q: string) => request<ProductCard[]>(`/search?q=${encodeURIComponent(q)}`),
   submitRfq: (payload: unknown) =>

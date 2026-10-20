@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type AdminBrand } from "../../lib/adminApi";
 import { ExportButtons } from "./ExportButtons";
 import { ConfirmModal } from "./ConfirmModal";
+import { PageTextRow } from "./PageTextRow";
 import { DeleteButton, EmptyRow, Icon, PageHeader, TableSkeleton } from "./ui";
 import s from "./Admin.module.css";
 
@@ -111,6 +112,7 @@ function BrandRow({
   const [slug, setSlug] = useState(brand.slug);
   const [segment, setSegment] = useState(brand.segment);
   const [confirming, setConfirming] = useState(false);
+  const [editingText, setEditingText] = useState(false);
 
   const patch = useMutation({
     mutationFn: (data: Record<string, unknown>) => adminApi.updateBrand(brand.id, data),
@@ -119,6 +121,7 @@ function BrandRow({
   });
 
   return (
+    <>
     <tr>
       <td data-label="Name"><input className={s.input} aria-label="Brand name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => name !== brand.name && patch.mutate({ name })} /></td>
       <td data-label="Slug"><input className={`${s.input} ${s.mono}`} aria-label="Brand slug" value={slug} onChange={(e) => setSlug(e.target.value)} onBlur={() => slug !== brand.slug && patch.mutate({ slug })} /></td>
@@ -129,6 +132,9 @@ function BrandRow({
       </td>
       <td data-label="Products" className={`${s.right} ${s.num}`}>{brand.product_count}</td>
       <td className={s.cellActions}>
+        <button type="button" className={`${s.btn} ${s.btnGhost} ${s.btnSm}`} onClick={() => setEditingText((v) => !v)} aria-expanded={editingText}>
+          Page text{brand.description ? " ✓" : ""}
+        </button>
         <DeleteButton label={`Delete ${brand.name}`} onClick={() => setConfirming(true)} />
         {confirming && (
           <ConfirmModal
@@ -140,5 +146,16 @@ function BrandRow({
         )}
       </td>
     </tr>
+    {editingText && (
+      <PageTextRow
+        colSpan={5}
+        label={brand.name}
+        value={brand.description}
+        saving={patch.isPending}
+        onSave={(description) => patch.mutate({ description }, { onSuccess: () => setEditingText(false) })}
+        onClose={() => setEditingText(false)}
+      />
+    )}
+    </>
   );
 }

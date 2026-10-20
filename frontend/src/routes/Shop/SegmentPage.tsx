@@ -7,6 +7,9 @@ import replacementAnimation from "../../assets/replacement/replacement-animation
 import { Seo } from "../../components/Seo/Seo";
 import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs";
 import { pageSuffix, pageTitle } from "../../lib/seo";
+import { useQuery } from "@tanstack/react-query";
+import { RichText } from "../../components/RichText/RichText";
+import { categoryQuery } from "../../lib/queries";
 import styles from "./SegmentPage.module.css";
 
 type Tile = { label: string; value: string };
@@ -90,6 +93,7 @@ function TileCard({
 export function SegmentPage({ slug }: { slug: string }) {
   const seg = SEGMENTS[slug];
   const { page } = useParams<{ page?: string }>();
+  const { data: category } = useQuery({ ...categoryQuery(slug), retry: false });
 
   if (!seg) return <Shop categorySlug={slug} />;
 
@@ -153,6 +157,8 @@ export function SegmentPage({ slug }: { slug: string }) {
       </section>
 
       <Shop categorySlug={seg.slug} embedded />
+      {/* first page only, so pages 2, 3 ... don't repeat it */}
+      {!(Number(page) > 1) && <RichText html={category?.description} />}
     </div>
   );
 }

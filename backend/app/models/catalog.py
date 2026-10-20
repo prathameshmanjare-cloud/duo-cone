@@ -179,6 +179,8 @@ class CrossReference(Base):
     product_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("products.id"))
     ref_number: Mapped[str] = mapped_column(String(120), index=True)
     ref_brand: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    # machines the part fits, e.g. "D6R, D6T, D7E"
+    machine_models: Mapped[str | None] = mapped_column(String(500), nullable=True)
     note: Mapped[str | None] = mapped_column(String(300), nullable=True)
 
     product: Mapped["Product"] = relationship(back_populates="cross_references")

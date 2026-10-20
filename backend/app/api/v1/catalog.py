@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.models.catalog import MediaAsset
 from app.repositories import product_repository as repo
-from app.schemas.product import BrandOut, ProductCardOut
+from app.schemas.product import BrandDetailOut, BrandOut, ProductCardOut
 from app.services import product_service
 
 router = APIRouter(tags=["catalog"])
@@ -28,6 +28,17 @@ async def get_media(media_id: uuid.UUID, db: AsyncSession = Depends(get_db)) -> 
 async def list_brands(db: AsyncSession = Depends(get_db)) -> list[BrandOut]:
     brands = await repo.list_brands(db)
     return [BrandOut.model_validate(b) for b in brands]
+
+
+@router.get("/brands/{slug}", response_model=BrandDetailOut)
+async def get_brand(slug: str, db: AsyncSession = Depends(get_db)) -> BrandDetailOut:
+    brand = await repo.get_brand_by_slug(db, slug)
+    if brand is None:
+        raise HTTPException(status_code=404, detail="Brand not found")
+    return BrandDetailOut(
+        **BrandOut.model_validate(brand).model_dump(),
+        description_html=product_service.rich_text(brand.description),
+    )
 
 
 @router.get("/cross-reference", response_model=list[ProductCardOut])
