@@ -30,7 +30,7 @@ const SLIDES: Slide[] = [
     eyebrow: "DUO-CONE",
     nav: "Welcome",
     title: "Welcome to DUO-CONE",
-    copy: "German-engineered mechanical face seals (DF and DO type) for the heaviest duty on earth. Stocked in Engelskirchen, shipped within 24 hours.",
+    copy: "German-engineered mechanical face seals (DF and DO type) for the heaviest duty on earth. Stocked in Leverkusen, shipped within 24 hours.",
     chips: ["Two proven designs", "24h dispatch", "DIN EN ISO 9001"],
     cta: "Browse the shop",
     to: "/shop/",
