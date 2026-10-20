@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY, COMPANY_ADDRESS } from "../../lib/company";
-import heroImg from "../../assets/industries/tunel.jpg";
+import heroImg from "../../assets/industries/tunel.webp";
 import s from "./About.module.css";
 import { Seo } from "../../components/Seo/Seo";
 import { pageTitle } from "../../lib/seo";

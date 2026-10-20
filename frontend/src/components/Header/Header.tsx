@@ -113,7 +113,7 @@ export function Header() {
             ))}
           </nav>
           <div className={styles.actions}>
-            <Link to="/rfq/" className={styles.rfqBtn}>
+            <Link to="/rfq/" className={styles.rfqBtn} aria-label="Start RFQ">
               <span className={styles.rfqLabel}>Start RFQ</span> <IconArrowRight size={15} />
             </Link>
             <span className={styles.divider} aria-hidden="true" />
@@ -136,7 +136,7 @@ export function Header() {
                 </button>
               </>
             ) : (
-              <Link to="/login" className={styles.signIn}>
+              <Link to="/login" className={styles.signIn} aria-label="Sign in">
                 <IconUser size={16} />
                 <span className={styles.signInLabel}>Sign in</span>
               </Link>

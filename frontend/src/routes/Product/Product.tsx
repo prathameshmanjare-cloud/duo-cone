@@ -13,6 +13,7 @@ import { SpecTable } from "../../components/SpecTable/SpecTable";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import { IconCheck, IconSeal } from "../../components/Icon/Icon";
+import { placeholderWebp } from "../../lib/images";
 import styles from "./Product.module.css";
 
 export function Product() {
@@ -39,6 +40,7 @@ export function Product() {
   const image = (product.images[activeImage]?.url ?? product.image_url) || null;
   const showImage = Boolean(image) && imgOk;
   const name = clean(product.name);
+  const webp = placeholderWebp(image, true);
   const imageAlt = [product.brand?.name, product.seal_type !== "other" && `${product.seal_type} type`, "mechanical face seal", clean(product.sku)]
     .filter(Boolean)
     .join(" ");
@@ -73,14 +75,17 @@ export function Product() {
         <div className={styles.gallery}>
           <div className={styles.mainImage}>
             {showImage ? (
-              <img
-                src={image!}
-                alt={product.images[activeImage]?.alt || imageAlt}
-                width={480}
-                height={480}
-                fetchPriority="high"
-                onError={() => setImgOk(false)}
-              />
+              <picture>
+                {webp && <source type="image/webp" srcSet={webp} sizes="(max-width: 768px) 92vw, 480px" />}
+                <img
+                  src={image!}
+                  alt={product.images[activeImage]?.alt || imageAlt}
+                  width={480}
+                  height={480}
+                  fetchPriority="high"
+                  onError={() => setImgOk(false)}
+                />
+              </picture>
             ) : (
               <div className={styles.placeholder}><IconSeal size={96} /></div>
             )}

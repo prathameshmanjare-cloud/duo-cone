@@ -176,6 +176,7 @@
   z-index: 1;
   width: 82%;
   max-width: 360px;
+  height: auto;
   object-fit: contain;
   filter: drop-shadow(0 26px 30px rgba(0, 28, 58, 0.28));
   transition: transform var(--transition-base);
@@ -213,7 +214,7 @@
   gap: var(--space-3);
   flex: 1;
 }
-.body h3 {
+.body h2 {
   margin: 0;
   font-size: 1.4rem;
   color: var(--color-primary);

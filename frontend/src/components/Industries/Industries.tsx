@@ -4,18 +4,18 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { IconArrowRight } from "../Icon/Icon";
 import styles from "./Industries.module.css";
 
-import mining from "../../assets/industries/mining.jpg";
-import construction from "../../assets/industries/construction.jpg";
-import agri from "../../assets/industries/agri.jpg";
-import rec from "../../assets/industries/rec.jpg";
-import forest from "../../assets/industries/forest.jpg";
-import military from "../../assets/industries/military.jpg";
-import heavy from "../../assets/industries/heavy.jpg";
-import cement from "../../assets/industries/cement.jpg";
-import water from "../../assets/industries/water.jpg";
-import uc from "../../assets/industries/uc.jpg";
-import pump from "../../assets/industries/pump.jpg";
-import tunel from "../../assets/industries/tunel.jpg";
+import mining from "../../assets/industries/mining.webp";
+import construction from "../../assets/industries/construction.webp";
+import agri from "../../assets/industries/agri.webp";
+import rec from "../../assets/industries/rec.webp";
+import forest from "../../assets/industries/forest.webp";
+import military from "../../assets/industries/military.webp";
+import heavy from "../../assets/industries/heavy.webp";
+import cement from "../../assets/industries/cement.webp";
+import water from "../../assets/industries/water.webp";
+import uc from "../../assets/industries/uc.webp";
+import pump from "../../assets/industries/pump.webp";
+import tunel from "../../assets/industries/tunel.webp";
 
 type Item = { name: string; img: string; blurb: string };
 

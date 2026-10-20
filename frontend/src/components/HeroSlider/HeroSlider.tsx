@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Mous
 import { Link } from "react-router-dom";
 import { Button } from "../Button/Button";
 import { IconArrowRight } from "../Icon/Icon";
-import slideWelcome from "../../assets/industries/seal-cutaway-banner.jpg";
-import slideTech from "../../assets/industries/tech-lab-inspection.jpg";
-import slideIndustries from "../../assets/industries/mining.jpg";
-import slideSupport from "../../assets/industries/cement.jpg";
+import slideWelcome from "../../assets/industries/seal-cutaway-banner.webp";
+import slideTech from "../../assets/industries/tech-lab-inspection.webp";
+import slideIndustries from "../../assets/industries/mining.webp";
+import slideSupport from "../../assets/industries/cement.webp";
 import styles from "./HeroSlider.module.css";
 
 type Slide = {
