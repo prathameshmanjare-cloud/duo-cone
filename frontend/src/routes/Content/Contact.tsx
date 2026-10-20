@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { api } from "../../lib/api";
 import { IconArrowRight, IconCheck } from "../../components/Icon/Icon";
+import { Seo } from "../../components/Seo/Seo";
+import { pageTitle } from "../../lib/seo";
 import styles from "./Contact.module.css";
 
 interface ContactValues {
@@ -82,10 +83,7 @@ export function Contact() {
 
   return (
     <div className={styles.wrap}>
-      <Helmet>
-        <title>Contact | DuoCone</title>
-        <meta name="description" content="Get in touch with DuoCone, mechanical face seal specialists based in Germany. We reply within one business day." />
-      </Helmet>
+      <Seo title={pageTitle("Contact – Mechanical Face Seals from Germany")} description={"Get in touch with DuoCone, mechanical face seal specialists based in Germany. We reply within one business day."} />
 
       <header className={styles.head}>
         <span className={styles.kicker}>Contact</span>

@@ -1,8 +1,20 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /account
-Disallow: /checkout
+# cart, checkout, account, forms and the admin aren't for search results
 Disallow: /cart
+Disallow: /checkout
+Disallow: /order-success
+Disallow: /account
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /admin
+Disallow: /search
+Disallow: /rfq
+# sorted and price-filtered listings repeat the same products
+Disallow: /*?*sort=
+Disallow: /*?*price_min=
+Disallow: /*?*price_max=
 
 Sitemap: https://www.duo-cone.com/sitemap.xml

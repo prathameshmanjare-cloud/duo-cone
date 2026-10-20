@@ -98,4 +98,5 @@ def to_detail(product: Product) -> ProductDetailOut:
         ],
         attributes=[ProductAttributeOut.model_validate(a) for a in product.attributes],
         cross_references=[CrossReferenceOut.model_validate(c) for c in product.cross_references],
+        updated_at=product.updated_at,
     )

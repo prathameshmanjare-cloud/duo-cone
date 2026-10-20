@@ -132,7 +132,7 @@
   font-weight: 400;
 }
 
-.col h4 {
+.colTitle {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -141,7 +141,7 @@
   position: relative;
   padding-bottom: 10px;
 }
-.col h4::after {
+.colTitle::after {
   content: "";
   position: absolute;
   left: 0;

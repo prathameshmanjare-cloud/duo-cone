@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from "framer-motion";
 import { Button } from "../Button/Button";
 import { IconArrowRight, IconCheck } from "../Icon/Icon";
-import productImg from "../../assets/product/do-cut.png";
+import productImg from "../../assets/product/do-cut.webp";
 import styles from "./AboutBlock.module.css";
 
 const POINTS = [

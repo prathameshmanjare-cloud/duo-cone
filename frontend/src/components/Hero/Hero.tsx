@@ -209,13 +209,13 @@ export function Hero() {
         <div className={styles.copy}>
           <div className={styles.copyInner}>
             <span className={styles.kicker}>DO &amp; DF Series · German-engineered</span>
-            <h1 className={styles.title} aria-label={TITLE}>
+            <h2 className={styles.title} aria-label={TITLE}>
               {TITLE.split("").map((c, i) => (
                 <span key={i} className={styles.charWrap} aria-hidden="true">
                   <span className={styles.char}>{c === " " ? " " : c}</span>
                 </span>
               ))}
-            </h1>
+            </h2>
             <p className={styles.sub}>
               High-pressure mechanical face seals built for the heaviest duty on earth.
             </p>

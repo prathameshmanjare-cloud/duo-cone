@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -159,6 +159,12 @@ def _fingerprint(secret: str) -> dict:
         return {"configured": False}
     m = _KEY_PREFIX.match(secret)
     return {"configured": True, "length": len(secret), "prefix": m.group(0) if m else ""}
+
+
+# the API host only serves JSON; keep it out of search results
+@app.get("/robots.txt", include_in_schema=False)
+async def robots_txt() -> PlainTextResponse:
+    return PlainTextResponse("User-agent: *\nDisallow: /\n")
 
 
 @app.get("/healthz")

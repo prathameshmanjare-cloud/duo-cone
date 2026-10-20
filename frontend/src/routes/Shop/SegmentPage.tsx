@@ -1,10 +1,12 @@
 import type { MouseEvent } from "react";
-import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { Shop } from "./Shop";
 import { AFTERMARKET_BRANDS, REPLACEMENT_BRANDS, brandPath, segmentPath } from "../../lib/catalog";
 import replacementAnimation from "../../assets/replacement/replacement-animation.mp4";
+import { Seo } from "../../components/Seo/Seo";
+import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs";
+import { pageSuffix, pageTitle } from "../../lib/seo";
 import styles from "./SegmentPage.module.css";
 
 type Tile = { label: string; value: string };
@@ -87,15 +89,14 @@ function TileCard({
 
 export function SegmentPage({ slug }: { slug: string }) {
   const seg = SEGMENTS[slug];
+  const { page } = useParams<{ page?: string }>();
 
   if (!seg) return <Shop categorySlug={slug} />;
 
   return (
     <div className={styles.wrap}>
-      <Helmet>
-        <title>{`${seg.title} Seals | DuoCone Mechanical Face Seals`}</title>
-        <meta name="description" content={seg.intro} />
-      </Helmet>
+      <Seo title={pageTitle(`${seg.title} Mechanical Face Seals${pageSuffix(page)}`)} description={seg.intro} />
+      <Breadcrumbs items={[{ label: "Shop", to: "/shop/" }, { label: seg.title }]} />
 
       <header className={styles.hero}>
         <div className={styles.heroCopy}>

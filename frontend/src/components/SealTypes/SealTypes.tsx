@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { IconCheck, IconArrowRight } from "../Icon/Icon";
 import { ProductSearch } from "../ProductSearch/ProductSearch";
-import dfImg from "../../assets/product/df-cut.png";
-import doImg from "../../assets/product/do-cut.png";
+import dfImg from "../../assets/product/df-cut.webp";
+import doImg from "../../assets/product/do-cut.webp";
 import styles from "./SealTypes.module.css";
 
 interface SealType {
@@ -133,12 +133,19 @@ export function SealTypes() {
           >
             <div className={styles.media}>
               <span className={styles.badge}>{t.code}</span>
-              <img src={t.image} alt={`${t.title} Duo Cone mechanical face seal, cut view`} loading="lazy" />
+              {/* first screen of the home page: load right away */}
+              <img
+                src={t.image}
+                alt={`${t.title} Duo Cone mechanical face seal, cut view`}
+                width={921}
+                height={487}
+                fetchPriority={i === 0 ? "high" : undefined}
+              />
               <div className={styles.mediaGlow} aria-hidden="true" />
             </div>
 
             <div className={styles.body}>
-              <h3>{t.title}</h3>
+              <h2>{t.title}</h2>
               <p className={styles.blurb}>{t.blurb}</p>
 
               <ul className={styles.chips}>

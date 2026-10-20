@@ -38,3 +38,10 @@
   .sticky span { font-size: 0.82rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .page { padding-bottom: calc(var(--space-8) + 60px); }
 }
+
+.onRequest {
+  display: inline-block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-tertiary);
+}

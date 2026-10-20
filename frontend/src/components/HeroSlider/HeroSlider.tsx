@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Mous
 import { Link } from "react-router-dom";
 import { Button } from "../Button/Button";
 import { IconArrowRight } from "../Icon/Icon";
-import slideWelcome from "../../assets/industries/seal-cutaway-banner.jpg";
-import slideTech from "../../assets/industries/tech-lab-inspection.jpg";
-import slideIndustries from "../../assets/industries/mining.jpg";
-import slideSupport from "../../assets/industries/cement.jpg";
+import slideWelcome from "../../assets/industries/seal-cutaway-banner.webp";
+import slideTech from "../../assets/industries/tech-lab-inspection.webp";
+import slideIndustries from "../../assets/industries/mining.webp";
+import slideSupport from "../../assets/industries/cement.webp";
 import styles from "./HeroSlider.module.css";
 
 type Slide = {
@@ -170,7 +170,7 @@ export function HeroSlider() {
                 <span className={styles.tick} /> {String(i + 1).padStart(2, "0")} · {s.eyebrow}
               </span>
 
-              <h1 className={styles.title} aria-label={s.title}>
+              <h2 className={styles.title} aria-label={s.title}>
                 {words.map((w, wi) => (
                   <span key={wi} className={styles.wordMask}>
                     <span
@@ -181,7 +181,7 @@ export function HeroSlider() {
                     </span>
                   </span>
                 ))}
-              </h1>
+              </h2>
 
               <p className={styles.copy}>{s.copy}</p>
 

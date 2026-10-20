@@ -5,6 +5,8 @@ import type { ProductCard as ProductCardT } from "../../lib/api";
 import { useCartStore } from "../../store/cart";
 import { Price } from "../Price/Price";
 import { IconSeal, IconArrowRight, IconCheck } from "../Icon/Icon";
+import { placeholderWebp } from "../../lib/images";
+import { clean } from "../../lib/seo";
 import styles from "./ProductCard.module.css";
 
 export function ProductCard({ product }: { product: ProductCardT }) {
@@ -22,24 +24,31 @@ export function ProductCard({ product }: { product: ProductCardT }) {
     timer.current = window.setTimeout(() => setAdded(false), 1600);
   }
 
+  const webp = placeholderWebp(product.image_url);
+
   return (
     <motion.article
       className={styles.card}
       whileHover={reduce ? undefined : { y: -6 }}
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
     >
-      <Link to={`/product/${product.slug}/`} className={styles.media} aria-label={product.name}>
+      {/* same target as the name link below: kept out of the tab order and
+          screen readers so the product is announced once */}
+      <Link to={`/product/${product.slug}/`} className={styles.media} tabIndex={-1} aria-hidden="true">
         <span className={styles.mediaBg} aria-hidden="true" />
         {showImage ? (
-          <img
-            src={product.image_url!}
-            alt={product.name}
-            loading="lazy"
-            width={280}
-            height={280}
-            className={styles.image}
-            onError={() => setImgOk(false)}
-          />
+          <picture>
+            {webp && <source type="image/webp" srcSet={webp} sizes="280px" />}
+            <img
+              src={product.image_url!}
+              alt={clean(product.name)}
+              loading="lazy"
+              width={280}
+              height={280}
+              className={styles.image}
+              onError={() => setImgOk(false)}
+            />
+          </picture>
         ) : (
           <span className={styles.placeholder} aria-hidden="true">
             <IconSeal size={54} />
@@ -61,7 +70,7 @@ export function ProductCard({ product }: { product: ProductCardT }) {
       <div className={styles.body}>
         {product.brand && <span className={styles.brand}>{product.brand.name}</span>}
         <Link to={`/product/${product.slug}/`} className={styles.name}>
-          {product.name}
+          {clean(product.name)}
         </Link>
         <span className={styles.sku}>{product.sku}</span>
 

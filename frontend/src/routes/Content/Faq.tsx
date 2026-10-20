@@ -1,4 +1,5 @@
-import { Helmet } from "react-helmet-async";
+import { Seo } from "../../components/Seo/Seo";
+import { pageTitle } from "../../lib/seo";
 import styles from "./Content.module.css";
 
 const FAQS: { category: string; items: { q: string; a: string }[] }[] = [
@@ -26,7 +27,7 @@ const FAQS: { category: string; items: { q: string; a: string }[] }[] = [
 export function Faq() {
   return (
     <div className={styles.page}>
-      <Helmet><title>FAQ | DuoCone</title></Helmet>
+      <Seo title={pageTitle("FAQ – Mechanical Face Seals (Floating Seals)")} description={"Answers about DF and DO type mechanical face seals (floating seals): ordering, cross-references by OEM part number, delivery from Germany, warranty and returns."} />
       <h1>Frequently Asked Questions</h1>
       {FAQS.map((cat) => (
         <section key={cat.category} className={styles.section}>

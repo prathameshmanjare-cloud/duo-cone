@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { productQuery, relatedQuery } from "../../lib/queries";
 import { brandPath, segmentOfBrand, segmentPath } from "../../lib/catalog";
+import { canonicalUrl, clean, hasPrice, productDescription, productJsonLd, productTitle } from "../../lib/seo";
+import { Seo } from "../../components/Seo/Seo";
 import { useCartStore } from "../../store/cart";
 import { Price } from "../../components/Price/Price";
 import { Button } from "../../components/Button/Button";
@@ -12,6 +13,7 @@ import { SpecTable } from "../../components/SpecTable/SpecTable";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import { IconCheck, IconSeal } from "../../components/Icon/Icon";
+import { placeholderWebp } from "../../lib/images";
 import styles from "./Product.module.css";
 
 export function Product() {
@@ -37,28 +39,21 @@ export function Product() {
 
   const image = (product.images[activeImage]?.url ?? product.image_url) || null;
   const showImage = Boolean(image) && imgOk;
+  const name = clean(product.name);
+  const webp = placeholderWebp(image, true);
+  const imageAlt = [product.brand?.name, product.seal_type !== "other" && `${product.seal_type} type`, "mechanical face seal", clean(product.sku)]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div className={styles.page}>
-      <Helmet>
-        <title>{`${product.name} | DuoCone`}</title>
-        <meta name="description" content={product.short_description ?? product.name} />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Product",
-            name: product.name,
-            sku: product.sku,
-            image: image ? [image] : [],
-            offers: {
-              "@type": "Offer",
-              priceCurrency: product.currency,
-              price: (product.sale_price_cents ?? product.price_cents) / 100,
-              availability: product.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-            },
-          })}
-        </script>
-      </Helmet>
+      <Seo
+        title={productTitle(product)}
+        description={productDescription(product)}
+        image={image}
+        type="product"
+        jsonLd={[productJsonLd(product, canonicalUrl(`/product/${product.slug}/`))]}
+      />
 
       <Breadcrumbs
         items={[
@@ -80,13 +75,17 @@ export function Product() {
         <div className={styles.gallery}>
           <div className={styles.mainImage}>
             {showImage ? (
-              <img
-                src={image!}
-                alt={product.name}
-                width={480}
-                height={480}
-                onError={() => setImgOk(false)}
-              />
+              <picture>
+                {webp && <source type="image/webp" srcSet={webp} sizes="(max-width: 768px) 92vw, 480px" />}
+                <img
+                  src={image!}
+                  alt={product.images[activeImage]?.alt || imageAlt}
+                  width={480}
+                  height={480}
+                  fetchPriority="high"
+                  onError={() => setImgOk(false)}
+                />
+              </picture>
             ) : (
               <div className={styles.placeholder}><IconSeal size={96} /></div>
             )}
@@ -104,10 +103,14 @@ export function Product() {
 
         <div className={styles.buyBox}>
           {product.brand && <span className={styles.brand}>{product.brand.name}</span>}
-          <h1>{product.name}</h1>
+          <h1>{name}</h1>
           <span className={styles.sku}>SKU / OEM ref: {product.sku}</span>
 
-          <Price cents={product.price_cents} salePriceCents={product.sale_price_cents} currency={product.currency} />
+          {hasPrice(product) ? (
+            <Price cents={product.price_cents} salePriceCents={product.sale_price_cents} currency={product.currency} />
+          ) : (
+            <span className={styles.onRequest}>Price on request</span>
+          )}
 
           <div className={styles.stock}>
             {product.in_stock ? (
@@ -140,7 +143,7 @@ export function Product() {
       </div>
 
       <div className={styles.sticky}>
-        <span>{product.name}</span>
+        <span>{name}</span>
         <Button variant="primary" onClick={() => add(product, qty)} disabled={!product.in_stock}>Add to cart</Button>
       </div>
 
