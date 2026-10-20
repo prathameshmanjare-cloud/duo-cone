@@ -170,7 +170,7 @@ export function About() {
           </h1>
 
           <figure className={s.scanFrame}>
-            <img src={heroImg} alt="DUO-CONE heavy-duty mechanical face seals engineered in Germany" loading="lazy" />
+            <img src={heroImg} alt="DUO-CONE heavy-duty mechanical face seals engineered in Germany" width={1230} height={820} loading="lazy" />
             <span className={s.corner} data-c="tl" />
             <span className={s.corner} data-c="tr" />
             <span className={s.corner} data-c="bl" />

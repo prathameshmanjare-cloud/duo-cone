@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { IconCheck, IconArrowRight } from "../Icon/Icon";
@@ -42,7 +42,7 @@ const TYPES: SealType[] = [
     features: [
       "Two O-rings for the most demanding conditions",
       "Corrosion-resistant metal and elastomer set",
-      "Lifetime sealing for hydraulics & final drives",
+      "Lifetime sealing for hydraulics and final drives",
     ],
     to: "/shop/?seal_type=DO",
   },
@@ -96,14 +96,17 @@ export function SealTypes() {
           </span>
           <h1 id="seal-types-heading" aria-label="DF & DO mechanical face seals">
             {HEADLINE.map((w, i) => (
-              <span key={i} className={styles.word} aria-hidden="true">
-                <span
-                  className={`${styles.wordInner} ${w === "DF" || w === "DO" ? styles.accent : ""}`}
-                  style={{ "--d": `${120 + i * 70}ms` } as CSSProperties}
-                >
-                  {w}
+              <Fragment key={i}>
+                {i > 0 && " "}
+                <span className={styles.word} aria-hidden="true">
+                  <span
+                    className={`${styles.wordInner} ${w === "DF" || w === "DO" ? styles.accent : ""}`}
+                    style={{ "--d": `${120 + i * 70}ms` } as CSSProperties}
+                  >
+                    {w}
+                  </span>
                 </span>
-              </span>
+              </Fragment>
             ))}
           </h1>
           <p className={styles.rise} style={{ "--d": "560ms" } as CSSProperties}>
@@ -118,7 +121,7 @@ export function SealTypes() {
           <span className={styles.shipBadge}>
             <span className={styles.dot} /> Ships within 24 hours
           </span>
-          <span className={styles.metaLine}>DF · DO · Universal</span>
+          <span className={styles.metaLine}>Universal OEM fit</span>
         </div>
       </header>
 

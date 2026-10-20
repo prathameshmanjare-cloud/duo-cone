@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../Button/Button";
 import { IconArrowRight } from "../Icon/Icon";
@@ -28,7 +28,7 @@ const SLIDES: Slide[] = [
     nav: "Welcome",
     title: "Welcome to DUO-CONE",
     copy: "German-engineered mechanical face seals (DF and DO type) for the heaviest duty on earth. Stocked in Engelskirchen, shipped within 24 hours.",
-    chips: ["DF & DO type", "24h dispatch", "DIN EN ISO 9001"],
+    chips: ["Two proven designs", "24h dispatch", "DIN EN ISO 9001"],
     cta: "Browse the shop",
     to: "/shop/",
     fitContain: true,
@@ -38,7 +38,7 @@ const SLIDES: Slide[] = [
     eyebrow: "Engineering",
     nav: "Technology",
     title: "Innovation & Technology",
-    copy: "Centrifugal casting, optical face lapping and proprietary elastomer science. Every seal validated on our own endurance rigs.",
+    copy: "Centrifugal casting, optical lapping and proprietary elastomer science. Every part validated on our own endurance rigs.",
     chips: ["Ra < 0.13 µm", "Optical lapping", "Endurance rigs"],
     cta: "Explore the technology",
     to: "/technology/",
@@ -139,7 +139,10 @@ export function HeroSlider() {
               className={`${styles.bg} ${s.fitContain ? styles.bgContain : ""}`}
               src={s.img}
               alt=""
-              loading={i === 0 ? "eager" : "lazy"}
+              width={1600}
+              height={900}
+              loading="lazy"
+              decoding="async"
             />
           </div>
         ))}
@@ -172,14 +175,17 @@ export function HeroSlider() {
 
               <h2 className={styles.title} aria-label={s.title}>
                 {words.map((w, wi) => (
-                  <span key={wi} className={styles.wordMask}>
-                    <span
-                      className={`${styles.word} ${w === "&" ? styles.amp : ""}`}
-                      style={{ "--wi": wi } as CSSProperties}
-                    >
-                      {w}
+                  <Fragment key={wi}>
+                    {wi > 0 && " "}
+                    <span className={styles.wordMask}>
+                      <span
+                        className={`${styles.word} ${w === "&" ? styles.amp : ""}`}
+                        style={{ "--wi": wi } as CSSProperties}
+                      >
+                        {w}
+                      </span>
                     </span>
-                  </span>
+                  </Fragment>
                 ))}
               </h2>
 

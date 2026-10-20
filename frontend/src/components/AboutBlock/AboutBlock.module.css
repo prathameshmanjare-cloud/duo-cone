@@ -301,6 +301,7 @@
   top: 50%;
   left: 50%;
   width: 52%;
+  height: auto;
   transform: translate(-50%, -50%) scale(0.9);
   object-fit: contain;
   opacity: 0;
