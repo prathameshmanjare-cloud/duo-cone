@@ -61,8 +61,8 @@ export function OrderSuccess() {
 
       <p>A confirmation email is on its way. We'll notify you as soon as your seals ship (within 24 hours from Germany).</p>
       <div className={styles.actions}>
-        <Link to="/shop"><Button variant="ghost">Continue shopping</Button></Link>
-        <Link to="/contact"><Button variant="primary">Need help?</Button></Link>
+        <Link to="/shop/"><Button variant="ghost">Continue shopping</Button></Link>
+        <Link to="/contact/"><Button variant="primary">Need help?</Button></Link>
       </div>
     </div>
   );

@@ -238,12 +238,12 @@ export function Hero() {
               construction equipment.
             </p>
             <div className={styles.actions}>
-              <Link to="/shop" className={styles.cta}>
+              <Link to="/shop/" className={styles.cta}>
                 <Button variant="primary">
                   See our products <IconArrowRight size={18} />
                 </Button>
               </Link>
-              <Link to="/rfq" className={styles.cta}>
+              <Link to="/rfq/" className={styles.cta}>
                 <Button variant="ghost" className={styles.ghostOnDark}>
                   Start an RFQ
                 </Button>

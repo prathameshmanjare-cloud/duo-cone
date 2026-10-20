@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { SHOP_PAGE_SIZE, shopQuery } from "../../lib/queries";
 import { isHydrating } from "../../lib/ssr";
+import { brandPath, segmentPath } from "../../lib/catalog";
 import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { ProductGridSkeleton } from "../../components/Skeleton/Skeleton";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
@@ -58,8 +59,9 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 export function Shop({
   categorySlug,
+  brandSlug,
   embedded = false,
-}: { categorySlug?: string; embedded?: boolean } = {}) {
+}: { categorySlug?: string; brandSlug?: string; embedded?: boolean } = {}) {
   const reduce = useReducedMotion();
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -67,13 +69,15 @@ export function Shop({
   const { page: pagePath } = useParams<{ page?: string }>();
   const [showFilters, setShowFilters] = useState(false);
 
-  // pages live in the path (/shop/page/2) so each one is its own prerendered,
-  // crawlable URL; ?page= is still read for old links
+  // pages live in the path (/shop/page/2/) so each one is its own
+  // prerendered, crawlable URL; ?page= is still read for old links
   const page = Math.max(1, Number(pagePath ?? params.get("page") ?? 1) || 1);
-  const basePath = pathname.replace(/\/page\/[^/]+\/?$/, "") || "/";
+  const basePath = pathname.replace(/\/?(page\/[^/]+\/?)?$/, "/");
+  // where "all brands" leads from here
+  const allBrandsPath = categorySlug ? segmentPath(categorySlug) : "/shop/";
   const sort = params.get("sort") ?? "relevance";
   const sealType = params.get("seal_type") ?? undefined;
-  const brand = params.get("brand") ?? undefined;
+  const brand = brandSlug ?? params.get("brand") ?? undefined;
   const priceMin = params.get("price_min") ?? undefined;
   const priceMax = params.get("price_max") ?? undefined;
 
@@ -97,7 +101,7 @@ export function Shop({
     const next = new URLSearchParams(params);
     next.delete("page");
     const qs = next.toString();
-    const path = n > 1 ? `${basePath === "/" ? "" : basePath}/page/${n}` : basePath;
+    const path = n > 1 ? `${basePath}page/${n}/` : basePath;
     return `${path}${qs ? `?${qs}` : ""}`;
   }
 
@@ -128,7 +132,7 @@ export function Shop({
   if (brand)
     activeChips.push({
       label: brand.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-      onClear: () => updateParam("brand", undefined),
+      onClear: () => (brandSlug ? navigate(allBrandsPath) : updateParam("brand", undefined)),
     });
   if (sealType)
     activeChips.push({
@@ -178,14 +182,15 @@ export function Shop({
         <span className={styles.filterLabel}>Brand</span>
         <div className={styles.brandList} role="group" aria-label="Brand">
           {BRANDS.map((b) => (
-            <button
+            // real links to the brand pages, so crawlers can follow them
+            <Link
               key={b.value}
-              type="button"
+              to={brand === b.value ? allBrandsPath : brandPath(b.value)}
               className={`${styles.brandPill} ${brand === b.value ? styles.brandPillOn : ""}`}
-              onClick={() => updateParam("brand", brand === b.value ? undefined : b.value)}
+              aria-current={brand === b.value ? "page" : undefined}
             >
               {b.label}
-            </button>
+            </Link>
           ))}
         </div>
       </div>

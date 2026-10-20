@@ -18,24 +18,27 @@ const DIST = join(ROOT, "dist");
 const STRICT = Boolean(process.env.VERCEL) || process.env.PRERENDER_STRICT === "1";
 const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY ?? 6);
 
+// every public URL ends in "/", like the old WooCommerce shop's URLs
 const STATIC_ROUTES = [
   "/",
-  "/shop",
-  "/rfq",
-  "/about",
-  "/technology",
-  "/industries",
-  "/contact",
-  "/faq",
-  "/shipping",
-  "/returns",
-  "/privacy-policy",
-  "/terms",
-  "/cookie-policy",
-  "/legal-notice",
+  "/shop/",
+  "/rfq/",
+  "/about-us/",
+  "/technology/",
+  "/industries/",
+  "/contact/",
+  "/faq/",
+  "/shipping/",
+  "/returns/",
+  "/privacy-policy/",
+  "/terms/",
+  "/cookie-policy/",
+  "/legal-notice/",
 ];
-// segment landing pages (see routes/Shop/Category.tsx)
+// segment and brand pages (see routes/Shop/Category.tsx)
 const SEGMENTS = ["replacement", "aftermarket"];
+const API_URL = process.env.VITE_API_URL ?? "http://localhost:8000/api/v1";
+const SITE_URL = "https://www.duo-cone.com";
 
 const ssr = await import(pathToFileURL(join(ROOT, "dist-ssr", "entry-server.js")).href);
 const template = await readFile(join(DIST, "index.html"), "utf8");
@@ -86,7 +89,7 @@ function buildPage(appHtml, state) {
 }
 
 async function writeRoute(route, html) {
-  const file = route === "/" ? join(DIST, "index.html") : join(DIST, route.slice(1), "index.html");
+  const file = join(DIST, route.replace(/^\/|\/$/g, ""), "index.html");
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, html);
 }
@@ -120,52 +123,83 @@ async function main() {
   const started = Date.now();
   const shopQuery = (extra) => ssr.shopQuery({ page: 1, sort: "relevance", ...extra });
 
-  // listing pages: /shop and each segment, plus /page/N for the rest.
-  // Their results also give the full product slug list.
-  const listings = [{ base: "/shop" }, ...SEGMENTS.map((s) => ({ base: `/category/${s}`, categorySlug: s }))];
+  // listing pages: /shop/, each segment, each brand within its segment,
+  // plus page/N/ for the rest. Their results also give every product slug.
+  const brands = await prefetch(ssr.createQueryClient(), {
+    queryKey: ["brands"],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/brands`);
+      if (!res.ok) throw Object.assign(new Error(`brands: HTTP ${res.status}`), { status: res.status });
+      return res.json();
+    },
+  });
+  const listings = [
+    { base: "/shop/" },
+    ...SEGMENTS.map((s) => ({ base: `/product-category/${s}/`, categorySlug: s })),
+    ...SEGMENTS.flatMap((s) =>
+      brands.map((b) => ({ base: `/product-category/${s}/${b.slug}/`, categorySlug: s, brand: b.slug }))
+    ),
+  ];
   const productSlugs = new Set();
   const listingJobs = [];
+  let brandPages = 0;
   for (const l of listings) {
     const qc = ssr.createQueryClient();
-    const first = await prefetch(qc, shopQuery({ categorySlug: l.categorySlug }));
+    const first = await prefetch(qc, shopQuery({ categorySlug: l.categorySlug, brand: l.brand }));
+    if (l.brand && first.total === 0) continue; // brand isn't in this segment
+    if (l.brand) brandPages++;
     const pages = Math.max(1, Math.ceil(first.total / ssr.SHOP_PAGE_SIZE));
     for (let page = 1; page <= pages; page++) listingJobs.push({ ...l, page });
   }
 
-  const listingFailures = await pool(listingJobs, async ({ base, categorySlug, page }) => {
-    const route = page > 1 ? `${base}/page/${page}` : base;
+  const listingFailures = await pool(listingJobs, async ({ base, categorySlug, brand, page }) => {
+    const route = page > 1 ? `${base}page/${page}/` : base;
     await renderRoute(route, async (qc) => {
-      const data = await prefetch(qc, shopQuery({ categorySlug, page }));
+      const data = await prefetch(qc, shopQuery({ categorySlug, brand, page }));
       for (const p of data.items) productSlugs.add(p.slug);
     });
   });
 
   const staticFailures = await pool(
-    STATIC_ROUTES.filter((r) => r !== "/shop"),
+    STATIC_ROUTES.filter((r) => r !== "/shop/"),
     (route) =>
       renderRoute(route, route === "/" ? (qc) => prefetch(qc, ssr.featuredQuery(), { optional: true }) : null)
   );
 
   let missing = 0;
+  const rendered = new Set();
   const productFailures = await pool([...productSlugs], (slug) =>
-    renderRoute(`/product/${slug}`, async (qc) => {
+    renderRoute(`/product/${slug}/`, async (qc) => {
       const product = await prefetch(qc, ssr.productQuery(slug), { optional: true });
       if (!product) {
         missing++;
         throw new Error("product not found");
       }
       await prefetch(qc, ssr.relatedQuery(slug), { optional: true });
+      rendered.add(`/product/${slug}/`);
     })
   );
 
+  // sitemap: every rendered page except listing page 2, 3, ...
+  const sitemapRoutes = [
+    ...STATIC_ROUTES,
+    ...listingJobs.filter((j) => j.page === 1 && j.base !== "/shop/").map((j) => j.base),
+    ...[...rendered],
+  ];
+  const urls = sitemapRoutes.map((r) => `  <url><loc>${SITE_URL}${r}</loc></url>`).join("\n");
+  await writeFile(
+    join(DIST, "sitemap.xml"),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
+  );
+
   // any URL without a file gets this page with an HTTP 404 status (Vercel)
-  await writeFile(join(DIST, "404.html"), buildPage(ssr.render("/404", ssr.createQueryClient()).html, {}));
+  await writeFile(join(DIST, "404.html"), buildPage(ssr.render("/404/", ssr.createQueryClient()).html, {}));
 
   const failures = [...listingFailures, ...staticFailures, ...productFailures];
   const pageCount = listingJobs.length + STATIC_ROUTES.length - 1 + productSlugs.size - productFailures.length;
   console.log(
     `prerendered ${pageCount} pages (${productSlugs.size - productFailures.length} products, ` +
-      `${listingJobs.length} listing pages) in ${((Date.now() - started) / 1000).toFixed(1)}s`
+      `${listingJobs.length} listing pages, ${brandPages} brand pages) in ${((Date.now() - started) / 1000).toFixed(1)}s`
   );
   if (failures.length) {
     console.warn(`${failures.length} routes failed:`, failures.slice(0, 10));

@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { productQuery, relatedQuery } from "../../lib/queries";
+import { brandPath, segmentOfBrand, segmentPath } from "../../lib/catalog";
 import { useCartStore } from "../../store/cart";
 import { Price } from "../../components/Price/Price";
 import { Button } from "../../components/Button/Button";
@@ -29,7 +30,7 @@ export function Product() {
   if (!product) {
     return (
       <div className={styles.page}>
-        <EmptyState title="Product not found" description="It may be out of catalog or the link is outdated." action={<Link to="/shop">Back to shop</Link>} />
+        <EmptyState title="Product not found" description="It may be out of catalog or the link is outdated." action={<Link to="/shop/">Back to shop</Link>} />
       </div>
     );
   }
@@ -61,8 +62,16 @@ export function Product() {
 
       <Breadcrumbs
         items={[
-          { label: "Shop", to: "/shop" },
-          product.brand ? { label: product.brand.name, to: `/shop?brand=${product.brand.slug}` } : { label: "Product" },
+          { label: "Shop", to: "/shop/" },
+          ...(product.brand
+            ? [
+                {
+                  label: segmentOfBrand(product.brand.slug) === "replacement" ? "Replacement" : "Aftermarket",
+                  to: segmentPath(segmentOfBrand(product.brand.slug)),
+                },
+                { label: product.brand.name, to: brandPath(product.brand.slug) },
+              ]
+            : []),
           { label: product.name },
         ]}
       />
@@ -120,12 +129,12 @@ export function Product() {
             <Button variant="primary" onClick={() => add(product, qty)} disabled={!product.in_stock}>
               Add to cart
             </Button>
-            <Link to="/rfq"><Button variant="ghost">Request quote</Button></Link>
+            <Link to="/rfq/"><Button variant="ghost">Request quote</Button></Link>
           </div>
 
           <details open className={styles.accordion}>
             <summary>Shipping &amp; returns</summary>
-            <p>Ships within 24 hours from our German warehouse. 24-month warranty on all seals. See our <Link to="/returns">returns policy</Link>.</p>
+            <p>Ships within 24 hours from our German warehouse. 24-month warranty on all seals. See our <Link to="/returns/">returns policy</Link>.</p>
           </details>
         </div>
       </div>

@@ -22,7 +22,12 @@ from app.api.v1 import (
 )
 from app.config.settings import get_settings
 from app.db.seed_data import ensure_seed_data
-from app.db.bootstrap import ensure_admin_user, ensure_email_templates, ensure_schema_upgrades
+from app.db.bootstrap import (
+    ensure_admin_user,
+    ensure_email_templates,
+    ensure_product_uniqueness,
+    ensure_schema_upgrades,
+)
 from app.db.session import Base, SessionLocal, engine
 from app.integrations.storefront import schedule_rebuild
 from app.middleware.rate_limit import limiter
@@ -48,6 +53,11 @@ async def lifespan(_: FastAPI):
                 await ensure_schema_upgrades(db)
         except Exception:  # noqa: BLE001
             log.exception("Schema upgrade failed")
+        try:
+            async with SessionLocal() as db:
+                await ensure_product_uniqueness(db)
+        except Exception:  # noqa: BLE001
+            log.exception("Product uniqueness check failed")
         try:
             async with SessionLocal() as db:
                 await ensure_email_templates(db)

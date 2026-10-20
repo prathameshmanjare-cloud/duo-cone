@@ -76,7 +76,7 @@ export const AccountOrders = () => {
       <h1>Orders</h1>
       {isLoading && <p>Loading…</p>}
       {isError && <p>Couldn't load your orders. Please try again later.</p>}
-      {data && data.length === 0 && <p>No orders yet. <Link to="/shop">Browse products</Link>.</p>}
+      {data && data.length === 0 && <p>No orders yet. <Link to="/shop/">Browse products</Link>.</p>}
       {data && data.length > 0 && (
         <ul className={styles.list}>
           {data.map((o) => (
@@ -102,7 +102,7 @@ export const AccountRfqs = () => {
       <h1>RFQs</h1>
       {isLoading && <p>Loading…</p>}
       {isError && <p>Couldn't load your RFQs. Please try again later.</p>}
-      {data && data.length === 0 && <p>No RFQs yet. <Link to="/rfq">Request a quote</Link>.</p>}
+      {data && data.length === 0 && <p>No RFQs yet. <Link to="/rfq/">Request a quote</Link>.</p>}
       {data && data.length > 0 && (
         <ul className={styles.list}>
           {data.map((r) => (

@@ -8,3 +8,4 @@ __pycache__/
 .venv/
 backend/scripts/reports/
 .DS_Store
+.vercel

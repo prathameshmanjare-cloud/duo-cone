@@ -39,7 +39,7 @@ export function CartDrawer() {
         {lines.length === 0 ? (
           <div className={styles.empty}>
             <p>Your cart is empty.</p>
-            <Link to="/shop" onClick={close}>Browse products →</Link>
+            <Link to="/shop/" onClick={close}>Browse products →</Link>
           </div>
         ) : (
           <>

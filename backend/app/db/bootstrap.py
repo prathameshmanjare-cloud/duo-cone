@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.security import hash_password, needs_rehash, verify_password
 from app.models.commerce import AppSetting, EmailTemplate, User
+from app.utils.slug import PART_KEY_SQL
 
 logger = logging.getLogger("duocon.bootstrap")
 
@@ -105,6 +106,41 @@ async def ensure_schema_upgrades(db: AsyncSession) -> None:
         except Exception:  # noqa: BLE001 — table may not exist yet on a fresh db
             logger.debug("schema upgrade skipped: %s", stmt)
     await db.commit()
+
+
+async def ensure_product_uniqueness(db: AsyncSession) -> bool:
+    """One product per brand + part number ("140.30.00141" and "140-30-00141"
+    count as the same part), enforced by a unique index so neither the price
+    list import nor the admin can store a duplicate.
+
+    The index can only be built once existing duplicates are cleaned up; until
+    then this logs them and returns False instead of failing startup.
+    """
+    exists = (
+        await db.execute(text("SELECT 1 FROM pg_indexes WHERE indexname = 'uq_products_brand_part'"))
+    ).first()
+    if exists:
+        return True
+    dupes = (
+        await db.execute(
+            text(
+                f"SELECT brand_id, {PART_KEY_SQL} AS part, count(*) FROM products "
+                "GROUP BY 1, 2 HAVING count(*) > 1"
+            )
+        )
+    ).all()
+    if dupes:
+        logger.warning(
+            "Not enforcing unique brand + part number yet: %d duplicate part(s) in products",
+            len(dupes),
+        )
+        return False
+    await db.execute(
+        text(f"CREATE UNIQUE INDEX uq_products_brand_part ON products (brand_id, ({PART_KEY_SQL}))")
+    )
+    await db.commit()
+    logger.info("Enforcing unique brand + part number on products")
+    return True
 
 
 async def ensure_admin_user(db: AsyncSession, email: str, password: str) -> User:

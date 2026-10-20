@@ -272,11 +272,6 @@
   color: var(--color-tertiary);
   transform: rotate(-6deg);
 }
-.brandOn .mono {
-  background: var(--color-secondary);
-  color: var(--color-tertiary);
-}
-
 .brandBody {
   position: relative;
   z-index: 1;
@@ -320,11 +315,6 @@
 .brand:hover .brandArrow {
   transform: translateX(3px);
   color: var(--color-secondary-dark);
-}
-
-.brandOn {
-  border-color: var(--color-secondary);
-  background: color-mix(in srgb, var(--color-secondary) 14%, #fff);
 }
 
 /* featured first tile */

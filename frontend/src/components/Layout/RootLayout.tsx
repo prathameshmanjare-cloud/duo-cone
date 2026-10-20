@@ -13,7 +13,8 @@ import styles from "./RootLayout.module.css";
 export function RootLayout() {
   const location = useLocation();
   // these pages carry their own closing contact/CTA section
-  const hideCta = location.pathname === "/contact" || location.pathname === "/about";
+  const path = location.pathname.replace(/\/+$/, "");
+  const hideCta = path === "/contact" || path === "/about-us";
 
   return (
     <>

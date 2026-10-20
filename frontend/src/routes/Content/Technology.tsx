@@ -589,7 +589,7 @@ export function Technology() {
             material pairings and express OEM batch production.
           </p>
           <div className={s.ctaActions}>
-            <Link to="/rfq">
+            <Link to="/rfq/">
               <Button variant="primary">
                 Request 24h technical RFQ <IconArrowRight size={18} />
               </Button>

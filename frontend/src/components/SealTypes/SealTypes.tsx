@@ -30,7 +30,7 @@ const TYPES: SealType[] = [
       "Replaces all OEM DF-type references",
       "NI-HARD (ASTM A532) / SAE 52100 seal faces",
     ],
-    to: "/shop?seal_type=DF",
+    to: "/shop/?seal_type=DF",
   },
   {
     code: "DO",
@@ -44,7 +44,7 @@ const TYPES: SealType[] = [
       "Corrosion-resistant metal and elastomer set",
       "Lifetime sealing for hydraulics & final drives",
     ],
-    to: "/shop?seal_type=DO",
+    to: "/shop/?seal_type=DO",
   },
 ];
 

@@ -192,7 +192,7 @@ export function About() {
           </p>
 
           <div className={s.heroActions}>
-            <Link to="/rfq">
+            <Link to="/rfq/">
               <Button variant="primary">
                 Get express offer (24h) <IconArrowRight size={18} />
               </Button>
@@ -329,7 +329,7 @@ export function About() {
           Engelskirchen return your quotation within 24 hours.
         </p>
         <div className={s.heroActions}>
-          <Link to="/rfq">
+          <Link to="/rfq/">
             <Button variant="primary">
               Express offer (24h) <IconArrowRight size={18} />
             </Button>
