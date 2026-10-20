@@ -19,11 +19,14 @@ type Slide = {
   to: string;
   secondary?: { label: string; to: string };
   fitContain?: boolean;
+  /** description of the background image */
+  imgAlt: string;
 };
 
 const SLIDES: Slide[] = [
   {
     img: slideWelcome,
+    imgAlt: "Cutaway of a duo cone seal in a drive: lubricant kept in, contamination kept out",
     eyebrow: "DUO-CONE",
     nav: "Welcome",
     title: "Welcome to DUO-CONE",
@@ -35,6 +38,7 @@ const SLIDES: Slide[] = [
   },
   {
     img: slideTech,
+    imgAlt: "Engineers inspecting a mechanical face seal assembly on a test bench",
     eyebrow: "Engineering",
     nav: "Technology",
     title: "Innovation & Technology",
@@ -46,6 +50,7 @@ const SLIDES: Slide[] = [
   },
   {
     img: slideIndustries,
+    imgAlt: "Engineer with a tablet next to a mining dump truck",
     eyebrow: "Field-proven",
     nav: "Industries",
     title: "Reliability & Industries",
@@ -56,6 +61,7 @@ const SLIDES: Slide[] = [
   },
   {
     img: slideSupport,
+    imgAlt: "Precision machining of a component in abrasive slurry",
     eyebrow: "Partnership",
     nav: "Support",
     title: "Manufacture & Technical Support",
@@ -70,6 +76,7 @@ const SLIDES: Slide[] = [
 const SLIDES_DE: Slide[] = [
   {
     ...SLIDES[0],
+    imgAlt: "Schnittansicht einer Duo-Cone-Dichtung im Antrieb: Schmierstoff bleibt drin, Schmutz bleibt draußen",
     nav: "Willkommen",
     title: "Willkommen bei DUO-CONE",
     copy: "Laufwerksdichtungen (Typ DF und DO) aus deutscher Entwicklung für die härtesten Einsätze. Lagerware, Versand innerhalb von 24 Stunden.",
@@ -78,6 +85,7 @@ const SLIDES_DE: Slide[] = [
   },
   {
     ...SLIDES[1],
+    imgAlt: "Ingenieure prüfen eine Laufwerksdichtung am Prüfstand",
     eyebrow: "Technik",
     nav: "Technologie",
     title: "Innovation & Technologie",
@@ -88,6 +96,7 @@ const SLIDES_DE: Slide[] = [
   },
   {
     ...SLIDES[2],
+    imgAlt: "Ingenieur mit Tablet neben einem Bergbau-Muldenkipper",
     eyebrow: "Praxiserprobt",
     nav: "Branchen",
     title: "Zuverlässigkeit & Branchen",
@@ -97,6 +106,7 @@ const SLIDES_DE: Slide[] = [
   },
   {
     ...SLIDES[3],
+    imgAlt: "Präzisionsbearbeitung eines Bauteils in abrasivem Schlamm",
     eyebrow: "Partnerschaft",
     nav: "Support",
     title: "Fertigung & technischer Support",
@@ -180,7 +190,7 @@ export function HeroSlider() {
             <img
               className={`${styles.bg} ${s.fitContain ? styles.bgContain : ""}`}
               src={s.img}
-              alt=""
+              alt={s.imgAlt}
               width={1600}
               height={900}
               loading="lazy"

@@ -176,13 +176,13 @@ export function Hero() {
 
         <div className={styles.stage} aria-hidden="true">
           <div className={`${styles.layer} ${styles.layerRot}`}>
-            <Img cls={styles.layerImg} name="seal-rot" alt="" />
+            <Img cls={styles.layerImg} name="seal-rot" alt={t({ en: "Cutaway view of a DUO-CONE mechanical face seal", de: "Schnittansicht einer DUO-CONE-Laufwerksdichtung" })} />
           </div>
           <div className={`${styles.layer} ${styles.layerMacro}`}>
-            <Img cls={styles.layerImgCover} name="seal-macro" alt="" cover />
+            <Img cls={styles.layerImgCover} name="seal-macro" alt={t({ en: "Close-up of a steel sealing ring with its rubber ring", de: "Nahaufnahme eines Stahl-Dichtrings mit Gummiring" })} cover />
           </div>
           <div className={`${styles.layer} ${styles.layerExplode}`}>
-            <Img cls={styles.layerImg} name="seal-explode" alt="" />
+            <Img cls={styles.layerImg} name="seal-explode" alt={t({ en: "Exploded view of a duo cone seal: two steel sealing rings and two rubber rings", de: "Explosionsansicht einer Duo-Cone-Dichtung: zwei Stahl-Dichtringe und zwei Gummiringe" })} />
           </div>
           <div className={`${styles.layer} ${styles.layerHero}`}>
             <motion.div

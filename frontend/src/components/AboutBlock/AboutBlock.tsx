@@ -148,7 +148,7 @@ export function AboutBlock() {
           <span className={styles.scan} />
 
           <div className={styles.bpStage}>
-            <img src={productImg} alt="" className={styles.product} width={921} height={487} loading="lazy" decoding="async" />
+            <img src={productImg} alt={t({ en: "DO type duo cone mechanical face seal, cut view", de: "Duo-Cone-Laufwerksdichtung Typ DO, Schnittansicht" })} className={styles.product} width={921} height={487} loading="lazy" decoding="async" />
 
             <svg
               className={styles.leaders}
