@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useDict, useLang } from "../../lib/i18n";
+import { DE_INDUSTRIES } from "../../content/de-industries";
+import { DE_SEO } from "../../content/de";
 import { Button } from "../../components/Button/Button";
 import { IconArrowRight } from "../../components/Icon/Icon";
 import { COMPANY } from "../../lib/company";
@@ -150,11 +152,16 @@ const MATRIX: MatrixRow[] = [
 ];
 
 export function Industries() {
+  const L = useDict(DE_INDUSTRIES);
+  const lang = useLang();
   const [highlightRow, setHighlightRow] = useState<string | null>(null);
 
   return (
     <div className={s.page}>
-      <Seo title={pageTitle("Industries – Mechanical Face Seals for Heavy Duty")} description={"The severe-duty industries and drive assemblies where DUO-CONE mechanical face seals guarantee zero leakage across mining, construction, forestry, defense, cement, tunnel boring and more."} />
+      <Seo
+        title={lang === "de" ? DE_SEO.industries.title : pageTitle("Industries – Mechanical Face Seals for Heavy Duty")}
+        description={lang === "de" ? DE_SEO.industries.description : "The severe-duty industries and drive assemblies where DUO-CONE mechanical face seals guarantee zero leakage across mining, construction, forestry, defense, cement, tunnel boring and more."}
+      />
 
       {/* 1 — hero */}
       <section className={`${s.section} ${s.dark} ${s.hero}`}>
@@ -162,40 +169,32 @@ export function Industries() {
         <div className={s.heroSplit}>
           <div className={s.heroInner}>
             <span className={s.pill}>
-              <span className={s.dot} /> Industries &amp; applications · DIN 3760 compliant
-            </span>
-            <h1 className={s.h1}>Engineered for every environment.</h1>
-            <p className={s.lead}>
-              Explore the severe-duty industries, drive assemblies and extreme mobile machinery where
-              DUO-CONE mechanical face seals guarantee zero leakage and absolute bearing-cavity
-              isolation.
-            </p>
+              <span className={s.dot} />{L("Industries & applications · DIN 3760 compliant")}</span>
+            <h1 className={s.h1}>{L("Engineered for every environment.")}</h1>
+            <p className={s.lead}>{L("Explore the severe-duty industries, drive assemblies and extreme mobile machinery where DUO-CONE mechanical face seals guarantee zero leakage and absolute bearing-cavity isolation.")}</p>
 
             <div className={s.metricsBar}>
               <div>
-                <span>Metallurgy</span>
-                <strong>High-chrome cast alloy</strong>
-                <em>60 – 66 HRC hardness</em>
+                <span>{L("Metallurgy")}</span>
+                <strong>{L("High-chrome cast alloy")}</strong>
+                <em>{L("60 – 66 HRC hardness")}</em>
               </div>
               <div>
-                <span>Pressure tolerance</span>
-                <strong>0.3 to 0.5 MPa</strong>
-                <em>continuous operation</em>
+                <span>{L("Pressure tolerance")}</span>
+                <strong>{L("0.3 to 0.5 MPa")}</strong>
+                <em>{L("continuous operation")}</em>
               </div>
               <div>
-                <span>Surface finish</span>
-                <strong>Ra ≤ 0.2 µm lapped</strong>
-                <em>optical band flatness</em>
+                <span>{L("Surface finish")}</span>
+                <strong>{L("Ra ≤ 0.2 µm lapped")}</strong>
+                <em>{L("optical band flatness")}</em>
               </div>
             </div>
 
             <div className={s.heroActions}>
-              <a className={s.primaryLink} href="#industry-grid">
-                Explore industries <IconArrowRight size={16} />
+              <a className={s.primaryLink} href="#industry-grid">{L("Explore industries")}<IconArrowRight size={16} />
               </a>
-              <a className={s.ghostLink} href="#matrix">
-                Find your seal
-              </a>
+              <a className={s.ghostLink} href="#matrix">{L("Find your seal")}</a>
             </div>
           </div>
 
@@ -208,7 +207,7 @@ export function Industries() {
               loop
               playsInline
               preload="auto"
-              aria-label="DUO-CONE mechanical face seals in operation"
+              aria-label={L("DUO-CONE mechanical face seals in operation")}
             />
             <span className={s.heroMediaFrame} aria-hidden="true" />
           </div>
@@ -218,16 +217,13 @@ export function Industries() {
       {/* 2 — industry grid */}
       <section className={s.section} id="industry-grid">
         <header className={s.head}>
-          <span className={s.overline}>[ Section 01 · global sectors ]</span>
-          <h2>Explore by industry</h2>
-          <p className={s.sub}>
-            Precision mechanical face seals tailored for abrasive, submerged, high-temperature and
-            continuous impact load profiles.
-          </p>
+          <span className={s.overline}>{L("[ Section 01 · global sectors ]")}</span>
+          <h2>{L("Explore by industry")}</h2>
+          <p className={s.sub}>{L("Precision mechanical face seals tailored for abrasive, submerged, high-temperature and continuous impact load profiles.")}</p>
         </header>
 
         <div className={s.grid}>
-          {INDUSTRIES.map((it) => (
+          {L.deep(INDUSTRIES).map((it) => (
             <article
               key={it.n}
               className={`${s.card} ${it.wide ? s.cardWide : ""} ${it.dark ? s.cardDark : ""}`}
@@ -242,8 +238,7 @@ export function Industries() {
                 <h3>{it.title}</h3>
                 <p>{it.desc}</p>
                 <div className={s.cardFoot}>
-                  <a href="#matrix" onClick={() => setHighlightRow(it.n)}>
-                    Inspect specs <IconArrowRight size={14} />
+                  <a href="#matrix" onClick={() => setHighlightRow(it.n)}>{L("Inspect specs")}<IconArrowRight size={14} />
                   </a>
                   <span>{it.tag}</span>
                 </div>
@@ -257,12 +252,9 @@ export function Industries() {
       <section className={`${s.section} ${s.tint}`} id="matrix">
         <div className={s.matrixHead}>
           <header className={s.head}>
-            <span className={s.overline}>[ Section 02 · technical reference ]</span>
-            <h2>Explore the application range</h2>
-            <p className={s.sub}>
-              12 industries, primary machinery, target sealing cavity, pressure range and recommended
-              product path.
-            </p>
+            <span className={s.overline}>{L("[ Section 02 · technical reference ]")}</span>
+            <h2>{L("Explore the application range")}</h2>
+            <p className={s.sub}>{L("12 industries, primary machinery, target sealing cavity, pressure range and recommended product path.")}</p>
           </header>
         </div>
 
@@ -271,15 +263,15 @@ export function Industries() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Industry</th>
-                <th>Primary machinery</th>
-                <th>Sealing cavity</th>
-                <th>Pressure</th>
-                <th>Recommended type</th>
+                <th>{L("Industry")}</th>
+                <th>{L("Primary machinery")}</th>
+                <th>{L("Sealing cavity")}</th>
+                <th>{L("Pressure")}</th>
+                <th>{L("Recommended type")}</th>
               </tr>
             </thead>
             <tbody>
-              {MATRIX.map((r) => (
+              {L.deep(MATRIX).map((r) => (
                 <tr key={r.n} className={r.n === highlightRow ? s.rowHighlight : undefined}>
                   <td className={s.tNum}>{r.n}</td>
                   <td className={s.tStrong}>{r.industry}</td>
@@ -300,33 +292,29 @@ export function Industries() {
       <section className={`${s.section} ${s.dark}`}>
         <header className={s.head}>
           <span className={s.miniKicker}>
-            <span className={s.dot} /> Complete traceability
-          </span>
-          <h2 className={s.onDark}>From machine to seal</h2>
-          <p className={s.subDark}>
-            Engineering integrity through three physical stages: the mobile chassis, the planetary
-            gear housing and the optical-precision seal interface.
-          </p>
+            <span className={s.dot} />{L("Complete traceability")}</span>
+          <h2 className={s.onDark}>{L("From machine to seal")}</h2>
+          <p className={s.subDark}>{L("Engineering integrity through three physical stages: the mobile chassis, the planetary gear housing and the optical-precision seal interface.")}</p>
         </header>
 
         <div className={s.stages}>
           <div className={s.stage}>
-            <span className={s.stageNo}>Stage 01 · macro environment</span>
-            <strong>The machine</strong>
-            <p>Massive structural chassis generating severe multi-axial deflection and continuous vibration.</p>
-            <em>Ambient: −40 °C to +55 °C</em>
+            <span className={s.stageNo}>{L("Stage 01 · macro environment")}</span>
+            <strong>{L("The machine")}</strong>
+            <p>{L("Massive structural chassis generating severe multi-axial deflection and continuous vibration.")}</p>
+            <em>{L("Ambient: −40 °C to +55 °C")}</em>
           </div>
           <div className={s.stage}>
-            <span className={s.stageNo}>Stage 02 · reduction system</span>
-            <strong>The hub component</strong>
-            <p>High-torque planetary hub reducer needing absolute lubrication retention and a mud barrier.</p>
-            <em>Dynamic shaft deflection: ±0.5 mm</em>
+            <span className={s.stageNo}>{L("Stage 02 · reduction system")}</span>
+            <strong>{L("The hub component")}</strong>
+            <p>{L("High-torque planetary hub reducer needing absolute lubrication retention and a mud barrier.")}</p>
+            <em>{L("Dynamic shaft deflection: ±0.5 mm")}</em>
           </div>
           <div className={`${s.stage} ${s.stageAccent}`}>
-            <span className={s.stageNo}>Stage 03 · contact interface</span>
-            <strong>DUO-CONE face seal</strong>
-            <p>Twin cast-alloy rings lapped within 2 optical light bands form a hydrodynamic film that never fails.</p>
-            <em>Contact band: Ra ≤ 0.2 µm</em>
+            <span className={s.stageNo}>{L("Stage 03 · contact interface")}</span>
+            <strong>{L("DUO-CONE face seal")}</strong>
+            <p>{L("Twin cast-alloy rings lapped within 2 optical light bands form a hydrodynamic film that never fails.")}</p>
+            <em>{L("Contact band: Ra ≤ 0.2 µm")}</em>
           </div>
         </div>
       </section>
@@ -334,52 +322,47 @@ export function Industries() {
       {/* 6 — DO vs DF */}
       <section className={`${s.section} ${s.tint}`}>
         <header className={s.head}>
-          <span className={s.overline}>[ Section 04 · core product families ]</span>
-          <h2>Found your application?</h2>
-          <p className={s.sub}>
-            Two proven configurations to match standard OEM housing profiles or direct square-bore
-            press fits.
-          </p>
+          <span className={s.overline}>{L("[ Section 04 · core product families ]")}</span>
+          <h2>{L("Found your application?")}</h2>
+          <p className={s.sub}>{L("Two proven configurations to match standard OEM housing profiles or direct square-bore press fits.")}</p>
         </header>
 
         <div className={s.typeGrid}>
           <article className={s.typeCard}>
             <div className={s.typeHead}>
-              <span>DO type · toric O-ring</span>
-              <span className={`${s.badge} ${s.badgeBlue}`}>Standard OEM</span>
+              <span>{L("DO type · toric O-ring")}</span>
+              <span className={`${s.badge} ${s.badgeBlue}`}>{L("Standard OEM")}</span>
             </div>
             <figure className={s.typeImg}>
-              <img src={doImg} alt="DUO-CONE DO type seal" width={921} height={487} loading="lazy" />
+              <img src={doImg} alt={L("DUO-CONE DO type seal")} width={921} height={487} loading="lazy" />
             </figure>
             <dl className={s.spec}>
-              <div><dt>Elastomer section</dt><dd>Toric / circular O-ring</dd></div>
-              <div><dt>Housing profile</dt><dd>Ramped 8° – 15° chamfered cavity</dd></div>
-              <div><dt>Max pressure</dt><dd>0.3 MPa (3.0 bar)</dd></div>
-              <div><dt>Diameter</dt><dd>50 mm to 1,000 mm</dd></div>
-              <div><dt>Typical machinery</dt><dd>Track rollers, front idlers, final drives</dd></div>
+              <div><dt>{L("Elastomer section")}</dt><dd>{L("Toric / circular O-ring")}</dd></div>
+              <div><dt>{L("Housing profile")}</dt><dd>{L("Ramped 8° – 15° chamfered cavity")}</dd></div>
+              <div><dt>{L("Max pressure")}</dt><dd>{L("0.3 MPa (3.0 bar)")}</dd></div>
+              <div><dt>{L("Diameter")}</dt><dd>50 mm to 1,000 mm</dd></div>
+              <div><dt>{L("Typical machinery")}</dt><dd>{L("Track rollers, front idlers, final drives")}</dd></div>
             </dl>
-            <Link to="/shop/?seal_type=DO" className={s.typeLink}>
-              Explore DO specifications <IconArrowRight size={16} />
+            <Link to="/shop/?seal_type=DO" className={s.typeLink}>{L("Explore DO specifications")}<IconArrowRight size={16} />
             </Link>
           </article>
 
           <article className={s.typeCard}>
             <div className={s.typeHead}>
-              <span>DF type · diamond spring</span>
-              <span className={`${s.badge} ${s.badgeAmber}`}>High pressure</span>
+              <span>{L("DF type · diamond spring")}</span>
+              <span className={`${s.badge} ${s.badgeAmber}`}>{L("High pressure")}</span>
             </div>
             <figure className={s.typeImg}>
-              <img src={dfImg} alt="DUO-CONE DF type seal" width={921} height={487} loading="lazy" />
+              <img src={dfImg} alt={L("DUO-CONE DF type seal")} width={921} height={487} loading="lazy" />
             </figure>
             <dl className={s.spec}>
-              <div><dt>Elastomer section</dt><dd>Diamond / trapezoidal gasket</dd></div>
-              <div><dt>Housing profile</dt><dd>Straight cylindrical bore (no ramp)</dd></div>
-              <div><dt>Max pressure</dt><dd>0.5 MPa (5.0 bar)</dd></div>
-              <div><dt>Diameter</dt><dd>100 mm to 1,200 mm</dd></div>
-              <div><dt>Typical machinery</dt><dd>TBM cutters, heavy conveyors, centrifuges</dd></div>
+              <div><dt>{L("Elastomer section")}</dt><dd>{L("Diamond / trapezoidal gasket")}</dd></div>
+              <div><dt>{L("Housing profile")}</dt><dd>{L("Straight cylindrical bore (no ramp)")}</dd></div>
+              <div><dt>{L("Max pressure")}</dt><dd>{L("0.5 MPa (5.0 bar)")}</dd></div>
+              <div><dt>{L("Diameter")}</dt><dd>100 mm to 1,200 mm</dd></div>
+              <div><dt>{L("Typical machinery")}</dt><dd>{L("TBM cutters, heavy conveyors, centrifuges")}</dd></div>
             </dl>
-            <Link to="/shop/?seal_type=DF" className={s.typeLink}>
-              Explore DF specifications <IconArrowRight size={16} />
+            <Link to="/shop/?seal_type=DF" className={s.typeLink}>{L("Explore DF specifications")}<IconArrowRight size={16} />
             </Link>
           </article>
         </div>
@@ -388,17 +371,12 @@ export function Industries() {
       {/* 7 — final CTA */}
       <section className={`${s.section} ${s.dark} ${s.finalCta}`}>
         <span className={s.miniKicker}>
-          <span className={s.dot} /> Direct factory contact
-        </span>
-        <h2 className={s.onDark}>Find the right seal for your application.</h2>
-        <p className={s.subDark}>
-          Our German application engineers provide CAD step files, cross-reference dimensional
-          validation and rapid express quotes.
-        </p>
+          <span className={s.dot} />{L("Direct factory contact")}</span>
+        <h2 className={s.onDark}>{L("Find the right seal for your application.")}</h2>
+        <p className={s.subDark}>{L("Our German application engineers provide CAD step files, cross-reference dimensional validation and rapid express quotes.")}</p>
         <div className={s.heroActions}>
           <Link to="/rfq/">
-            <Button variant="primary">
-              Get express offer <IconArrowRight size={18} />
+            <Button variant="primary">{L("Get express offer")}<IconArrowRight size={18} />
             </Button>
           </Link>
           <a className={s.ghostLink} href={COMPANY.phoneHref}>

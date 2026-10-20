@@ -1,0 +1,38 @@
+// German text for the Contact page (approved draft, docs/DE-Texte-Entwurf.md).
+export const DE_CONTACT: Record<string, string> = {
+  Contact: "Kontakt",
+  "We're here to answer your questions and support you.": "Wir beantworten gern Ihre Fragen und unterstützen Sie.",
+  "Send an RFQ or a general enquiry with the form below, or reach us directly by phone, WhatsApp or email. Our German-based team replies within one business day.":
+    "Senden Sie eine Angebotsanfrage oder allgemeine Anfrage über das Formular oder erreichen Sie uns direkt per Telefon, WhatsApp oder E-Mail. Unser Team in Deutschland antwortet innerhalb eines Werktags.",
+  "RFQ & enquiry form": "Angebots- & Kontaktformular",
+  "Message sent": "Nachricht gesendet",
+  "Thanks for reaching out. We've received your message and will reply within one business day.":
+    "Vielen Dank für Ihre Nachricht. Wir antworten innerhalb eines Werktags.",
+  "Send another message": "Weitere Nachricht senden",
+  "First & last name": "Vor- & Nachname",
+  "Company name": "Firmenname",
+  "Email address": "E-Mail-Adresse",
+  "Phone number": "Telefonnummer",
+  "Product name or OEM part number": "Produktname oder OEM-Teilenummer",
+  "Your message": "Ihre Nachricht",
+  "I agree to the": "Ich stimme der",
+  "Privacy Policy": "Datenschutzerklärung",
+  "Sending…": "Wird gesendet…",
+  "Send message": "Nachricht senden",
+  "Replies within 24h": "Antwort innerhalb von 24 h",
+  "Contact details": "Kontaktdaten",
+  Phone: "Telefon",
+  "Chat on WhatsApp": "Chat über WhatsApp",
+  Email: "E-Mail",
+  "Working hours": "Erreichbarkeit",
+  "Mon – Fri · 08:00 – 18:00 CET": "Mo – Fr · 08:00 – 18:00 MEZ",
+  "Follow DUO-CONE": "DUO-CONE folgen",
+  "Engineered & made in Germany": "Entwickelt & gefertigt in Deutschland",
+  "Enter your name": "Bitte Namen eingeben",
+  "Enter your email": "Bitte E-Mail-Adresse eingeben",
+  "Enter a valid email": "Bitte gültige E-Mail-Adresse eingeben",
+  "Enter a message": "Bitte Nachricht eingeben",
+  "A little more detail helps us help you": "Ein paar Details mehr helfen uns, Ihnen zu helfen",
+  "We couldn't send your message right now. Please email sale@duo-cone.com.":
+    "Ihre Nachricht konnte gerade nicht gesendet werden. Bitte schreiben Sie an sale@duo-cone.com.",
+};

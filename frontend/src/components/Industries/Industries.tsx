@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLang, useT } from "../../lib/i18n";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { IconArrowRight } from "../Icon/Icon";
 import styles from "./Industries.module.css";
@@ -34,6 +34,22 @@ const ITEMS: Item[] = [
   { name: "Tunnel Boring", img: tunel, blurb: "Main-drive sealing for TBM cutter heads" },
 ];
 
+// same order and images as ITEMS
+const ITEMS_DE: Item[] = [
+  ["Bergbau", "Abdichtung für Bagger und Muldenkipper in abrasivem Gelände"],
+  ["Bau", "Abdichtung für Hydrauliksysteme an Ladern und Baggern"],
+  ["Landtechnik", "Verschleißfeste Dichtungen für Traktoren und Mähdrescher"],
+  ["Recycling", "Zuverlässige Abdichtung in Schreddern und Ballenpressen"],
+  ["Forstwirtschaft", "Dichtungen für Harvester und Forwarder in Schlamm und Holzresten"],
+  ["Militär", "Abdichtung in Verteidigungsqualität für Ketten- und Radfahrzeuge"],
+  ["Schwermaschinenbau", "Laufwerksdichtungen für Getriebe und Antriebsstränge"],
+  ["Zementmühlen", "Abdichtung für Mühlen und Öfen bei Staub und Hitze"],
+  ["Abwasser", "Korrosionsbeständige Dichtungen für Pumpen und Kläranlagen"],
+  ["Laufwerke", "Dichtungen für Laufrollen und Leiträder an Kettenmaschinen"],
+  ["Pumpen & Ventile", "Laufwerksdichtungen für Industriepumpen und Ventilantriebe"],
+  ["Tunnelvortrieb", "Hauptantriebsabdichtung für TBM-Bohrköpfe"],
+].map(([name, blurb], i) => ({ ...ITEMS[i], name, blurb }));
+
 const N = ITEMS.length;
 const AUTO_MS = 3800;
 const VISIBLE = 3; // cards shown each side of center
@@ -49,6 +65,8 @@ function offsetOf(i: number, active: number) {
 
 export function Industries() {
   const reduce = useReducedMotion();
+  const t = useT();
+  const lang = useLang();
   const ref = useRef<HTMLDivElement>(null);
 
   const [active, setActive] = useState(0);
@@ -104,18 +122,19 @@ export function Industries() {
     setPaused(false);
   }
 
-  const current = ITEMS[active];
+  const items = lang === "de" ? ITEMS_DE : ITEMS;
+  const current = items[active];
 
   return (
     <section className={styles.section} aria-labelledby="industries-heading">
       <div className={styles.head}>
         <div>
-          <span className={styles.kicker}>Where our seals work</span>
-          <h2 id="industries-heading">Trusted across industries</h2>
-          <p className={styles.sub}>Twelve demanding sectors, one sealing standard.</p>
+          <span className={styles.kicker}>{t({ en: "Where our seals work", de: "Wo unsere Dichtungen arbeiten" })}</span>
+          <h2 id="industries-heading">{t({ en: "Trusted across industries", de: "Bewährt in allen Branchen" })}</h2>
+          <p className={styles.sub}>{t({ en: "Twelve demanding sectors, one sealing standard.", de: "Zwölf anspruchsvolle Branchen, ein Dichtungsstandard." })}</p>
         </div>
         <Link to="/industries/" className={styles.headLink}>
-          All industries <IconArrowRight size={16} />
+          {t({ en: "All industries", de: "Alle Branchen" })} <IconArrowRight size={16} />
         </Link>
       </div>
 
@@ -131,7 +150,7 @@ export function Industries() {
         onKeyDown={onKeyDown}
         role="group"
         aria-roledescription="carousel"
-        aria-label="Industries"
+        aria-label={t({ en: "Industries", de: "Branchen" })}
         tabIndex={0}
       >
         <span className={styles.ghost} aria-hidden="true">
@@ -139,7 +158,7 @@ export function Industries() {
         </span>
 
         <div className={styles.stage}>
-          {ITEMS.map((it, i) => {
+          {items.map((it, i) => {
             const off = offsetOf(i, active);
             const abs = Math.abs(off);
             const hidden = abs > VISIBLE;
@@ -167,13 +186,13 @@ export function Industries() {
                 className={`${styles.card} ${isActive ? styles.cardOn : ""}`}
                 style={style}
                 aria-hidden={hidden}
-                aria-label={isActive ? undefined : `Show ${it.name}`}
+                aria-label={isActive ? undefined : t({ en: `Show ${it.name}`, de: `${it.name} anzeigen` })}
                 tabIndex={hidden ? -1 : 0}
                 onClick={() => (isActive ? undefined : setActive(i))}
               >
                 <img
                   src={it.img}
-                  alt={`${it.name} equipment`}
+                  alt={t({ en: `${it.name} equipment`, de: `Maschinen: ${it.name}` })}
                   className={styles.shot}
                   width={1230}
                   height={820}
@@ -209,20 +228,20 @@ export function Industries() {
               <h3 className={styles.captionName}>{current.name}</h3>
               <p className={styles.captionBlurb}>{current.blurb}</p>
               <Link to="/industries/" className={styles.captionLink}>
-                Explore applications <IconArrowRight size={16} />
+                {t({ en: "Explore applications", de: "Anwendungen ansehen" })} <IconArrowRight size={16} />
               </Link>
             </motion.div>
           </AnimatePresence>
         </div>
 
         <div className={styles.dots}>
-          {ITEMS.map((it, i) => (
+          {items.map((it, i) => (
             <button
               key={it.name}
               type="button"
               className={`${styles.dot} ${i === active ? styles.dotOn : ""}`}
               onClick={() => setActive(i)}
-              aria-label={`Show ${it.name}`}
+              aria-label={t({ en: `Show ${it.name}`, de: `${it.name} anzeigen` })}
               aria-current={i === active}
             />
           ))}

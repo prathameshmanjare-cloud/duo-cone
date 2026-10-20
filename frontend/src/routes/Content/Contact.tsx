@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useDict, useLang } from "../../lib/i18n";
+import { DE_CONTACT } from "../../content/de-contact";
+import { DE_SEO } from "../../content/de";
 import { useForm } from "react-hook-form";
 import { api } from "../../lib/api";
 import { IconArrowRight, IconCheck } from "../../components/Icon/Icon";
@@ -53,6 +55,8 @@ function IconWhatsApp() {
 }
 
 export function Contact() {
+  const L = useDict(DE_CONTACT);
+  const lang = useLang();
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -77,37 +81,35 @@ export function Contact() {
       setSent(true);
       reset();
     } catch {
-      setError("We couldn't send your message right now. Please email sale@duo-cone.com.");
+      setError(L("We couldn't send your message right now. Please email sale@duo-cone.com."));
     }
   }
 
   return (
     <div className={styles.wrap}>
-      <Seo title={pageTitle("Contact – Mechanical Face Seals from Germany")} description={"Get in touch with DuoCone, mechanical face seal specialists based in Germany. We reply within one business day."} />
+      <Seo
+        title={lang === "de" ? DE_SEO.contact.title : pageTitle("Contact – Mechanical Face Seals from Germany")}
+        description={lang === "de" ? DE_SEO.contact.description : "Get in touch with DuoCone, mechanical face seal specialists based in Germany. We reply within one business day."}
+      />
 
       <header className={styles.head}>
-        <span className={styles.kicker}>Contact</span>
-        <h1>We're here to answer your questions and support you.</h1>
-        <p>
-          Send an RFQ or a general enquiry with the form below, or reach us directly by phone,
-          WhatsApp or email. Our German-based team replies within one business day.
-        </p>
+        <span className={styles.kicker}>{L("Contact")}</span>
+        <h1>{L("We're here to answer your questions and support you.")}</h1>
+        <p>{L("Send an RFQ or a general enquiry with the form below, or reach us directly by phone, WhatsApp or email. Our German-based team replies within one business day.")}</p>
       </header>
 
       <div className={styles.layout}>
         {/* ---------- form ---------- */}
         <div className={styles.formCard}>
-          {!sent && <h2 className={styles.formTitle}>RFQ &amp; enquiry form</h2>}
+          {!sent && <h2 className={styles.formTitle}>{L("RFQ & enquiry form")}</h2>}
           {sent ? (
             <div className={styles.success} role="status">
               <span className={styles.successIcon}>
                 <IconCheck size={26} />
               </span>
-              <h2>Message sent</h2>
-              <p>Thanks for reaching out. We've received your message and will reply within one business day.</p>
-              <button type="button" className={styles.linkBtn} onClick={() => setSent(false)}>
-                Send another message
-              </button>
+              <h2>{L("Message sent")}</h2>
+              <p>{L("Thanks for reaching out. We've received your message and will reply within one business day.")}</p>
+              <button type="button" className={styles.linkBtn} onClick={() => setSent(false)}>{L("Send another message")}</button>
             </div>
           ) : (
             <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -122,13 +124,13 @@ export function Contact() {
 
               <div className={styles.row}>
                 <div className={`${styles.field} ${errors.name ? styles.invalid : ""}`}>
-                  <input id="c-name" placeholder=" " {...register("name", { required: "Enter your name" })} />
-                  <label htmlFor="c-name">First &amp; last name</label>
+                  <input id="c-name" placeholder=" " {...register("name", { required: L("Enter your name") })} />
+                  <label htmlFor="c-name">{L("First & last name")}</label>
                   {errors.name && <span className={styles.error}>{errors.name.message}</span>}
                 </div>
                 <div className={styles.field}>
                   <input id="c-company" placeholder=" " {...register("company")} />
-                  <label htmlFor="c-company">Company name</label>
+                  <label htmlFor="c-company">{L("Company name")}</label>
                 </div>
               </div>
 
@@ -139,22 +141,22 @@ export function Contact() {
                     type="email"
                     placeholder=" "
                     {...register("email", {
-                      required: "Enter your email",
-                      pattern: { value: EMAIL_RE, message: "Enter a valid email" },
+                      required: L("Enter your email"),
+                      pattern: { value: EMAIL_RE, message: L("Enter a valid email") },
                     })}
                   />
-                  <label htmlFor="c-email">Email address</label>
+                  <label htmlFor="c-email">{L("Email address")}</label>
                   {errors.email && <span className={styles.error}>{errors.email.message}</span>}
                 </div>
                 <div className={styles.field}>
                   <input id="c-phone" type="tel" placeholder=" " {...register("phone")} />
-                  <label htmlFor="c-phone">Phone number</label>
+                  <label htmlFor="c-phone">{L("Phone number")}</label>
                 </div>
               </div>
 
               <div className={styles.field}>
                 <input id="c-product" placeholder=" " {...register("product")} />
-                <label htmlFor="c-product">Product name or OEM part number</label>
+                <label htmlFor="c-product">{L("Product name or OEM part number")}</label>
               </div>
 
               <div className={`${styles.field} ${errors.message ? styles.invalid : ""}`}>
@@ -163,11 +165,11 @@ export function Contact() {
                   rows={5}
                   placeholder=" "
                   {...register("message", {
-                    required: "Enter a message",
-                    minLength: { value: 10, message: "A little more detail helps us help you" },
+                    required: L("Enter a message"),
+                    minLength: { value: 10, message: L("A little more detail helps us help you") },
                   })}
                 />
-                <label htmlFor="c-message">Your message</label>
+                <label htmlFor="c-message">{L("Your message")}</label>
                 {errors.message && <span className={styles.error}>{errors.message.message}</span>}
               </div>
 
@@ -175,17 +177,15 @@ export function Contact() {
                 <input type="checkbox" {...register("agree", { required: true })} />
                 <span>
                   I agree to the{" "}
-                  <Link to="/privacy-policy/" target="_blank">
-                    Privacy Policy
-                  </Link>
-                  .
+                  <Link to="/privacy-policy/" target="_blank">{L("Privacy Policy")}</Link>
+                  {lang === "de" ? " zu." : "."}
                 </span>
               </label>
 
               {error && <p className={styles.formError}>{error}</p>}
 
               <button type="submit" className={styles.submit} disabled={isSubmitting}>
-                {isSubmitting ? "Sending…" : "Send message"}
+                {isSubmitting ? "Sending…" : L("Send message")}
                 {!isSubmitting && <IconArrowRight size={17} />}
               </button>
             </form>
@@ -194,14 +194,14 @@ export function Contact() {
 
         {/* ---------- contact details ---------- */}
         <aside className={styles.aside}>
-          <span className={styles.asideBadge}>Replies within 24h</span>
-          <h2>Contact details</h2>
+          <span className={styles.asideBadge}>{L("Replies within 24h")}</span>
+          <h2>{L("Contact details")}</h2>
 
           <ul className={styles.details}>
             <li>
               <span className={styles.dIcon}><IconPhone /></span>
               <div>
-                <b>Phone</b>
+                <b>{L("Phone")}</b>
                 <a href="tel:+4915510386300">+49 155 10386300</a>
               </div>
             </li>
@@ -209,29 +209,27 @@ export function Contact() {
               <span className={styles.dIcon}><IconWhatsApp /></span>
               <div>
                 <b>WhatsApp</b>
-                <a href="https://wa.me/4915510386300" target="_blank" rel="noopener noreferrer">
-                  Chat on WhatsApp
-                </a>
+                <a href="https://wa.me/4915510386300" target="_blank" rel="noopener noreferrer">{L("Chat on WhatsApp")}</a>
               </div>
             </li>
             <li>
               <span className={styles.dIcon}><IconMail /></span>
               <div>
-                <b>Email</b>
+                <b>{L("Email")}</b>
                 <a href="mailto:sale@duo-cone.com">sale@duo-cone.com</a>
               </div>
             </li>
             <li>
               <span className={styles.dIcon}><IconClock /></span>
               <div>
-                <b>Working hours</b>
-                <span>Mon – Fri · 08:00 – 18:00 CET</span>
+                <b>{L("Working hours")}</b>
+                <span>{L("Mon – Fri · 08:00 – 18:00 CET")}</span>
               </div>
             </li>
           </ul>
 
           <div className={styles.social}>
-            <b>Follow DUO-CONE</b>
+            <b>{L("Follow DUO-CONE")}</b>
             <div className={styles.socialRow}>
               <a className={styles.socialLink} href="https://www.linkedin.com/in/duo-cone-104798385/" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.64h.05c.53-1 1.83-2.06 3.77-2.06C20.4 8.58 22 10.6 22 14.06V21h-4v-6.2c0-1.48-.03-3.38-2.06-3.38-2.06 0-2.38 1.6-2.38 3.27V21H9V9Z"/></svg>
@@ -240,9 +238,7 @@ export function Contact() {
           </div>
 
           <div className={styles.madeIn}>
-            <span className={styles.flag} aria-hidden="true" />
-            Engineered &amp; made in Germany
-          </div>
+            <span className={styles.flag} aria-hidden="true" />{L("Engineered & made in Germany")}</div>
         </aside>
       </div>
     </div>

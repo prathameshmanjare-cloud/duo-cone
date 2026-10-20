@@ -88,6 +88,22 @@ export default function App() {
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/legal-notice" element={<LegalNotice />} />
 
+          {/* German pages: same components, language taken from the URL (lib/i18n) */}
+          <Route path="/de" element={<Home />} />
+          <Route path="/de/shop" element={<Shop />} />
+          <Route path="/de/shop/page/:page" element={<Shop />} />
+          <Route path="/de/produktkategorie/:segment" element={<Category />} />
+          <Route path="/de/produktkategorie/:segment/page/:page" element={<Category />} />
+          <Route path="/de/produktkategorie/:segment/:brand" element={<Category />} />
+          <Route path="/de/produktkategorie/:segment/:brand/page/:page" element={<Category />} />
+          <Route path="/de/produkt/:slug" element={<Product />} />
+          <Route path="/de/ueber-uns" element={<About />} />
+          <Route path="/de/technologie" element={<Technology />} />
+          <Route path="/de/branchen" element={<Industries />} />
+          <Route path="/de/kontakt" element={<Contact />} />
+          <Route path="/de/faq" element={<Faq />} />
+          <Route path="/de/anfrage" element={<Rfq />} />
+
           <Route path="*" element={<NotFound />} />
         </Route>
 

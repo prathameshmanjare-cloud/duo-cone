@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLang, useT } from "../../lib/i18n";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ProductCard as ProductCardT } from "../../lib/api";
 import { useCartStore } from "../../store/cart";
 import { Price } from "../Price/Price";
 import { IconSeal, IconArrowRight, IconCheck } from "../Icon/Icon";
 import { placeholderWebp } from "../../lib/images";
-import { clean } from "../../lib/seo";
+import { productName } from "../../lib/productText";
 import styles from "./ProductCard.module.css";
 
 export function ProductCard({ product }: { product: ProductCardT }) {
@@ -25,6 +25,9 @@ export function ProductCard({ product }: { product: ProductCardT }) {
   }
 
   const webp = placeholderWebp(product.image_url);
+  const t = useT();
+  const lang = useLang();
+  const name = productName(product.name, lang);
 
   return (
     <motion.article
@@ -41,7 +44,7 @@ export function ProductCard({ product }: { product: ProductCardT }) {
             {webp && <source type="image/webp" srcSet={webp} sizes="280px" />}
             <img
               src={product.image_url!}
-              alt={clean(product.name)}
+              alt={name}
               loading="lazy"
               width={280}
               height={280}
@@ -59,24 +62,24 @@ export function ProductCard({ product }: { product: ProductCardT }) {
         <span
           className={`${styles.stock} ${product.in_stock ? styles.inStock : styles.outStock}`}
         >
-          {product.in_stock ? "In stock" : "Lead time"}
+          {product.in_stock ? t({ en: "In stock", de: "Auf Lager" }) : t({ en: "Lead time", de: "Lieferzeit" })}
         </span>
 
         <span className={styles.view}>
-          View details <IconArrowRight size={14} />
+          {t({ en: "View details", de: "Details ansehen" })} <IconArrowRight size={14} />
         </span>
       </Link>
 
       <div className={styles.body}>
         {product.brand && <span className={styles.brand}>{product.brand.name}</span>}
         <Link to={`/product/${product.slug}/`} className={styles.name}>
-          {clean(product.name)}
+          {name}
         </Link>
         <span className={styles.sku}>{product.sku}</span>
 
         <div className={styles.priceRow}>
           {product.is_rfq_only ? (
-            <span className={styles.onRequest}>Price on request</span>
+            <span className={styles.onRequest}>{t({ en: "Price on request", de: "Preis auf Anfrage" })}</span>
           ) : (
             <>
               <Price
@@ -84,14 +87,14 @@ export function ProductCard({ product }: { product: ProductCardT }) {
                 salePriceCents={product.sale_price_cents}
                 currency={product.currency}
               />
-              <span className={styles.vat}>excl. VAT</span>
+              <span className={styles.vat}>{t({ en: "excl. VAT", de: "zzgl. MwSt." })}</span>
             </>
           )}
         </div>
 
         {product.is_rfq_only ? (
           <Link to="/rfq/" className={`${styles.addBtn} ${styles.quoteBtn}`}>
-            Request a quote <IconArrowRight size={15} />
+            {t({ en: "Request a quote", de: "Angebot anfordern" })} <IconArrowRight size={15} />
           </Link>
         ) : (
           <button
@@ -102,12 +105,12 @@ export function ProductCard({ product }: { product: ProductCardT }) {
           >
             {added ? (
               <>
-                <IconCheck size={16} /> Added
+                <IconCheck size={16} /> {t({ en: "Added", de: "Hinzugefügt" })}
               </>
             ) : product.in_stock ? (
-              "Add to cart"
+              t({ en: "Add to cart", de: "In den Warenkorb" })
             ) : (
-              "Request lead time"
+              t({ en: "Request lead time", de: "Lieferzeit anfragen" })
             )}
           </button>
         )}

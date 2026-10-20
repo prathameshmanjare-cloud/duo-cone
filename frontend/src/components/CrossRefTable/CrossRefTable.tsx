@@ -1,4 +1,5 @@
 import { clean } from "../../lib/seo";
+import { useT } from "../../lib/i18n";
 import styles from "./CrossRefTable.module.css";
 
 type Row = { brand: string; part: string; models?: string | null };
@@ -15,6 +16,7 @@ export function CrossRefTable({
   sku: string;
   refs: { ref_number: string; ref_brand?: string | null; machine_models?: string | null }[];
 }) {
+  const t = useT();
   const rows: Row[] = [
     { brand: brand ?? "", part: clean(sku) },
     ...refs.map((r) => ({ brand: r.ref_brand ?? "", part: clean(r.ref_number), models: r.machine_models })),
@@ -24,9 +26,9 @@ export function CrossRefTable({
       <table className={styles.table}>
         <thead>
           <tr>
-            <th scope="col">OEM brand</th>
-            <th scope="col">Part number</th>
-            <th scope="col">Machine models</th>
+            <th scope="col">{t({ en: "OEM brand", de: "OEM-Marke" })}</th>
+            <th scope="col">{t({ en: "Part number", de: "Teilenummer" })}</th>
+            <th scope="col">{t({ en: "Machine models", de: "Maschinenmodelle" })}</th>
           </tr>
         </thead>
         <tbody>

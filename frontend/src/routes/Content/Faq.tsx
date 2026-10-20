@@ -1,6 +1,8 @@
 import { Seo } from "../../components/Seo/Seo";
 import { pageTitle, type FaqItem } from "../../lib/seo";
 import { FaqSection } from "../../components/FaqSection/FaqSection";
+import { useLang } from "../../lib/i18n";
+import { DE_SEO } from "../../content/de";
 import styles from "./Content.module.css";
 
 const FAQS: { category: string; items: FaqItem[] }[] = [
@@ -25,12 +27,38 @@ const FAQS: { category: string; items: FaqItem[] }[] = [
   },
 ];
 
+const FAQS_DE: { category: string; items: FaqItem[] }[] = [
+  {
+    category: "Bestellung",
+    items: [
+      { q: "Wie bestelle ich?", a: "Legen Sie Produkte in den Warenkorb und bestellen Sie direkt, oder senden Sie eine Angebotsanfrage für Mengenpreise." },
+      { q: "Kann ich nach OEM-Teilenummer bestellen?", a: "Ja. Suchen Sie im Shop nach Ihrer OEM-Referenznummer." },
+    ],
+  },
+  {
+    category: "Versand",
+    items: [{ q: "Wie schnell liefern Sie?", a: "Bestellungen werden innerhalb von 24 Stunden aus unserem Lager in Deutschland versendet." }],
+  },
+  {
+    category: "Rückgabe",
+    items: [{ q: "Wie ist Ihre Rückgaberegelung?", a: "Unbenutzte Dichtungen in Originalverpackung können innerhalb von 14 Tagen zurückgegeben werden." }],
+  },
+];
+
 export function Faq() {
+  const de = useLang() === "de";
   return (
     <div className={styles.page}>
-      <Seo title={pageTitle("FAQ – Mechanical Face Seals (Floating Seals)")} description={"Answers about DF and DO type mechanical face seals (floating seals): ordering, cross-references by OEM part number, delivery from Germany, warranty and returns."} />
-      <h1>Frequently Asked Questions</h1>
-      <FaqSection groups={FAQS.map((cat) => ({ title: cat.category, items: cat.items }))} />
+      <Seo
+        title={de ? DE_SEO.faq.title : pageTitle("FAQ – Mechanical Face Seals (Floating Seals)")}
+        description={
+          de
+            ? DE_SEO.faq.description
+            : "Answers about DF and DO type mechanical face seals (floating seals): ordering, cross-references by OEM part number, delivery from Germany, warranty and returns."
+        }
+      />
+      <h1>{de ? DE_SEO.faq.h1 : "Frequently Asked Questions"}</h1>
+      <FaqSection groups={(de ? FAQS_DE : FAQS).map((cat) => ({ title: cat.category, items: cat.items }))} />
     </div>
   );
 }

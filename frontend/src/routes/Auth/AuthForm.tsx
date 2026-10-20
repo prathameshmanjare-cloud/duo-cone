@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link } from "../../lib/i18n";
 import { Button } from "../../components/Button/Button";
 import { api } from "../../lib/api";
 import { useSession } from "../../store/session";

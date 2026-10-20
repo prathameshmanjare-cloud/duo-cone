@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLang, useT } from "../../lib/i18n";
 import { Button } from "../Button/Button";
 import { IconArrowRight } from "../Icon/Icon";
 import slideWelcome from "../../assets/industries/seal-cutaway-banner.webp";
@@ -67,6 +67,46 @@ const SLIDES: Slide[] = [
   },
 ];
 
+const SLIDES_DE: Slide[] = [
+  {
+    ...SLIDES[0],
+    nav: "Willkommen",
+    title: "Willkommen bei DUO-CONE",
+    copy: "Laufwerksdichtungen (Typ DF und DO) aus deutscher Entwicklung für die härtesten Einsätze. Lagerware, Versand innerhalb von 24 Stunden.",
+    chips: ["Zwei bewährte Bauformen", "Versand in 24 h", "DIN EN ISO 9001"],
+    cta: "Zum Shop",
+  },
+  {
+    ...SLIDES[1],
+    eyebrow: "Technik",
+    nav: "Technologie",
+    title: "Innovation & Technologie",
+    copy: "Schleuderguss, optisches Läppen und eigene Elastomer-Entwicklung. Jedes Teil wird auf unseren eigenen Dauerlauf-Prüfständen validiert.",
+    chips: ["Ra < 0,13 µm", "Optisches Läppen", "Dauerlauf-Prüfstände"],
+    cta: "Zur Technologie",
+    secondary: { label: "Über uns", to: "/about-us/" },
+  },
+  {
+    ...SLIDES[2],
+    eyebrow: "Praxiserprobt",
+    nav: "Branchen",
+    title: "Zuverlässigkeit & Branchen",
+    copy: "Bergbau, Bau, Tunnelvortrieb, Forstwirtschaft, Verteidigung und Zementindustrie. Leckagefreie Abdichtung dort, wo Stillstand keine Option ist.",
+    chips: ["12 Branchen", "Leckagefrei", "Bis 0,5 MPa"],
+    cta: "Zu den Branchen",
+  },
+  {
+    ...SLIDES[3],
+    eyebrow: "Partnerschaft",
+    nav: "Support",
+    title: "Fertigung & technischer Support",
+    copy: "Direkter Kontakt zu erfahrenen Dichtungsingenieuren, CAD-Prüfung des Querschnitts und verbindliche Angebote innerhalb von 24 Stunden.",
+    chips: ["Angebot in 24 h", "CAD-Prüfung", "Made in Germany"],
+    cta: "Kontakt aufnehmen",
+    secondary: { label: "Partnerschaft starten", to: "/rfq/" },
+  },
+];
+
 const INTERVAL = 6500;
 
 function prefersReduced() {
@@ -76,7 +116,9 @@ function prefersReduced() {
 export function HeroSlider() {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const count = SLIDES.length;
+  const t = useT();
+  const slides = useLang() === "de" ? SLIDES_DE : SLIDES;
+  const count = slides.length;
   const reduce = prefersReduced();
 
   const go = useCallback((n: number) => setIndex(((n % count) + count) % count), [count]);
@@ -114,7 +156,7 @@ export function HeroSlider() {
       ref={rootRef}
       className={styles.slider}
       aria-roledescription="carousel"
-      aria-label="DUO-CONE highlights"
+      aria-label={t({ en: "DUO-CONE highlights", de: "DUO-CONE im Überblick" })}
       onMouseEnter={() => setPaused(true)}
       onMouseMove={onMove}
       onMouseLeave={() => {
@@ -125,7 +167,7 @@ export function HeroSlider() {
       onBlurCapture={() => setPaused(false)}
     >
       <div className={styles.stage}>
-        {SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <div
             key={s.title}
             className={`${styles.slide} ${i === index ? styles.active : ""} ${s.fitContain ? styles.slideContain : ""}`}
@@ -159,7 +201,7 @@ export function HeroSlider() {
           {String(index + 1).padStart(2, "0")}
         </span>
 
-        {SLIDES.map((s, i) => {
+        {slides.map((s, i) => {
           const on = i === index;
           const words = s.title.split(" ");
           return (
@@ -216,12 +258,12 @@ export function HeroSlider() {
         })}
       </div>
 
-      <button type="button" className={`${styles.arrow} ${styles.prev}`} onClick={prev} aria-label="Previous slide">
+      <button type="button" className={`${styles.arrow} ${styles.prev}`} onClick={prev} aria-label={t({ en: "Previous slide", de: "Vorherige Folie" })}>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
           <path d="m15 6-6 6 6 6" />
         </svg>
       </button>
-      <button type="button" className={`${styles.arrow} ${styles.nextBtn}`} onClick={next} aria-label="Next slide">
+      <button type="button" className={`${styles.arrow} ${styles.nextBtn}`} onClick={next} aria-label={t({ en: "Next slide", de: "Nächste Folie" })}>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
           <path d="m9 6 6 6-6 6" />
         </svg>
@@ -232,8 +274,8 @@ export function HeroSlider() {
           <span className={styles.countNow}>{String(index + 1).padStart(2, "0")}</span>
           <span className={styles.countAll}>/ {String(count).padStart(2, "0")}</span>
         </div>
-        <div className={styles.track} role="tablist" aria-label="Choose slide">
-          {SLIDES.map((s, i) => (
+        <div className={styles.track} role="tablist" aria-label={t({ en: "Choose slide", de: "Folie wählen" })}>
+          {slides.map((s, i) => (
             <button
               key={s.title}
               type="button"

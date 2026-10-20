@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useT } from "../../lib/i18n";
 import { Logo } from "../Logo/Logo";
 import { RevealGroup, RevealItem } from "../Reveal/Reveal";
 import { COMPANY } from "../../lib/company";
@@ -29,6 +29,7 @@ function IconLinkedIn() {
 
 export function Footer() {
   const year = new Date().getFullYear();
+  const t = useT();
 
   return (
     <footer className={styles.footer}>
@@ -40,8 +41,10 @@ export function Footer() {
             <Logo height={30} />
           </div>
           <p>
-            German manufacturer of high-performance mechanical face seals for mining, construction,
-            agriculture, forestry and defense.
+            {t({
+              en: "German manufacturer of high-performance mechanical face seals for mining, construction, agriculture, forestry and defense.",
+              de: "Deutscher Hersteller von Hochleistungs-Laufwerksdichtungen für Bergbau, Bau, Landwirtschaft, Forst und Verteidigung.",
+            })}
           </p>
 
           <div className={styles.quickContacts}>
@@ -61,7 +64,7 @@ export function Footer() {
             <a
               className={styles.social}
               href="https://www.linkedin.com/in/duo-cone-104798385/"
-              aria-label="DuoCone on LinkedIn"
+              aria-label={t({ en: "DuoCone on LinkedIn", de: "DuoCone auf LinkedIn" })}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -76,25 +79,25 @@ export function Footer() {
           <Link to="/product-category/replacement/">Replacement</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
-          <h2 className={styles.colTitle}>Company</h2>
-          <Link to="/about-us/">About Us</Link>
-          <Link to="/industries/">Industries</Link>
-          <Link to="/technology/">Technology</Link>
-          <Link to="/contact/">Contact</Link>
+          <h2 className={styles.colTitle}>{t({ en: "Company", de: "Unternehmen" })}</h2>
+          <Link to="/about-us/">{t({ en: "About Us", de: "Über uns" })}</Link>
+          <Link to="/industries/">{t({ en: "Industries", de: "Branchen" })}</Link>
+          <Link to="/technology/">{t({ en: "Technology", de: "Technologie" })}</Link>
+          <Link to="/contact/">{t({ en: "Contact", de: "Kontakt" })}</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
           <h2 className={styles.colTitle}>Support</h2>
-          <Link to="/faq/">Common questions</Link>
-          <Link to="/shipping/">Shipping</Link>
-          <Link to="/returns/">Returns &amp; Refunds</Link>
-          <Link to="/rfq/">Request a Quote</Link>
+          <Link to="/faq/">{t({ en: "Common questions", de: "Häufige Fragen" })}</Link>
+          <Link to="/shipping/">{t({ en: "Shipping", de: "Versand" })}</Link>
+          <Link to="/returns/">{t({ en: "Returns & Refunds", de: "Rückgabe & Erstattung" })}</Link>
+          <Link to="/rfq/">{t({ en: "Request a Quote", de: "Angebot anfordern" })}</Link>
         </RevealItem>
         <RevealItem className={styles.col}>
-          <h2 className={styles.colTitle}>Legal</h2>
-          <Link to="/legal-notice/">Legal Notice</Link>
-          <Link to="/terms/">Terms &amp; Conditions</Link>
-          <Link to="/privacy-policy/">Privacy Policy</Link>
-          <Link to="/cookie-policy/">Cookie Policy</Link>
+          <h2 className={styles.colTitle}>{t({ en: "Legal", de: "Rechtliches" })}</h2>
+          <Link to="/legal-notice/">{t({ en: "Legal Notice", de: "Impressum" })}</Link>
+          <Link to="/terms/">{t({ en: "Terms & Conditions", de: "AGB" })}</Link>
+          <Link to="/privacy-policy/">{t({ en: "Privacy Policy", de: "Datenschutz" })}</Link>
+          <Link to="/cookie-policy/">{t({ en: "Cookie Policy", de: "Cookie-Richtlinie" })}</Link>
         </RevealItem>
       </RevealGroup>
 
@@ -103,21 +106,22 @@ export function Footer() {
           <div className={styles.legalInfo}>
             <span>{COMPANY.legalName}</span>
             <span aria-hidden="true">·</span>
-            <span>Benzstraße 21, 51381 Leverkusen, Germany</span>
+            <span>{t({ en: "Benzstraße 21, 51381 Leverkusen, Germany", de: "Benzstraße 21, 51381 Leverkusen, Deutschland" })}</span>
             <span aria-hidden="true">·</span>
-            <span>HRB 82724 Cologne District Court, VAT 300917783</span>
+            <span>{t({ en: "HRB 82724 Cologne District Court, VAT 300917783", de: "HRB 82724 Amtsgericht Köln, USt-IdNr. DE300917783" })}</span>
           </div>
           <p className={styles.disclaimer}>
-            OEM brand names or part numbers are shown only to identify compatible parts. They remain
-            trademarks of their owners. Duo Cone is not affiliated with, nor endorsed by, these
-            manufacturers.
+            {t({
+              en: "OEM brand names or part numbers are shown only to identify compatible parts. They remain trademarks of their owners. Duo Cone is not affiliated with, nor endorsed by, these manufacturers.",
+              de: "OEM-Markennamen und Teilenummern dienen nur der Zuordnung passender Teile. Sie bleiben Marken ihrer Inhaber. Duo Cone steht in keiner Verbindung zu diesen Herstellern und wird von ihnen nicht empfohlen.",
+            })}
           </p>
           <div className={styles.bottomRow}>
-            <span>© {year} DuoCone. All rights reserved.</span>
+            <span>© {year} DuoCone. {t({ en: "All rights reserved.", de: "Alle Rechte vorbehalten." })}</span>
             <nav>
-              <Link to="/legal-notice/">Legal Notice</Link>
-              <Link to="/terms/">Terms &amp; Conditions</Link>
-              <Link to="/privacy-policy/">Privacy Policy</Link>
+              <Link to="/legal-notice/">{t({ en: "Legal Notice", de: "Impressum" })}</Link>
+              <Link to="/terms/">{t({ en: "Terms & Conditions", de: "AGB" })}</Link>
+              <Link to="/privacy-policy/">{t({ en: "Privacy Policy", de: "Datenschutz" })}</Link>
             </nav>
           </div>
         </div>

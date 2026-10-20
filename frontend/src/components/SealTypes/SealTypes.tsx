@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLang, useT } from "../../lib/i18n";
 import { motion, useReducedMotion } from "framer-motion";
 import { IconCheck, IconArrowRight } from "../Icon/Icon";
 import { ProductSearch } from "../ProductSearch/ProductSearch";
@@ -48,7 +48,41 @@ const TYPES: SealType[] = [
   },
 ];
 
-const HEADLINE = ["DF", "&", "DO", "mechanical", "face", "seals"];
+const TYPES_DE: SealType[] = [
+  {
+    code: "DF",
+    title: "Typ DF",
+    image: dfImg,
+    blurb:
+      "Laufwerksdichtung mit einem einzelnen Gummi-Anpressring. Weit verbreitet an älteren John-Deere-Maschinen. Die einfache Einpressmontage macht Reparaturen im Feld schnell; die Abmessungen entsprechen exakt der OEM-Referenz.",
+    chips: ["Ein Anpressring", "OEM-gleicher Ø", "58–62 HRC", "24 Monate Gewährleistung"],
+    features: [
+      "Einfache Einpressmontage für schnelle Reparatur",
+      "Ersetzt alle OEM-Referenzen vom Typ DF",
+      "Dichtflächen aus NI-HARD (ASTM A532) / SAE 52100",
+    ],
+    to: "/shop/?seal_type=DF",
+  },
+  {
+    code: "DO",
+    title: "Typ DO",
+    image: doImg,
+    blurb:
+      "Die am weitesten verbreitete Duo-Cone-Bauform, abgedichtet durch zwei O-Ringe – für raue Einsätze unter hohem Druck. Korrosionsbeständiges Metall und Elastomere sorgen für eine dauerhafte Abdichtung in Antrieben von Bergbau- und Baumaschinen.",
+    chips: ["Zwei O-Ringe", "Hochdruck", "Korrosionsbeständig", "5.000–8.000 h Lebensdauer"],
+    features: [
+      "Zwei O-Ringe für härteste Bedingungen",
+      "Korrosionsbeständiger Metall- und Elastomersatz",
+      "Dauerhafte Abdichtung für Hydraulik und Endantriebe",
+    ],
+    to: "/shop/?seal_type=DO",
+  },
+];
+
+const HEADLINE = {
+  en: ["DF", "&", "DO", "mechanical", "face", "seals"],
+  de: ["Laufwerksdichtungen", "Typ", "DF", "&", "DO"],
+};
 
 function onHeroMove(e: MouseEvent<HTMLElement>) {
   const r = e.currentTarget.getBoundingClientRect();
@@ -60,6 +94,9 @@ export function SealTypes() {
   const reduce = useReducedMotion();
   const gridRef = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
+  const t = useT();
+  const lang = useLang();
+  const types = lang === "de" ? TYPES_DE : TYPES;
 
   useEffect(() => {
     const el = gridRef.current;
@@ -92,10 +129,10 @@ export function SealTypes() {
 
         <div className={styles.heroCopy}>
           <span className={styles.kicker} style={{ "--d": "0ms" } as CSSProperties}>
-            Two proven designs
+            {t({ en: "Two proven designs", de: "Zwei bewährte Bauformen" })}
           </span>
-          <h1 id="seal-types-heading" aria-label="DF & DO mechanical face seals">
-            {HEADLINE.map((w, i) => (
+          <h1 id="seal-types-heading" aria-label={HEADLINE[lang].join(" ")}>
+            {HEADLINE[lang].map((w, i) => (
               <Fragment key={i}>
                 {i > 0 && " "}
                 <span className={styles.word} aria-hidden="true">
@@ -110,36 +147,36 @@ export function SealTypes() {
             ))}
           </h1>
           <p className={styles.rise} style={{ "--d": "560ms" } as CSSProperties}>
-            <span>Both built from the same premium, wear-resistant materials.</span>{" "}
-            <span className={styles.line}>The loading element is what sets them apart.</span>
+            <span>{t({ en: "Both built from the same premium, wear-resistant materials.", de: "Beide aus denselben hochwertigen, verschleißfesten Werkstoffen." })}</span>{" "}
+            <span className={styles.line}>{t({ en: "The loading element is what sets them apart.", de: "Der Unterschied liegt im Anpresselement." })}</span>
           </p>
         </div>
         <div className={`${styles.searchWrap} ${styles.rise}`} style={{ "--d": "700ms" } as CSSProperties}>
-          <ProductSearch className={styles.search} placeholder="Search by part no., SKU or OEM ref…" />
+          <ProductSearch className={styles.search} placeholder={t({ en: "Search by part no., SKU or OEM ref…", de: "Nach Teilenummer, Artikelnr. oder OEM-Ref. suchen…" })} />
         </div>
         <div className={`${styles.heroMeta} ${styles.rise}`} style={{ "--d": "840ms" } as CSSProperties}>
           <span className={styles.shipBadge}>
-            <span className={styles.dot} /> Ships within 24 hours
+            <span className={styles.dot} /> {t({ en: "Ships within 24 hours", de: "Versand innerhalb von 24 Stunden" })}
           </span>
-          <span className={styles.metaLine}>Universal OEM fit</span>
+          <span className={styles.metaLine}>{t({ en: "Universal OEM fit", de: "Passend für alle gängigen OEM-Referenzen" })}</span>
         </div>
       </header>
 
       <div ref={gridRef} className={`${styles.grid} ${shown ? styles.in : ""}`}>
-        {TYPES.map((t, i) => (
+        {types.map((ty, i) => (
           <motion.article
-            key={t.code}
+            key={ty.code}
             className={styles.card}
             style={{ transitionDelay: `${i * 110}ms` }}
             whileHover={reduce ? undefined : { y: -8 }}
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
           >
             <div className={styles.media}>
-              <span className={styles.badge}>{t.code}</span>
+              <span className={styles.badge}>{ty.code}</span>
               {/* first screen of the home page: load right away */}
               <img
-                src={t.image}
-                alt={`${t.title} Duo Cone mechanical face seal, cut view`}
+                src={ty.image}
+                alt={t({ en: `${ty.title} Duo Cone mechanical face seal, cut view`, de: `Duo-Cone-Laufwerksdichtung ${ty.title}, Schnittansicht` })}
                 width={921}
                 height={487}
                 fetchPriority={i === 0 ? "high" : undefined}
@@ -148,17 +185,17 @@ export function SealTypes() {
             </div>
 
             <div className={styles.body}>
-              <h2>{t.title}</h2>
-              <p className={styles.blurb}>{t.blurb}</p>
+              <h2>{ty.title}</h2>
+              <p className={styles.blurb}>{ty.blurb}</p>
 
               <ul className={styles.chips}>
-                {t.chips.map((c) => (
+                {ty.chips.map((c) => (
                   <li key={c}>{c}</li>
                 ))}
               </ul>
 
               <ul className={styles.features}>
-                {t.features.map((f) => (
+                {ty.features.map((f) => (
                   <li key={f}>
                     <IconCheck size={16} />
                     <span>{f}</span>
@@ -166,8 +203,8 @@ export function SealTypes() {
                 ))}
               </ul>
 
-              <Link to={t.to} className={styles.cta}>
-                Explore {t.code} seals <IconArrowRight size={16} />
+              <Link to={ty.to} className={styles.cta}>
+                {t({ en: `Explore ${ty.code} seals`, de: `${ty.code}-Dichtungen ansehen` })} <IconArrowRight size={16} />
               </Link>
             </div>
           </motion.article>

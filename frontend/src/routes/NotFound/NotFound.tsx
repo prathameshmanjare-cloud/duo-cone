@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "../../lib/i18n";
 import { Button } from "../../components/Button/Button";
 import styles from "./NotFound.module.css";
 import { PageTitle } from "../../components/PageTitle/PageTitle";

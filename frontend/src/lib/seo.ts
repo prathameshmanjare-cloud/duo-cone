@@ -37,6 +37,15 @@ export function pageTitle(page: string) {
 /** " – Page 2" for listing pages after the first, so every page title is unique. */
 export const pageSuffix = (page?: string | number) => (Number(page) > 1 ? ` – Page ${Number(page)}` : "");
 
+/** Title for a language: English via pageTitle(); German titles come
+ *  complete from content/de.ts, with " – Seite N" added for later pages. */
+export function localTitle(lang: "en" | "de", en: string, de: string, page?: string | number) {
+  if (lang === "en") return pageTitle(en + pageSuffix(page));
+  if (!(Number(page) > 1)) return de;
+  const withPage = de.replace(SUFFIX, ` – Seite ${Number(page)}${SUFFIX}`);
+  return withPage.length <= TITLE_MAX ? withPage : de.replace(SUFFIX, ` – Seite ${Number(page)}`);
+}
+
 export const metaDescription = (s: string) => cut(clean(s), DESCRIPTION_MAX);
 
 /** "<Product name> – <OEM part no.> | Duo Cone", without repeating the part
@@ -62,8 +71,18 @@ export const hasPrice = (p: Pick<ProductDetail, "price_cents" | "is_rfq_only">) 
 
 const SEAL_TYPE: Record<string, string> = { DF: "DF type ", DO: "DO type " };
 
-export function productDescription(p: ProductDetail) {
+const SEAL_TYPE_DE: Record<string, string> = { DF: "Typ DF", DO: "Typ DO" };
+
+export function productDescription(p: ProductDetail, lang: "en" | "de" = "en") {
   const brand = p.brand?.name ?? "";
+  if (lang === "de") {
+    const typeDe = SEAL_TYPE_DE[p.seal_type] ? ` ${SEAL_TYPE_DE[p.seal_type]}` : "";
+    const priceDe = hasPrice(p) ? "Online bestellen" : "Preis auf Anfrage";
+    return metaDescription(
+      `${brand} Laufwerksdichtung${typeDe} (Gleitringdichtung, Duo-Cone-Dichtung), OEM-Ref. ${clean(p.sku)}. ` +
+        `${priceDe}, Versand in 24 h ab Deutschland. Angebot in 24 h.`
+    );
+  }
   const type = SEAL_TYPE[p.seal_type] ?? "";
   const price = hasPrice(p) ? "Order online" : "Price on request";
   return metaDescription(
@@ -110,18 +129,23 @@ export const websiteJsonLd = {
 const plainText = (html: string | null | undefined) =>
   clean((html ?? "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&"));
 
-export function productJsonLd(p: ProductDetail, url: string) {
+/** `text` overrides name / description / category for the German page. */
+export function productJsonLd(
+  p: ProductDetail,
+  url: string,
+  text?: { name: string; description: string; category: string }
+) {
   const images = (p.images.length ? p.images.map((i) => i.url) : p.image_url ? [p.image_url] : []).map(absoluteUrl);
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: clean(p.name),
-    description: plainText(p.short_description || p.description_html) || clean(p.name),
+    name: text?.name ?? clean(p.name),
+    description: text?.description || plainText(p.short_description || p.description_html) || clean(p.name),
     sku: clean(p.sku),
     mpn: clean(p.sku),
     url,
     image: images,
-    category: "Mechanical face seals",
+    category: text?.category ?? "Mechanical face seals",
   };
   if (p.brand) data.brand = { "@type": "Brand", name: p.brand.name };
   // only real prices; price-on-request parts get no offer at all

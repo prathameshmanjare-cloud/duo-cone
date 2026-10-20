@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useT } from "../../lib/i18n";
 import { motion, useReducedMotion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -38,6 +38,7 @@ function Img({
 }
 
 export function Hero() {
+  const t = useT();
   const rootRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
 
@@ -210,7 +211,7 @@ export function Hero() {
         {/* chapter copy */}
         <div className={styles.copy}>
           <div className={styles.copyInner}>
-            <span className={styles.kicker}>German-engineered face seals</span>
+            <span className={styles.kicker}>{t({ en: "German-engineered face seals", de: "Laufwerksdichtungen aus deutscher Entwicklung" })}</span>
             <h2 className={styles.title} aria-label={TITLE}>
               {TITLE.split("").map((c, i) => (
                 <span key={i} className={styles.charWrap} aria-hidden="true">
@@ -219,35 +220,37 @@ export function Hero() {
               ))}
             </h2>
             <p className={styles.sub}>
-              High-pressure sealing built for the heaviest duty on earth.
+              {t({ en: "High-pressure sealing built for the heaviest duty on earth.", de: "Hochdruckabdichtung für die härtesten Einsätze." })}
             </p>
           </div>
 
           <h2 className={`${styles.chapter} ${styles.c2}`}>
-            Four precision parts.<br />
-            <span>Two steel rings, two toric O-rings.</span>
+            {t({ en: "Four precision parts.", de: "Vier Präzisionsteile." })}<br />
+            <span>{t({ en: "Two steel rings, two toric O-rings.", de: "Zwei Stahlringe, zwei torische O-Ringe." })}</span>
           </h2>
 
           <h2 className={`${styles.chapter} ${styles.c3}`}>
-            Lapped faces,<br />
-            <span>oil-film tight under 5+ bar.</span>
+            {t({ en: "Lapped faces,", de: "Geläppte Dichtflächen," })}<br />
+            <span>{t({ en: "oil-film tight under 5+ bar.", de: "öldicht bei über 5 bar." })}</span>
           </h2>
 
           <div className={`${styles.chapter} ${styles.c4}`}>
-            <h2>DUO CONE SEALS for heavy machinery</h2>
+            <h2>{t({ en: "DUO CONE SEALS for heavy machinery", de: "Duo-Cone-Dichtungen für schwere Maschinen" })}</h2>
             <p>
-              Resist wear, abrasion and extreme temperature in hydraulic systems and
-              construction equipment.
+              {t({
+                en: "Resist wear, abrasion and extreme temperature in hydraulic systems and construction equipment.",
+                de: "Beständig gegen Verschleiß, Abrieb und extreme Temperaturen in Hydrauliksystemen und Baumaschinen.",
+              })}
             </p>
             <div className={styles.actions}>
               <Link to="/shop/" className={styles.cta}>
                 <Button variant="primary">
-                  See our products <IconArrowRight size={18} />
+                  {t({ en: "See our products", de: "Zu den Produkten" })} <IconArrowRight size={18} />
                 </Button>
               </Link>
               <Link to="/rfq/" className={styles.cta}>
                 <Button variant="ghost" className={styles.ghostOnDark}>
-                  Start an RFQ
+                  {t({ en: "Start an RFQ", de: "Angebot anfordern" })}
                 </Button>
               </Link>
             </div>
@@ -257,21 +260,21 @@ export function Hero() {
         <div className={styles.specs} aria-hidden="true">
           <div className={styles.spec}>
             <b>5+ bar</b>
-            <span>working pressure</span>
+            <span>{t({ en: "working pressure", de: "Betriebsdruck" })}</span>
           </div>
           <div className={styles.spec}>
             <b>−40…220°C</b>
-            <span>temperature range</span>
+            <span>{t({ en: "temperature range", de: "Temperaturbereich" })}</span>
           </div>
           <div className={styles.spec}>
             <b>DIN EN ISO 9001</b>
-            <span>manufactured</span>
+            <span>{t({ en: "manufactured", de: "gefertigt" })}</span>
           </div>
         </div>
 
         <div className={styles.grain} aria-hidden="true" />
         <div className={styles.scrollCue} aria-hidden="true">
-          <span>Scroll</span>
+          <span>{t({ en: "Scroll", de: "Scrollen" })}</span>
         </div>
       </div>
     </section>

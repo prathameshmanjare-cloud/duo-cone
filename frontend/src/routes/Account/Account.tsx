@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Link } from "../../lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "../../store/session";
 import { api } from "../../lib/api";

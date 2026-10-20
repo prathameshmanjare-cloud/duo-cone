@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useT } from "../../lib/i18n";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCartStore } from "../../store/cart";
 import { Price } from "../Price/Price";
@@ -7,6 +7,7 @@ import { IconClose } from "../Icon/Icon";
 import styles from "./CartDrawer.module.css";
 
 export function CartDrawer() {
+  const t = useT();
   const { lines, isOpen, close, remove, setQty, subtotalCents } = useCartStore();
 
   return (
@@ -24,7 +25,7 @@ export function CartDrawer() {
             className={styles.drawer}
             role="dialog"
             aria-modal="true"
-            aria-label="Shopping cart"
+            aria-label={t({ en: "Shopping cart", de: "Warenkorb" })}
             onClick={(e) => e.stopPropagation()}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -32,14 +33,14 @@ export function CartDrawer() {
             transition={{ type: "spring", stiffness: 320, damping: 34 }}
           >
         <div className={styles.header}>
-          <h2>Your cart</h2>
-          <button onClick={close} aria-label="Close cart"><IconClose size={20} /></button>
+          <h2>{t({ en: "Your cart", de: "Ihr Warenkorb" })}</h2>
+          <button onClick={close} aria-label={t({ en: "Close cart", de: "Warenkorb schließen" })}><IconClose size={20} /></button>
         </div>
 
         {lines.length === 0 ? (
           <div className={styles.empty}>
-            <p>Your cart is empty.</p>
-            <Link to="/shop/" onClick={close}>Browse products →</Link>
+            <p>{t({ en: "Your cart is empty.", de: "Ihr Warenkorb ist leer." })}</p>
+            <Link to="/shop/" onClick={close}>{t({ en: "Browse products →", de: "Produkte ansehen →" })}</Link>
           </div>
         ) : (
           <>
@@ -56,12 +57,12 @@ export function CartDrawer() {
                         min={1}
                         value={line.qty}
                         onChange={(e) => setQty(line.product.id, Number(e.target.value))}
-                        aria-label={`Quantity for ${line.product.name}`}
+                        aria-label={t({ en: `Quantity for ${line.product.name}`, de: `Menge für ${line.product.name}` })}
                       />
                       <Price cents={line.product.price_cents} salePriceCents={line.product.sale_price_cents} />
                     </div>
                   </div>
-                  <button className={styles.remove} onClick={() => remove(line.product.id)} aria-label={`Remove ${line.product.name}`}>
+                  <button className={styles.remove} onClick={() => remove(line.product.id)} aria-label={t({ en: `Remove ${line.product.name}`, de: `${line.product.name} entfernen` })}>
                     <IconClose size={16} />
                   </button>
                 </li>
@@ -69,11 +70,11 @@ export function CartDrawer() {
             </ul>
             <div className={styles.footer}>
               <div className={styles.subtotal}>
-                <span>Subtotal</span>
+                <span>{t({ en: "Subtotal", de: "Zwischensumme" })}</span>
                 <Price cents={subtotalCents()} />
               </div>
-              <Link to="/cart" onClick={close}><Button variant="ghost" style={{ width: "100%" }}>View cart</Button></Link>
-              <Link to="/checkout" onClick={close}><Button variant="primary" style={{ width: "100%" }}>Checkout</Button></Link>
+              <Link to="/cart" onClick={close}><Button variant="ghost" style={{ width: "100%" }}>{t({ en: "View cart", de: "Warenkorb ansehen" })}</Button></Link>
+              <Link to="/checkout" onClick={close}><Button variant="primary" style={{ width: "100%" }}>{t({ en: "Checkout", de: "Zur Kasse" })}</Button></Link>
             </div>
           </>
             )}
