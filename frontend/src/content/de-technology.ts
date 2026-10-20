@@ -138,11 +138,11 @@ export const DE_TECHNOLOGY: Record<string, string> = {
     "Vom Schleuderguss der Legierungsschmelze bis zur optischen Helium-Prüfung folgt jede Phase strengen deutschen Fertigungsstandards.",
   "Pending patents / ongoing development": "Laufende Entwicklung",
   "DUO-CONE research lab": "DUO-CONE Forschung & Entwicklung",
-  "Continuously testing metallurgy under extreme simulation inside our Engelskirchen facilities.":
+  "Continuously testing metallurgy under extreme simulation inside our Leverkusen facilities.":
     "Wir testen Metallurgie laufend unter extremen Simulationsbedingungen.",
   "[ Validation ]": "[ Prüfung ]",
   "Seal life testing": "Lebensdauerprüfung",
-  "Which tests we run on every duo cone face seal before it leaves Engelskirchen.":
+  "Which tests we run on every duo cone face seal before it leaves Leverkusen.":
     "Diese Prüfungen durchläuft jede Duo-Cone-Laufwerksdichtung, bevor sie unser Haus verlässt.",
   "Manufacturing metallurgy & tribology": "Fertigungsmetallurgie & Tribologie",
   "Every DUO-CONE mechanical face seal is the outcome of specialised metallurgy, proprietary centrifugal casting, precision lapping and rigorous elastomer formulation, designed to resist abrasive slurry, extreme load and high sliding velocities.":

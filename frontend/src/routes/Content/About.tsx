@@ -15,7 +15,7 @@ const PILLARS = [
     n: "01",
     kicker: "Inventory",
     title: "Immediate availability",
-    body: "A comprehensive inventory of standard DO and DF types physically stocked in Engelskirchen, ready to halt field-equipment downtime the day you call.",
+    body: "A comprehensive inventory of standard DO and DF types physically stocked in Leverkusen, ready to halt field-equipment downtime the day you call.",
   },
   {
     n: "02",
@@ -199,7 +199,7 @@ export function About() {
       <Seo
         title={t({ en: pageTitle("About Us – Mechanical Face Seal Specialists"), de: DE_SEO.about.title })}
         description={t({
-          en: "DUO-CONE is a specialised German manufacturer and distributor of heavy-duty mechanical face seals, shipping from Engelskirchen with 24-hour quotations and 24-hour dispatch.",
+          en: "DUO-CONE is a specialised German manufacturer and distributor of heavy-duty mechanical face seals, shipping from Leverkusen with 24-hour quotations and 24-hour dispatch.",
           de: DE_SEO.about.description,
         })}
       />
@@ -230,7 +230,7 @@ export function About() {
 
           <p className={s.lead}>
             {t({
-              en: "DUO-CONE is a specialised German manufacturer and global distributor of heavy-duty mechanical face seals. From our central warehouse in Engelskirchen we keep immediate availability and direct engineering support for customers across Europe and worldwide.",
+              en: "DUO-CONE is a specialised German manufacturer and global distributor of heavy-duty mechanical face seals. From our central warehouse in Leverkusen we keep immediate availability and direct engineering support for customers across Europe and worldwide.",
               de: "DUO-CONE ist ein spezialisierter deutscher Hersteller und weltweiter Distributor von Hochleistungs-Laufwerksdichtungen. Aus unserem Zentrallager halten wir sofortige Verfügbarkeit und direkten technischen Support für Kunden in Europa und weltweit bereit.",
             })}
           </p>
@@ -374,7 +374,7 @@ export function About() {
         <h2 className={s.onDark}>{t({ en: "Let’s engineer your sealing solution.", de: "Lassen Sie uns Ihre Dichtungslösung entwickeln." })}</h2>
         <p className={s.subDark}>
           {t({
-            en: "Send us your OEM part number, sample dimensions or drawing. Our application specialists in Engelskirchen return your quotation within 24 hours.",
+            en: "Send us your OEM part number, sample dimensions or drawing. Our application specialists in Leverkusen return your quotation within 24 hours.",
             de: "Senden Sie uns Ihre OEM-Teilenummer, Musterabmessungen oder eine Zeichnung. Unsere Anwendungsspezialisten senden Ihnen innerhalb von 24 Stunden ein Angebot.",
           })}
         </p>

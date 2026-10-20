@@ -466,7 +466,7 @@ export function Technology() {
         <RevealHead
           kicker="Pending patents / ongoing development"
           title={L("DUO-CONE research lab")}
-          sub="Continuously testing metallurgy under extreme simulation inside our Engelskirchen facilities."
+          sub="Continuously testing metallurgy under extreme simulation inside our Leverkusen facilities."
         />
 
         <motion.div
@@ -504,7 +504,7 @@ export function Technology() {
         <RevealHead
           overline="[ Validation ]"
           title={L("Seal life testing")}
-          sub="Which tests we run on every duo cone face seal before it leaves Engelskirchen."
+          sub="Which tests we run on every duo cone face seal before it leaves Leverkusen."
         />
 
         <motion.div
