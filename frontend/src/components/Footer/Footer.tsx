@@ -101,7 +101,7 @@ export function Footer() {
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
           <div className={styles.legalInfo}>
-            <span>SAP PARTS Europe GmbH</span>
+            <span>{COMPANY.legalName}</span>
             <span aria-hidden="true">·</span>
             <span>Benzstraße 21, 51381 Leverkusen, Germany</span>
             <span aria-hidden="true">·</span>

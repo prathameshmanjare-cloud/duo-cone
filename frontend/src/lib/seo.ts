@@ -79,7 +79,7 @@ export const organizationJsonLd = {
   "@type": "Organization",
   "@id": ORG_ID,
   name: SITE_NAME,
-  legalName: "SAPPARTS Europe GmbH",
+  legalName: COMPANY.legalName,
   url: `${SITE_URL}/`,
   logo: `${SITE_URL}/logo.png`,
   email: COMPANY.email,
