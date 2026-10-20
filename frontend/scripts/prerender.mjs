@@ -41,7 +41,13 @@ const API_URL = process.env.VITE_API_URL ?? "http://localhost:8000/api/v1";
 const SITE_URL = "https://www.duo-cone.com";
 
 const ssr = await import(pathToFileURL(join(ROOT, "dist-ssr", "entry-server.js")).href);
-const template = await readFile(join(DIST, "index.html"), "utf8");
+// dist/index.html is the empty client template right after `vite build` and
+// the prerendered home page afterwards; keep a pristine copy (outside the
+// deployed folder) so the prerender can be re-run on its own
+const TEMPLATE_COPY = join(ROOT, "dist-ssr", "template.html");
+let template = await readFile(join(DIST, "index.html"), "utf8");
+if (template.includes('<div id="root"></div>')) await writeFile(TEMPLATE_COPY, template);
+else template = await readFile(TEMPLATE_COPY, "utf8");
 // client-only pages (cart, checkout, account, admin, ...) stay out of search
 await writeFile(
   join(DIST, "_shell.html"),
@@ -161,6 +167,9 @@ async function main() {
     const route = page > 1 ? `${base}page/${page}/` : base;
     await renderRoute(route, async (qc) => {
       const data = await prefetch(qc, shopQuery({ categorySlug, brand, page }));
+      // admin-written page text shown under the products (first page only)
+      if (page === 1 && brand) await prefetch(qc, ssr.brandQuery(brand), { optional: true });
+      else if (page === 1 && categorySlug) await prefetch(qc, ssr.categoryQuery(categorySlug), { optional: true });
       for (const p of data.items) {
         productSlugs.add(p.slug);
         if (!listingProducts.has(base)) listingProducts.set(base, []);

@@ -96,6 +96,7 @@ _COLUMN_UPGRADES: list[str] = [
     "CREATE UNIQUE INDEX IF NOT EXISTS uq_orders_delivery_note_number ON orders (delivery_note_number)",
     "ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_note JSON",
     "ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_note_sent_at TIMESTAMPTZ",
+    "ALTER TABLE cross_references ADD COLUMN IF NOT EXISTS machine_models VARCHAR(500)",
 ]
 
 

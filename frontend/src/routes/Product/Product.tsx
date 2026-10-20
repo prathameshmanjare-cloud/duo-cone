@@ -14,6 +14,7 @@ import { ProductCard } from "../../components/ProductCard/ProductCard";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import { IconCheck, IconSeal } from "../../components/Icon/Icon";
 import { placeholderWebp } from "../../lib/images";
+import { CrossRefTable } from "../../components/CrossRefTable/CrossRefTable";
 import styles from "./Product.module.css";
 
 export function Product() {
@@ -41,6 +42,12 @@ export function Product() {
   const showImage = Boolean(image) && imgOk;
   const name = clean(product.name);
   const webp = placeholderWebp(image, true);
+  const specRows: [string, string | number | null | undefined][] = [
+    ["Hardness", product.hardness_hrc],
+    ["Lifetime", product.lifetime_hours],
+    ["Warranty", product.warranty_months ? `${product.warranty_months} months` : null],
+    ...product.attributes.map((a) => [a.name, a.value] as [string, string]),
+  ];
   const imageAlt = [product.brand?.name, product.seal_type !== "other" && `${product.seal_type} type`, "mechanical face seal", clean(product.sku)]
     .filter(Boolean)
     .join(" ");
@@ -147,28 +154,17 @@ export function Product() {
         <Button variant="primary" onClick={() => add(product, qty)} disabled={!product.in_stock}>Add to cart</Button>
       </div>
 
-      <section className={styles.section}>
-        <h2>Specifications</h2>
-        <SpecTable
-          rows={[
-            ["Hardness", product.hardness_hrc],
-            ["Lifetime", product.lifetime_hours],
-            ["Warranty", product.warranty_months ? `${product.warranty_months} months` : null],
-            ...product.attributes.map((a) => [a.name, a.value] as [string, string]),
-          ]}
-        />
-      </section>
-
-      {product.cross_references.length > 0 && (
+      {specRows.some(([, v]) => v !== null && v !== undefined && v !== "") && (
         <section className={styles.section}>
-          <h2>Cross-reference / equivalent OEM numbers</h2>
-          <ul className={styles.crossList}>
-            {product.cross_references.map((c, i) => (
-              <li key={i}>{c.ref_brand ? `${c.ref_brand}: ` : ""}{c.ref_number}</li>
-            ))}
-          </ul>
+          <h2>Specifications</h2>
+          <SpecTable rows={specRows} />
         </section>
       )}
+
+      <section className={styles.section}>
+        <h2>OEM cross-reference</h2>
+        <CrossRefTable brand={product.brand?.name} sku={product.sku} refs={product.cross_references} />
+      </section>
 
       {product.description_html && (
         <section className={styles.section}>

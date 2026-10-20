@@ -1,3 +1,5 @@
+import re
+
 import bleach
 
 from app.config.settings import get_settings
@@ -47,6 +49,21 @@ def sanitize_html(raw: str | None) -> str | None:
         protocols={"http", "https", "mailto"},
         strip=True,
     )
+
+
+_BLOCK_TAG = re.compile(r"<(p|ul|ol|h[2-6]|table|div|blockquote)\b", re.IGNORECASE)
+
+
+def rich_text(raw: str | None) -> str | None:
+    """Admin-written text for brand / category pages as safe HTML. Text
+    without block-level tags becomes paragraphs (one per blank-line-separated
+    block); inline tags such as <strong> or <a> are kept, scripts are not."""
+    if not raw or not raw.strip():
+        return None
+    if not _BLOCK_TAG.search(raw):
+        blocks = [b.strip() for b in raw.replace("\r\n", "\n").split("\n\n") if b.strip()]
+        raw = "".join("<p>" + b.replace("\n", "<br>") + "</p>" for b in blocks)
+    return sanitize_html(raw)
 
 
 def _image_url(path: str) -> str:

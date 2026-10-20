@@ -1,8 +1,9 @@
 import { Seo } from "../../components/Seo/Seo";
-import { pageTitle } from "../../lib/seo";
+import { pageTitle, type FaqItem } from "../../lib/seo";
+import { FaqSection } from "../../components/FaqSection/FaqSection";
 import styles from "./Content.module.css";
 
-const FAQS: { category: string; items: { q: string; a: string }[] }[] = [
+const FAQS: { category: string; items: FaqItem[] }[] = [
   {
     category: "Orders",
     items: [
@@ -29,17 +30,7 @@ export function Faq() {
     <div className={styles.page}>
       <Seo title={pageTitle("FAQ – Mechanical Face Seals (Floating Seals)")} description={"Answers about DF and DO type mechanical face seals (floating seals): ordering, cross-references by OEM part number, delivery from Germany, warranty and returns."} />
       <h1>Frequently Asked Questions</h1>
-      {FAQS.map((cat) => (
-        <section key={cat.category} className={styles.section}>
-          <h2>{cat.category}</h2>
-          {cat.items.map((item) => (
-            <details key={item.q} style={{ marginBottom: 8 }}>
-              <summary style={{ cursor: "pointer", fontWeight: 600 }}>{item.q}</summary>
-              <p>{item.a}</p>
-            </details>
-          ))}
-        </section>
-      ))}
+      <FaqSection groups={FAQS.map((cat) => ({ title: cat.category, items: cat.items }))} />
     </div>
   );
 }

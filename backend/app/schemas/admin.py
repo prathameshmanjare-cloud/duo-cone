@@ -341,8 +341,9 @@ class PasswordResetIn(BaseModel):
 # ------------------------------------------------------ product sub-resources ----
 class CrossRefIn(BaseModel):
     ref_number: str = Field(min_length=1, max_length=120)
-    ref_brand: str | None = None
-    note: str | None = None
+    ref_brand: str | None = Field(default=None, max_length=160)
+    machine_models: str | None = Field(default=None, max_length=500)
+    note: str | None = Field(default=None, max_length=300)
 
 
 class CrossRefOut(BaseModel):
@@ -350,6 +351,7 @@ class CrossRefOut(BaseModel):
     id: int
     ref_number: str
     ref_brand: str | None = None
+    machine_models: str | None = None
     note: str | None = None
 
 

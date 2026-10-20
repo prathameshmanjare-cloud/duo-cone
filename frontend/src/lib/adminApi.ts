@@ -313,6 +313,7 @@ export interface CrossRef {
   id: number;
   ref_number: string;
   ref_brand: string | null;
+  machine_models: string | null;
   note: string | null;
 }
 

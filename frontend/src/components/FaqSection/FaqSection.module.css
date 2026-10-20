@@ -1,0 +1,4 @@
+.group { margin-top: var(--space-6); }
+.item { margin-bottom: var(--space-2); }
+.item summary { cursor: pointer; font-weight: 600; }
+.item p { margin: var(--space-2) 0 var(--space-3); }

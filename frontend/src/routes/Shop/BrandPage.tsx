@@ -4,6 +4,9 @@ import { AFTERMARKET_BRANDS, REPLACEMENT_BRANDS, segmentPath, type SegmentSlug }
 import { Shop } from "./Shop";
 import { Seo } from "../../components/Seo/Seo";
 import { pageSuffix, pageTitle } from "../../lib/seo";
+import { useQuery } from "@tanstack/react-query";
+import { RichText } from "../../components/RichText/RichText";
+import { brandQuery } from "../../lib/queries";
 import styles from "./Shop.module.css";
 
 const LABELS = new Map([...REPLACEMENT_BRANDS, ...AFTERMARKET_BRANDS].map((b) => [b.value, b.label]));
@@ -17,6 +20,7 @@ const brandLabel = (slug: string) =>
 export function BrandPage({ segment, brandSlug }: { segment: SegmentSlug; brandSlug: string }) {
   const name = brandLabel(brandSlug);
   const { page } = useParams<{ page?: string }>();
+  const { data: brand } = useQuery({ ...brandQuery(brandSlug), retry: false });
   const intro =
     segment === "replacement"
       ? `${name} mechanical face seals (floating seals, duo cone seals) in DF and DO type, matched to the ${name} part number.`
@@ -38,6 +42,8 @@ export function BrandPage({ segment, brandSlug }: { segment: SegmentSlug; brandS
         <p>{intro}</p>
       </header>
       <Shop categorySlug={segment} brandSlug={brandSlug} embedded />
+      {/* first page only, so pages 2, 3 ... don't repeat it */}
+      {!(Number(page) > 1) && <RichText html={brand?.description_html} />}
     </div>
   );
 }

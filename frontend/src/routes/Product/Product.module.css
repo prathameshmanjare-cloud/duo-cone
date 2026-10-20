@@ -24,12 +24,10 @@
 
 .section { margin-bottom: var(--space-7); }
 .section h2 { font-size: 1.15rem; margin-bottom: var(--space-3); }
-.crossList { columns: 3; font-size: 0.85rem; font-family: var(--font-mono); }
 .relatedGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4); }
 
 @media (max-width: 860px) {
   .grid { grid-template-columns: 1fr; }
-  .crossList { columns: 2; }
   .sticky {
     display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
     background: var(--color-surface); border-top: 1px solid var(--color-border);

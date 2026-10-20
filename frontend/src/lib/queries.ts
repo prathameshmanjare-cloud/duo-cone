@@ -25,6 +25,17 @@ export const relatedQuery = (slug: string) => ({
   queryFn: () => api.getRelated(slug),
 });
 
+// admin-written page text for brand and segment pages (sanitized HTML)
+export const brandQuery = (slug: string) => ({
+  queryKey: ["brand", slug],
+  queryFn: () => api.getBrand(slug),
+});
+
+export const categoryQuery = (slug: string) => ({
+  queryKey: ["category", slug],
+  queryFn: () => api.getCategory(slug),
+});
+
 export const featuredQuery = () => ({
   queryKey: ["products", "featured"],
   queryFn: () => api.listProducts({ page: 1, page_size: 4, sort: "latest" }),
