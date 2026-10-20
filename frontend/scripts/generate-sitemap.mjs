@@ -5,7 +5,7 @@ import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-const SITE_URL = "https://duo-cone.com";
+const SITE_URL = "https://www.duo-cone.com";
 const API_URL = process.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 const STATIC_ROUTES = [
