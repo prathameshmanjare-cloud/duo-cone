@@ -96,6 +96,7 @@ export const organizationJsonLd = {
 export const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
   name: SITE_NAME,
   url: `${SITE_URL}/`,
   publisher: { "@id": ORG_ID },

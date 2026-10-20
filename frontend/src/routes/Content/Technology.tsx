@@ -300,7 +300,7 @@ export function Technology() {
           >
             <figure className={s.scanFrame}>
               <span className={s.ringGlow} aria-hidden="true" />
-              <img src={heroImg} alt="DUO-CONE precision-engineered mechanical face seals" loading="lazy" />
+              <img src={heroImg} alt="DUO-CONE precision-engineered mechanical face seals" width={2000} height={740} loading="lazy" />
               <span className={s.corner} data-c="tl" />
               <span className={s.corner} data-c="tr" />
               <span className={s.corner} data-c="bl" />
@@ -433,7 +433,7 @@ export function Technology() {
               transition={{ type: "spring", stiffness: 260, damping: 22 }}
             >
               <figure className={s.techMedia}>
-                <img src={t.img} alt={t.title} loading="lazy" />
+                <img src={t.img} alt={t.title} width={1200} height={669} loading="lazy" />
                 <span className={s.sheen} aria-hidden="true" />
                 <span className={s.phase}>Phase [{t.n}/06]</span>
                 <span className={s.techTag}>{t.tag}</span>

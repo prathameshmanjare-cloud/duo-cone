@@ -3,6 +3,7 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider, hydrate, type DehydratedState } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
+import "./styles/fonts.css";
 import "./styles/tokens.css";
 import "./index.css";
 import App from "./App.tsx";

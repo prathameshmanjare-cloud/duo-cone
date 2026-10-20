@@ -95,7 +95,7 @@ export function ProductSearch({
                   className={styles.suggestItem}
                   onClick={() => setSuggestOpen(false)}
                 >
-                  {p.image_url && <img src={p.image_url} alt="" />}
+                  {p.image_url && <img src={p.image_url} alt="" width={40} height={40} />}
                   <div className={styles.suggestInfo}>
                     <span className={styles.suggestName}>{p.name}</span>
                     <span className={styles.suggestMeta}>

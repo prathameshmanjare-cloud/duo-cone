@@ -233,7 +233,7 @@ export function Industries() {
               className={`${s.card} ${it.wide ? s.cardWide : ""} ${it.dark ? s.cardDark : ""}`}
             >
               <figure className={s.cardMedia}>
-                <img src={it.img} alt={it.title} loading="lazy" />
+                <img src={it.img} alt={it.title} width={1376} height={768} loading="lazy" />
                 <span className={s.cardIndex}>
                   {it.n} / {it.label}
                 </span>
@@ -349,7 +349,7 @@ export function Industries() {
               <span className={`${s.badge} ${s.badgeBlue}`}>Standard OEM</span>
             </div>
             <figure className={s.typeImg}>
-              <img src={doImg} alt="DUO-CONE DO type seal" loading="lazy" />
+              <img src={doImg} alt="DUO-CONE DO type seal" width={921} height={487} loading="lazy" />
             </figure>
             <dl className={s.spec}>
               <div><dt>Elastomer section</dt><dd>Toric / circular O-ring</dd></div>
@@ -369,7 +369,7 @@ export function Industries() {
               <span className={`${s.badge} ${s.badgeAmber}`}>High pressure</span>
             </div>
             <figure className={s.typeImg}>
-              <img src={dfImg} alt="DUO-CONE DF type seal" loading="lazy" />
+              <img src={dfImg} alt="DUO-CONE DF type seal" width={921} height={487} loading="lazy" />
             </figure>
             <dl className={s.spec}>
               <div><dt>Elastomer section</dt><dd>Diamond / trapezoidal gasket</dd></div>

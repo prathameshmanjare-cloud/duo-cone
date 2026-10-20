@@ -29,7 +29,9 @@ function Img({
       srcSet={`/${name}-sm.webp 900w, /${name}.webp 1600w`}
       sizes={cover ? "100vw" : "(max-width: 700px) 92vw, 62vw"}
       alt={alt}
-      loading="eager"
+      width={1600}
+      height={895}
+      loading="lazy"
       decoding="async"
     />
   );
@@ -208,7 +210,7 @@ export function Hero() {
         {/* chapter copy */}
         <div className={styles.copy}>
           <div className={styles.copyInner}>
-            <span className={styles.kicker}>DO &amp; DF Series · German-engineered</span>
+            <span className={styles.kicker}>German-engineered face seals</span>
             <h2 className={styles.title} aria-label={TITLE}>
               {TITLE.split("").map((c, i) => (
                 <span key={i} className={styles.charWrap} aria-hidden="true">
@@ -217,7 +219,7 @@ export function Hero() {
               ))}
             </h2>
             <p className={styles.sub}>
-              High-pressure mechanical face seals built for the heaviest duty on earth.
+              High-pressure sealing built for the heaviest duty on earth.
             </p>
           </div>
 
@@ -232,7 +234,7 @@ export function Hero() {
           </h2>
 
           <div className={`${styles.chapter} ${styles.c4}`}>
-            <h2>DUO CONE SEALS (DO &amp; DF)</h2>
+            <h2>DUO CONE SEALS for heavy machinery</h2>
             <p>
               Resist wear, abrasion and extreme temperature in hydraulic systems and
               construction equipment.

@@ -40,8 +40,8 @@ export function Footer() {
             <Logo height={30} />
           </div>
           <p>
-            German manufacturer of high-performance mechanical face seals (DF &amp; DO type) for
-            mining, construction, agriculture, forestry and defense.
+            German manufacturer of high-performance mechanical face seals for mining, construction,
+            agriculture, forestry and defense.
           </p>
 
           <div className={styles.quickContacts}>
@@ -84,7 +84,7 @@ export function Footer() {
         </RevealItem>
         <RevealItem className={styles.col}>
           <h2 className={styles.colTitle}>Support</h2>
-          <Link to="/faq/">FAQ</Link>
+          <Link to="/faq/">Common questions</Link>
           <Link to="/shipping/">Shipping</Link>
           <Link to="/returns/">Returns &amp; Refunds</Link>
           <Link to="/rfq/">Request a Quote</Link>
@@ -107,6 +107,11 @@ export function Footer() {
             <span aria-hidden="true">·</span>
             <span>HRB 82724 Cologne District Court, VAT 300917783</span>
           </div>
+          <p className={styles.disclaimer}>
+            OEM brand names or part numbers are shown only to identify compatible parts. They remain
+            trademarks of their owners. Duo Cone is not affiliated with, nor endorsed by, these
+            manufacturers.
+          </p>
           <div className={styles.bottomRow}>
             <span>© {year} DuoCone. All rights reserved.</span>
             <nav>

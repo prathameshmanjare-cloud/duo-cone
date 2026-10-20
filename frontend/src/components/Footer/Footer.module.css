@@ -207,6 +207,13 @@
   padding-bottom: var(--space-3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+.bottomInner .disclaimer {
+  margin: 0;
+  max-width: 760px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #9db6c9;
+}
 .bottomInner .bottomRow {
   display: flex;
   align-items: center;

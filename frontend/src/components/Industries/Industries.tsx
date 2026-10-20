@@ -20,17 +20,17 @@ import tunel from "../../assets/industries/tunel.webp";
 type Item = { name: string; img: string; blurb: string };
 
 const ITEMS: Item[] = [
-  { name: "Mining", img: mining, blurb: "Face seals for excavators & haul trucks in abrasive ground" },
-  { name: "Construction", img: construction, blurb: "Sealing for hydraulic systems on loaders & excavators" },
-  { name: "Agricultural", img: agri, blurb: "Wear-resistant seals for tractors & harvesters" },
-  { name: "Recycling", img: rec, blurb: "Reliable sealing in shredders & baling lines" },
-  { name: "Forestry", img: forest, blurb: "Seals for harvesters & forwarders in mud and debris" },
-  { name: "Military", img: military, blurb: "Defense-grade sealing for tracked & wheeled vehicles" },
-  { name: "Heavy Engineering", img: heavy, blurb: "Custom face seals for gearboxes & drivetrains" },
-  { name: "Cement Milling", img: cement, blurb: "Sealing for mills & kilns under dust and heat" },
-  { name: "Waste Water", img: water, blurb: "Corrosion-resistant seals for pumps & treatment plants" },
-  { name: "Undercarriage", img: uc, blurb: "Track roller & idler seals for crawler machines" },
-  { name: "Pump & Valves", img: pump, blurb: "Face seals for industrial pumps & valve actuators" },
+  { name: "Mining", img: mining, blurb: "Sealing for excavators and haul trucks in abrasive ground" },
+  { name: "Construction", img: construction, blurb: "Sealing for hydraulic systems on loaders and excavators" },
+  { name: "Agricultural", img: agri, blurb: "Wear-resistant seals for tractors and harvesters" },
+  { name: "Recycling", img: rec, blurb: "Reliable sealing in shredders and baling lines" },
+  { name: "Forestry", img: forest, blurb: "Seals for harvesters and forwarders in mud and debris" },
+  { name: "Military", img: military, blurb: "Defense-grade sealing for tracked and wheeled vehicles" },
+  { name: "Heavy Engineering", img: heavy, blurb: "Custom face seals for gearboxes and drivetrains" },
+  { name: "Cement Milling", img: cement, blurb: "Sealing for mills and kilns under dust and heat" },
+  { name: "Waste Water", img: water, blurb: "Corrosion-resistant seals for pumps and treatment plants" },
+  { name: "Undercarriage", img: uc, blurb: "Track roller and idler seals for crawler machines" },
+  { name: "Pump & Valves", img: pump, blurb: "Face seals for industrial pumps and valve actuators" },
   { name: "Tunnel Boring", img: tunel, blurb: "Main-drive sealing for TBM cutter heads" },
 ];
 
@@ -171,7 +171,16 @@ export function Industries() {
                 tabIndex={hidden ? -1 : 0}
                 onClick={() => (isActive ? undefined : setActive(i))}
               >
-                <img src={it.img} alt={`${it.name} equipment`} className={styles.shot} draggable={false} />
+                <img
+                  src={it.img}
+                  alt={`${it.name} equipment`}
+                  className={styles.shot}
+                  width={1230}
+                  height={820}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
                 <span className={styles.cardScrim} aria-hidden="true" />
                 <span className={styles.cardNum} aria-hidden="true">
                   {String(i + 1).padStart(2, "0")}
