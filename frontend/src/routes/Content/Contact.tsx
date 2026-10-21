@@ -238,7 +238,7 @@ export function Contact() {
           </div>
 
           <div className={styles.madeIn}>
-            <span className={styles.flag} aria-hidden="true" />{L("Engineered & made in Germany")}</div>
+            <span className={styles.flag} aria-hidden="true" />{L("Stocked & shipped from Germany")}</div>
         </aside>
       </div>
     </div>

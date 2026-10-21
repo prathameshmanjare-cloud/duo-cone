@@ -211,7 +211,7 @@ export function Hero() {
         {/* chapter copy */}
         <div className={styles.copy}>
           <div className={styles.copyInner}>
-            <span className={styles.kicker}>{t({ en: "German-engineered face seals", de: "Laufwerksdichtungen aus deutscher Entwicklung" })}</span>
+            <span className={styles.kicker}>{t({ en: "Stocked & shipped from Germany", de: "Lager & Versand ab Deutschland" })}</span>
             <h2 className={styles.title} aria-label={TITLE}>
               {TITLE.split("").map((c, i) => (
                 <span key={i} className={styles.charWrap} aria-hidden="true">

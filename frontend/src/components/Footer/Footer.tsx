@@ -42,8 +42,8 @@ export function Footer() {
           </div>
           <p>
             {t({
-              en: "German manufacturer of high-performance mechanical face seals for mining, construction, agriculture, forestry and defense.",
-              de: "Deutscher Hersteller von Hochleistungs-Laufwerksdichtungen für Bergbau, Bau, Landwirtschaft, Forst und Verteidigung.",
+              en: "German specialist for high-performance mechanical face seals for mining, construction, agriculture, forestry and defense, stocked and shipped from Germany.",
+              de: "Deutscher Spezialist für Hochleistungs-Laufwerksdichtungen für Bergbau, Bau, Landwirtschaft, Forst und Verteidigung – Lager und Versand ab Deutschland.",
             })}
           </p>
 
@@ -59,7 +59,7 @@ export function Footer() {
           <div className={styles.badges}>
             <span className={styles.madeIn}>
               <span className={styles.flag} aria-hidden="true" />
-              Made in Germany
+              {t({ en: "Shipped from Germany", de: "Versand ab Deutschland" })}
             </span>
             <a
               className={styles.social}

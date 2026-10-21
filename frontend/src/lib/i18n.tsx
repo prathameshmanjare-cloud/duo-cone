@@ -23,6 +23,8 @@ const PREFIXES: [en: string, de: string][] = [
   ["/contact/", "/de/kontakt/"],
   ["/faq/", "/de/faq/"],
   ["/rfq/", "/de/anfrage/"],
+  ["/shipping/", "/de/versand/"],
+  ["/returns/", "/de/rueckgabe/"],
 ];
 
 export const langOf = (pathname: string): Lang => (/^\/de(\/|$)/.test(pathname) ? "de" : "en");

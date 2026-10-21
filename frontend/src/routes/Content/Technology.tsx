@@ -216,7 +216,12 @@ function CountUp({ to, decimals, suffix }: { to: number; decimals: number; suffi
   const inView = useInView(ref, { once: true, amount: 0.6 });
   const reduce = useReducedMotion();
   const mv = useMotionValue(0);
-  const [text, setText] = useState(() => (0).toFixed(decimals) + suffix);
+  // the prerendered HTML carries the final value; after hydration it drops
+  // to 0 so the count-up can run on reveal
+  const [text, setText] = useState(() => to.toFixed(decimals) + suffix);
+  useEffect(() => {
+    if (!reduce) setText((0).toFixed(decimals) + suffix);
+  }, [reduce, decimals, suffix]);
 
   useEffect(() => {
     if (reduce) {
@@ -419,7 +424,7 @@ export function Technology() {
         <RevealHead
           overline="[ Process architecture ]"
           title={L("The 6 core technologies")}
-          sub="From molten-alloy centrifugal pouring to optical helium testing, every phase reflects rigorous German manufacturing standards."
+          sub="From molten-alloy centrifugal pouring to optical helium testing, every phase follows rigorous manufacturing standards."
         />
 
         <motion.div

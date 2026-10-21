@@ -51,7 +51,13 @@ export function Product() {
   const name = productName(product.name, lang);
   const descriptionHtml = lang === "de" ? (deDescriptionHtml(product.description_html) ?? product.description_html) : product.description_html;
   const webp = placeholderWebp(image, true);
+  const mm = (v: number | null | undefined) => (v ? `${v.toLocaleString(lang === "de" ? "de-DE" : "en-US")} mm` : null);
   const specRows: [string, string | number | null | undefined][] = [
+    [t({ en: "Inner diameter (ID)", de: "Innendurchmesser (ID)" }), mm(product.inner_diameter_mm)],
+    [t({ en: "Outer diameter (OD)", de: "Außendurchmesser (AD)" }), mm(product.outer_diameter_mm)],
+    [t({ en: "Height", de: "Höhe" }), mm(product.height_mm)],
+    [t({ en: "Seal material", de: "Dichtringwerkstoff" }), product.material],
+    [t({ en: "O-ring material", de: "O-Ring-Werkstoff" }), product.oring_material],
     [t({ en: "Hardness", de: "Härte" }), product.hardness_hrc],
     [t({ en: "Lifetime", de: "Lebensdauer" }), product.lifetime_hours],
     [t({ en: "Warranty", de: "Gewährleistung" }), product.warranty_months ? t({ en: `${product.warranty_months} months`, de: `${product.warranty_months} Monate` }) : null],
