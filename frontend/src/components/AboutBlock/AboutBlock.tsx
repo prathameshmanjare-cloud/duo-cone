@@ -32,7 +32,11 @@ const STATS = {
   ],
 };
 
-const CERTS = ["ISO 9001", "RoHS", "REACH", "CE"];
+// service facts, not certifications: no certificate is claimed without proof
+const PROMISES = {
+  en: ["24 h quotation", "24-month warranty", "Stock in Leverkusen", "Shipping across Europe"],
+  de: ["Angebot in 24 h", "24 Monate Gewährleistung", "Lager in Leverkusen", "Versand in ganz Europa"],
+};
 
 export function AboutBlock() {
   const reduce = useReducedMotion();
@@ -115,9 +119,9 @@ export function AboutBlock() {
           </div>
 
           <div className={styles.trust}>
-            <span className={styles.trustLabel}>{t({ en: "Certified", de: "Zertifiziert" })}</span>
+            <span className={styles.trustLabel}>{t({ en: "Our promise", de: "Unser Versprechen" })}</span>
             <ul>
-              {CERTS.map((c) => (
+              {t(PROMISES).map((c) => (
                 <li key={c}>{c}</li>
               ))}
             </ul>

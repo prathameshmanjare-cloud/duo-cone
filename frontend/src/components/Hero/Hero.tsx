@@ -267,8 +267,8 @@ export function Hero() {
             <span>{t({ en: "temperature range", de: "Temperaturbereich" })}</span>
           </div>
           <div className={styles.spec}>
-            <b>DIN EN ISO 9001</b>
-            <span>{t({ en: "manufactured", de: "gefertigt" })}</span>
+            <b>24 h</b>
+            <span>{t({ en: "dispatch from Germany", de: "Versand ab Deutschland" })}</span>
           </div>
         </div>
 
