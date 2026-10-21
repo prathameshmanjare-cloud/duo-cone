@@ -142,9 +142,14 @@ function useInViewOnce<T extends Element>() {
 }
 
 function StatCount({ to, run }: { to: number; run: boolean }) {
-  const [n, setN] = useState(0);
+  // the prerendered HTML carries the final number; after hydration it drops
+  // to 0 so the count-up can run when the stats scroll into view
+  const [n, setN] = useState(to);
   const reduce =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  useEffect(() => {
+    if (!reduce) setN(0);
+  }, [reduce]);
   useEffect(() => {
     if (!run) return;
     if (reduce || typeof requestAnimationFrame === "undefined") {
@@ -199,7 +204,7 @@ export function About() {
       <Seo
         title={t({ en: pageTitle("About Us – Mechanical Face Seal Specialists"), de: DE_SEO.about.title })}
         description={t({
-          en: "DUO-CONE is a specialised German manufacturer and distributor of heavy-duty mechanical face seals, shipping from Leverkusen with 24-hour quotations and 24-hour dispatch.",
+          en: "DUO-CONE is a specialised German supplier and distributor of heavy-duty mechanical face seals, shipping from Leverkusen with 24-hour quotations and 24-hour dispatch.",
           de: DE_SEO.about.description,
         })}
       />
@@ -209,7 +214,7 @@ export function About() {
         <span className={s.gridDeco} aria-hidden="true" />
         <div className={s.heroInner}>
           <span className={s.pill}>
-            <span className={s.dot} /> {t({ en: "German engineering since day one", de: "Deutsche Ingenieurskunst vom ersten Tag an" })}
+            <span className={s.dot} /> {t({ en: "German-engineered support since day one", de: "Technischer Support aus Deutschland vom ersten Tag an" })}
           </span>
           <h1 className={s.h1}>
             {t({ en: "Precision & availability.", de: "Präzision & Verfügbarkeit." })}
@@ -218,20 +223,20 @@ export function About() {
           </h1>
 
           <figure className={s.scanFrame}>
-            <img src={heroImg} alt={t({ en: "DUO-CONE heavy-duty mechanical face seals engineered in Germany", de: "DUO-CONE-Laufwerksdichtungen für schwere Einsätze, entwickelt in Deutschland" })} width={1230} height={820} loading="lazy" />
+            <img src={heroImg} alt={t({ en: "DUO-CONE heavy-duty mechanical face seals", de: "DUO-CONE-Laufwerksdichtungen für schwere Einsätze" })} width={1230} height={820} loading="lazy" />
             <span className={s.corner} data-c="tl" />
             <span className={s.corner} data-c="tr" />
             <span className={s.corner} data-c="bl" />
             <span className={s.corner} data-c="br" />
             <span className={s.scanLine} aria-hidden="true" />
-            <span className={s.scanTag}>{t({ en: "Live metrology bench · Station 04 · Germany", de: "Messplatz live · Station 04 · Deutschland" })}</span>
+            <span className={s.scanTag}>{t({ en: "Live metrology bench · Station 04", de: "Messplatz live · Station 04" })}</span>
             <span className={s.scanMeta}>{t({ en: "Alloy: Ni-Hard / 15Cr-3Mo · Hardness 60–66 HRC", de: "Legierung: Ni-Hard / 15Cr-3Mo · Härte 60–66 HRC" })}</span>
           </figure>
 
           <p className={s.lead}>
             {t({
-              en: "DUO-CONE is a specialised German manufacturer and global distributor of heavy-duty mechanical face seals. From our central warehouse in Leverkusen we keep immediate availability and direct engineering support for customers across Europe and worldwide.",
-              de: "DUO-CONE ist ein spezialisierter deutscher Hersteller und weltweiter Distributor von Hochleistungs-Laufwerksdichtungen. Aus unserem Zentrallager halten wir sofortige Verfügbarkeit und direkten technischen Support für Kunden in Europa und weltweit bereit.",
+              en: "DUO-CONE is a specialised German supplier and global distributor of heavy-duty mechanical face seals. From our central warehouse in Leverkusen we keep immediate availability and direct engineering support for customers across Europe and worldwide.",
+              de: "DUO-CONE ist ein spezialisierter deutscher Anbieter und weltweiter Distributor von Hochleistungs-Laufwerksdichtungen. Aus unserem Zentrallager halten wir sofortige Verfügbarkeit und direkten technischen Support für Kunden in Europa und weltweit bereit.",
             })}
           </p>
 

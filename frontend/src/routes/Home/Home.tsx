@@ -40,7 +40,7 @@ export function Home() {
       <Seo
         title={t({ en: "Mechanical Face Seals, DF & DO Type | Duo Cone Germany", de: DE_SEO.home.title })}
         description={t({
-          en: "German-made DF and DO mechanical face seals for mining, construction and farm machinery. Quotes and dispatch within 24 hours.",
+          en: "DF and DO mechanical face seals for mining, construction and farm machinery, stocked and shipped from Germany. Quotes and dispatch within 24 hours.",
           de: DE_SEO.home.description,
         })}
         jsonLd={[webPageJsonLd(lang)]}

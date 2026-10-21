@@ -21,6 +21,8 @@ export function CrossRefTable({
     { brand: brand ?? "", part: clean(sku) },
     ...refs.map((r) => ({ brand: r.ref_brand ?? "", part: clean(r.ref_number), models: r.machine_models })),
   ];
+  // no column of dashes while no machine models are entered yet
+  const hasModels = rows.some((r) => r.models);
   return (
     <div className={styles.wrap}>
       <table className={styles.table}>
@@ -28,7 +30,7 @@ export function CrossRefTable({
           <tr>
             <th scope="col">{t({ en: "OEM brand", de: "OEM-Marke" })}</th>
             <th scope="col">{t({ en: "Part number", de: "Teilenummer" })}</th>
-            <th scope="col">{t({ en: "Machine models", de: "Maschinenmodelle" })}</th>
+            {hasModels && <th scope="col">{t({ en: "Machine models", de: "Maschinenmodelle" })}</th>}
           </tr>
         </thead>
         <tbody>
@@ -36,7 +38,7 @@ export function CrossRefTable({
             <tr key={i}>
               <td>{r.brand || "—"}</td>
               <td className={styles.part}>{r.part}</td>
-              <td>{r.models ? clean(r.models) : "—"}</td>
+              {hasModels && <td>{r.models ? clean(r.models) : "—"}</td>}
             </tr>
           ))}
         </tbody>

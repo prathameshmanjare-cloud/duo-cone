@@ -23,7 +23,7 @@ export const DE_SEO = {
   },
   "about": {
     "title": "Über uns – Spezialist für Laufwerksdichtungen | Duo Cone",
-    "description": "DUO-CONE ist ein deutscher Hersteller und Distributor von Laufwerksdichtungen für schwere Maschinen – mit Angeboten und Versand innerhalb von 24 Stunden.",
+    "description": "DUO-CONE ist ein deutscher Spezialist und Distributor für Laufwerksdichtungen schwerer Maschinen – Lager und Versand ab Deutschland, Angebote innerhalb von 24 Stunden.",
     "h1": "Präzision & Verfügbarkeit. Direkt aus Deutschland."
   },
   "technology": {

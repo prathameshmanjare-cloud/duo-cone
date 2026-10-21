@@ -21,7 +21,10 @@ const STATS: Stat[] = [
 const DURATION = 900;
 
 function CountUp({ stat, start, locale }: { stat: Stat; start: boolean; locale: string }) {
-  const [n, setN] = useState(0);
+  // the final number in the prerendered HTML, so crawlers and no-JS readers
+  // see "12h" rather than "0h"; the items stay hidden until the count-up
+  // restarts from 0 on reveal
+  const [n, setN] = useState(stat.value);
   const prefersReduced =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

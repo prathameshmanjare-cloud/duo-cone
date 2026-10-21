@@ -74,23 +74,23 @@ export function AboutBlock() {
         <div className={styles.content}>
           <span className={styles.kicker}>
             <span className={styles.flagStripe} aria-hidden="true" />
-            Made in Germany
+            {t({ en: "Stocked & shipped from Germany", de: "Lager & Versand ab Deutschland" })}
           </span>
           <h2 id="about-heading">
             {lang === "de" ? (
               <>
-                <span>Führender</span> <span>deutscher</span> <span>Hersteller</span>
+                <span>Ihr</span> <span>Spezialist</span> <span>aus Deutschland</span>
               </>
             ) : (
               <>
-                <span>Leading</span> <span>German</span> <span>producer</span>
+                <span>Your</span> <span>German</span> <span>specialist</span>
               </>
             )}
           </h2>
           <p className={styles.lead}>
             {t({
-              en: "We are a German manufacturer of high-performance mechanical face seals. With years of experience and advanced technology, we deliver durable, wear-resistant solutions for mining, construction, agriculture, and defense.",
-              de: "Wir sind ein deutscher Hersteller von Hochleistungs-Laufwerksdichtungen. Mit langjähriger Erfahrung und moderner Technik liefern wir langlebige, verschleißfeste Lösungen für Bergbau, Bau, Landwirtschaft und Verteidigung.",
+              en: "We are a German specialist for high-performance mechanical face seals. With years of experience and German-engineered support, we deliver durable, wear-resistant solutions for mining, construction, agriculture, and defense, stocked and shipped from Germany.",
+              de: "Wir sind ein deutscher Spezialist für Hochleistungs-Laufwerksdichtungen. Mit langjähriger Erfahrung und technischem Support aus Deutschland liefern wir langlebige, verschleißfeste Lösungen für Bergbau, Bau, Landwirtschaft und Verteidigung – mit Lager und Versand ab Deutschland.",
             })}
           </p>
 
@@ -182,7 +182,7 @@ export function AboutBlock() {
 
           <span className={styles.titleBlock}>
             <b>{t({ en: "DUO CONE · DF TYPE", de: "DUO CONE · TYP DF" })}</b>
-            <span>MADE IN GERMANY · DIN ISO 2768&#8209;m · SHEET 1/1</span>
+            <span>DIN ISO 2768&#8209;m · SHEET 1/1</span>
           </span>
         </motion.div>
       </div>

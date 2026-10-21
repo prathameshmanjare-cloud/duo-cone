@@ -27,7 +27,7 @@ export const DE_CONTACT: Record<string, string> = {
   "Working hours": "Erreichbarkeit",
   "Mon – Fri · 08:00 – 18:00 CET": "Mo – Fr · 08:00 – 18:00 MEZ",
   "Follow DUO-CONE": "DUO-CONE folgen",
-  "Engineered & made in Germany": "Entwickelt & gefertigt in Deutschland",
+  "Stocked & shipped from Germany": "Lager & Versand ab Deutschland",
   "Enter your name": "Bitte Namen eingeben",
   "Enter your email": "Bitte E-Mail-Adresse eingeben",
   "Enter a valid email": "Bitte gültige E-Mail-Adresse eingeben",

@@ -103,6 +103,8 @@ export default function App() {
           <Route path="/de/kontakt" element={<Contact />} />
           <Route path="/de/faq" element={<Faq />} />
           <Route path="/de/anfrage" element={<Rfq />} />
+          <Route path="/de/versand" element={<Shipping />} />
+          <Route path="/de/rueckgabe" element={<Returns />} />
 
           <Route path="*" element={<NotFound />} />
         </Route>

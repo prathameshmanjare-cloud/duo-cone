@@ -134,8 +134,8 @@ export const DE_TECHNOLOGY: Record<string, string> = {
   "Seal components": "Dichtungsbauteile",
   "[ Process architecture ]": "[ Fertigung ]",
   "The 6 core technologies": "Die 6 Kerntechnologien",
-  "From molten-alloy centrifugal pouring to optical helium testing, every phase reflects rigorous German manufacturing standards.":
-    "Vom Schleuderguss der Legierungsschmelze bis zur optischen Helium-Prüfung folgt jede Phase strengen deutschen Fertigungsstandards.",
+  "From molten-alloy centrifugal pouring to optical helium testing, every phase follows rigorous manufacturing standards.":
+    "Vom Schleuderguss der Legierungsschmelze bis zur optischen Helium-Prüfung folgt jede Phase strengen Fertigungsstandards.",
   "Pending patents / ongoing development": "Laufende Entwicklung",
   "DUO-CONE research lab": "DUO-CONE Forschung & Entwicklung",
   "Continuously testing metallurgy under extreme simulation inside our Leverkusen facilities.":

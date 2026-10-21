@@ -1,31 +1,54 @@
+import { useT } from "../../lib/i18n";
 import { StaticPage } from "./StaticPage";
 
 export { About } from "./About";
 export { Technology } from "./Technology";
 export { Industries } from "./Industries";
 
-export const Shipping = () => (
-  <StaticPage
-    title="Shipping"
-    sections={[
-      { heading: "Delivery timelines", body: "Orders ship within 24 hours from our German warehouse." },
-      { heading: "Shipping charges", body: "Germany: €12 flat, plus 19% VAT. Rest of Europe: €25 flat." },
-      { heading: "Serviceable locations", body: "Direct orders ship to Germany and the rest of Europe. Outside Europe, please send an enquiry and we will quote shipping for you." },
-      { heading: "Tracking", body: "A tracking link is emailed as soon as your order ships." },
-    ]}
-  />
-);
+// shipping and returns also have German pages (/de/versand/, /de/rueckgabe/)
+export const Shipping = () => {
+  const t = useT();
+  return (
+    <StaticPage
+      title={t({ en: "Shipping", de: "Versand" })}
+      sections={t({
+        en: [
+          { heading: "Delivery timelines", body: "Orders ship within 24 hours from our German warehouse." },
+          { heading: "Shipping charges", body: "Germany: €12 flat, plus 19% VAT. Rest of Europe: €25 flat." },
+          { heading: "Serviceable locations", body: "Direct orders ship to Germany and the rest of Europe. Outside Europe, please send an enquiry and we will quote shipping for you." },
+          { heading: "Tracking", body: "A tracking link is emailed as soon as your order ships." },
+        ],
+        de: [
+          { heading: "Lieferzeiten", body: "Bestellungen werden innerhalb von 24 Stunden aus unserem Lager in Deutschland versendet." },
+          { heading: "Versandkosten", body: "Deutschland: pauschal 12 €, zzgl. 19 % MwSt. Übriges Europa: pauschal 25 €." },
+          { heading: "Liefergebiete", body: "Direktbestellungen liefern wir nach Deutschland und in das übrige Europa. Für Lieferungen außerhalb Europas senden Sie uns bitte eine Anfrage; wir nennen Ihnen dann die Versandkosten." },
+          { heading: "Sendungsverfolgung", body: "Sobald Ihre Bestellung versendet ist, erhalten Sie einen Link zur Sendungsverfolgung per E-Mail." },
+        ],
+      })}
+    />
+  );
+};
 
-export const Returns = () => (
-  <StaticPage
-    title="Returns & Refunds"
-    sections={[
-      { heading: "Return policy", body: "Unused seals in original packaging may be returned within 14 days of delivery." },
-      { heading: "Damaged products", body: "Report damaged items within 48 hours of delivery with photos for a replacement or refund." },
-      { heading: "Cancellation", body: "Orders can be cancelled before shipment; contact support as soon as possible." },
-    ]}
-  />
-);
+export const Returns = () => {
+  const t = useT();
+  return (
+    <StaticPage
+      title={t({ en: "Returns & Refunds", de: "Rückgabe & Erstattung" })}
+      sections={t({
+        en: [
+          { heading: "Return policy", body: "Unused seals in original packaging may be returned within 14 days of delivery." },
+          { heading: "Damaged products", body: "Report damaged items within 48 hours of delivery with photos for a replacement or refund." },
+          { heading: "Cancellation", body: "Orders can be cancelled before shipment; contact support as soon as possible." },
+        ],
+        de: [
+          { heading: "Rückgaberegelung", body: "Unbenutzte Dichtungen in Originalverpackung können innerhalb von 14 Tagen nach Lieferung zurückgegeben werden." },
+          { heading: "Beschädigte Ware", body: "Melden Sie beschädigte Artikel bitte innerhalb von 48 Stunden nach Lieferung mit Fotos; Sie erhalten Ersatz oder eine Erstattung." },
+          { heading: "Stornierung", body: "Bestellungen können bis zum Versand storniert werden; wenden Sie sich dazu bitte so früh wie möglich an unseren Kundenservice." },
+        ],
+      })}
+    />
+  );
+};
 
 export const LegalNotice = () => (
   <StaticPage
